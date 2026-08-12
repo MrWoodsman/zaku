@@ -1,59 +1,21 @@
 const express = require("express");
 const path = require("path");
+const fs = require("fs");
 const { initDB } = require("./db");
-
-// IMPORT ROUTEROW (Nowe ścieżki!)
-const listsRoutes = require("./routes/v1/lists.routes");
-const itemsRoutes = require("./routes/v1/items.routes");
-const recipesRoutes = require("./routes/v1/recipes.routes");
-
-const app = express();
-app.use(express.json());
-
-let db;
+const { createApp } = require("./app");
 
 async function startServer() {
   try {
-    db = await initDB();
+    const db = await initDB();
 
     // TWORZENIE FODLERU DO PRZECHOWYWANIA ZDJEC
-    const fs = require("fs");
     const uploadDir = path.join(__dirname, "uploads", "recipes");
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
       console.log("Utworzono brakujący katalog na zdjęcia: uploads/recipes");
     }
 
-    app.use((req, res, next) => {
-      req.db = db;
-      next();
-    });
-
-    app.use(async (req, res, next) => {
-      const groupId = req.headers["x-group-id"];
-      if (!groupId) return next();
-      try {
-        const existing = await req.db.get(`SELECT id FROM groups WHERE id = ?`, [groupId]);
-        if (!existing) {
-          console.log(`[GROUPS] Tworzenie nowej grupy: ${groupId}`);
-          await req.db.run(`INSERT INTO groups (id, name) VALUES (?, ?)`, [groupId, groupId]);
-        }
-        return next();
-      } catch (err) {
-        console.error("Błąd podczas sprawdzania/tworzenia grupy:", err);
-        return res.status(500).json({ message: "Błąd serwera" });
-      }
-    });
-
-    app.use("/images", express.static(path.join(__dirname, "uploads")));
-
-    app.use("/api/v1/lists", listsRoutes);
-    app.use("/api/v1/items", itemsRoutes);
-    app.use("/api/v1/recipes", recipesRoutes);
-
-    app.get("/api/test", (req, res) => {
-      res.json({ message: "Działa V1!" });
-    });
+    const app = createApp(db);
 
     const frontendPath = path.join(__dirname, "../frontend/dist");
     app.use(express.static(frontendPath));
@@ -62,7 +24,7 @@ async function startServer() {
       res.sendFile(path.join(frontendPath, "index.html"));
     });
 
-    const PORT = 3000;
+    const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => console.log(`Serwer działa na http://localhost:${PORT}`));
   } catch (error) {
     console.error("Błąd podczas startu serwera/bazy:", error);
