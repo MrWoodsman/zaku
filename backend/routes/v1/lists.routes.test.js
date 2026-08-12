@@ -3,22 +3,23 @@ import request from "supertest";
 import { createApp } from "../../app.js";
 import { initDB } from "../../db.js";
 
-// WZORZEC: przed KAŻDYM testem odpalamy świeżą, pustą bazę w pamięci (":memory:"),
-// żeby testy nie wpływały na siebie nawzajem ani na Twoją prawdziwą bazę z danymi.
+// WZORZEC: beforeEach/afterEach TUTAJ, poza wszystkimi describe = odpala sie
+// przed/po KAZDYM tescie w calym pliku. Kazdy describe ponizej (jeden na endpoint)
+// dostaje wiec swiezy "app" i "db" bez powtarzania tego samego setupu.
+let app;
+let db;
+
+beforeEach(async () => {
+  process.env.DB_PATH = ":memory:";
+  db = await initDB();
+  app = createApp(db);
+});
+
+afterEach(async () => {
+  await db.close();
+});
+
 describe("POST /api/v1/lists", () => {
-  let app;
-  let db;
-
-  beforeEach(async () => {
-    process.env.DB_PATH = ":memory:";
-    db = await initDB();
-    app = createApp(db);
-  });
-
-  afterEach(async () => {
-    await db.close();
-  });
-
   it("zwraca 401, gdy brakuje nagłówka x-group-id", async () => {
     const res = await request(app).post("/api/v1/lists").send({ name: "Zakupy" });
 
@@ -46,5 +47,62 @@ describe("POST /api/v1/lists", () => {
 
     expect(res.status).toBe(201);
     expect(res.body.list.name).toBe("Nowa lista");
+  });
+});
+
+describe("GET /api/v1/lists", () => {
+  it("zwraca 401, gdy brakuje nagłówka x-group-id", async () => {
+    const res = await request(app).get("/api/v1/lists");
+
+    expect(res.status).toBe(401);
+  });
+
+  it("zwraca puste [], gdy grupa nie ma jeszcze żadnych list", async () => {
+    const res = await request(app).get("/api/v1/lists").set("x-group-id", "test-grupa");
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual([]);
+  });
+
+  it("nie widzi list należących do innej grupy", async () => {
+    await request(app)
+      .post("/api/v1/lists")
+      .set("x-group-id", "grupa-A")
+      .send({ name: "Lista grupy A" });
+
+    const res = await request(app).get("/api/v1/lists").set("x-group-id", "grupa-B");
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual([]);
+  });
+});
+
+describe("GET /api/v1/lists/:id", () => {
+  it("zwraca 401, gdy brakuje nagłówka x-group-id", async () => {
+    const res = await request(app).get("/api/v1/lists/5");
+
+    expect(res.status).toBe(401);
+  });
+
+  it("zwraca 404, gdy lista o podanym id nie istnieje", async () => {
+    const res = await request(app)
+      .get("/api/v1/lists/nieistniejace-id")
+      .set("x-group-id", "test-grupa");
+
+    expect(res.status).toBe(404);
+  });
+
+  it("nie widzi zawartości listy należącej do innej grupy", async () => {
+    // Najpierw tworzymy prawdziwą listę i bierzemy jej id z odpowiedzi -
+    // nie da się "z góry" wymyślić id, bo generuje je backend (randomUUID)
+    const createRes = await request(app)
+      .post("/api/v1/lists")
+      .set("x-group-id", "grupa-A")
+      .send({ name: "Lista grupy A" });
+    const listId = createRes.body.list.id;
+
+    const res = await request(app).get(`/api/v1/lists/${listId}`).set("x-group-id", "grupa-B");
+
+    expect(res.status).toBe(404);
   });
 });
