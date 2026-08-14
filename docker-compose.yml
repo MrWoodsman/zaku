@@ -1,0 +1,17 @@
+services:
+  app:
+    build: .
+    container_name: zaku
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      DB_PATH: ./data/database.sqlite
+    volumes:
+      - shopping-data:/app/backend/data
+      - shopping-uploads:/app/backend/uploads
+
+volumes:
+  shopping-data:
+  shopping-uploads:

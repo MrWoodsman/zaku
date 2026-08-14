@@ -1,0 +1,13 @@
+**/node_modules
+frontend/dist
+frontend/dev-dist
+backend/data
+backend/uploads
+**/.env
+**/.env.*
+!**/.env.example
+.git
+.gitignore
+*.md
+.vscode
+.idea

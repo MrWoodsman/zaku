@@ -15,8 +15,8 @@ export default defineConfig({
       },
       registerType: "autoUpdate", // automatycznie odświeża apkę, jak zmienisz kod
       manifest: {
-        name: "Lista Zakupów", // możesz zmienić np. na "ZeroWaste"
-        short_name: "Zakupy",
+        name: "Zaku",
+        short_name: "Zaku",
         description: "Domowa lista zakupów",
         theme_color: "#09090b",
         background_color: "#09090b",
@@ -50,11 +50,11 @@ export default defineConfig({
     allowedHosts: ["dev.mrwoodsman.pl"],
     proxy: {
       "/api": {
-        target: "http://192.168.0.90:3000",
+        target: "http://localhost:3000",
         changeOrigin: true,
       },
       "/images": {
-        target: "http://192.168.0.90:3000",
+        target: "http://localhost:3000",
         changeOrigin: true,
       },
     },
