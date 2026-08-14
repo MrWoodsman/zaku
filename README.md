@@ -1,89 +1,89 @@
 # Zaku
 
-Domowa lista zakupów jako progresywna aplikacja webowa (PWA). Zero logowania, zero kont - grupa domowników łączy się jednym kodem i widzi te same listy zakupów oraz przepisy. Z przepisu jednym kliknięciem dorzucasz brakujące składniki na listę zakupów.
+A home shopping list as a Progressive Web App (PWA). No login, no accounts — a household joins with a single shared code and everyone sees the same shopping lists and recipes. Add missing ingredients from a recipe straight to a shopping list with one tap.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D20-339933?logo=node.js&logoColor=white)](https://nodejs.org)
-[![Docker](https://img.shields.io/badge/docker-ready-2496ED?logo=docker&logoColor=white)](#szybki-start-docker)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](#współtworzenie-projektu)
+[![Docker](https://img.shields.io/badge/docker-ready-2496ED?logo=docker&logoColor=white)](#quick-start-docker)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](#contributing)
 
-## Spis treści
+## Table of contents
 
-- [O projekcie](#o-projekcie)
-- [Funkcje](#funkcje)
-- [Stack technologiczny](#stack-technologiczny)
-- [Struktura repo](#struktura-repo)
-- [Szybki start (Docker)](#szybki-start-docker)
-- [Instalacja deweloperska (bez Dockera)](#instalacja-deweloperska-bez-dockera)
-- [Zmienne środowiskowe](#zmienne-środowiskowe)
-- [Testy](#testy)
+- [About the project](#about-the-project)
+- [Features](#features)
+- [Tech stack](#tech-stack)
+- [Repo structure](#repo-structure)
+- [Quick start (Docker)](#quick-start-docker)
+- [Local development (without Docker)](#local-development-without-docker)
+- [Environment variables](#environment-variables)
+- [Tests](#tests)
 - [API](#api)
-- [Wdrożenie produkcyjne (VPS / Proxmox)](#wdrożenie-produkcyjne-vps--proxmox)
-- [Współtworzenie projektu](#współtworzenie-projektu)
+- [Production deployment (VPS / Proxmox)](#production-deployment-vps--proxmox)
+- [Contributing](#contributing)
 - [Roadmap](#roadmap)
-- [Licencja](#licencja)
+- [License](#license)
 
-## O projekcie
+## About the project
 
-Projekt hobbystyczny, który rozwijam głównie na własne potrzeby domowe, ale trzymam go otwarty - jeśli chcesz coś dodać, poprawić albo zainspirować się rozwiązaniem, śmiało rób forka albo wrzuć PR-a.
+A hobby project I mainly build for my own household, but I'm keeping it open — if you want to add something, fix something, or just take inspiration from it, feel free to fork it or open a PR.
 
-Aplikacja nie ma systemu kont. Zamiast tego każde "gospodarstwo domowe" to grupa identyfikowana losowym kodem - wpisujesz go raz na urządzeniu, a domownicy z tym samym kodem widzą te same listy i przepisy. Prostota ponad wszystko.
+There's no account system. Instead, every "household" is a group identified by a random code — you enter it once on a device, and everyone with the same code sees the same lists and recipes. Simplicity over everything.
 
-## Funkcje
+## Features
 
-- **Listy zakupów** - twórz dowolną liczbę list, dodawaj produkty z ilością i jednostką, odznaczaj kupione, masowo czyść lub resetuj listę.
-- **Grupy bez logowania** - dołączasz do "gospodarstwa" kodem zapisywanym w `localStorage`, bez hasła i rejestracji.
-- **Przepisy** - baza przepisów ze składnikami, krokami przygotowania i zdjęciem, z podziałem na szkice (draft) i opublikowane.
-- **Z przepisu na listę zakupów** - jednym przyciskiem dodajesz brakujące składniki z przepisu do wybranej listy zakupów.
-- **PWA / offline** - instalowalna na telefonie (tryb standalone), auto-aktualizacja Service Workera, działa jak natywna appka.
-- **Jasny / ciemny motyw** - przełącznik motywu (`next-themes`).
-- **Mobile-first UI** - interfejs budowany pod telefon (Tailwind, Radix UI, obsługa `safe-area`).
+- **Shopping lists** — create as many lists as you want, add products with quantity and unit, check off purchased items, bulk-clear or reset a list.
+- **Login-free groups** — join a "household" with a code stored in `localStorage`, no password, no registration.
+- **Recipes** — a recipe library with ingredients, preparation steps and a photo, split into drafts and published recipes.
+- **Recipe to shopping list** — add a recipe's missing ingredients to a chosen shopping list with one button.
+- **PWA / offline** — installable on your phone (standalone mode), auto-updating service worker, feels like a native app.
+- **Light / dark theme** — theme switcher (`next-themes`).
+- **Mobile-first UI** — interface built for the phone (Tailwind, Radix UI, `safe-area` support).
 
-## Stack technologiczny
+## Tech stack
 
 **Frontend**
 
-| Technologia                        | Zastosowanie                      |
-| ---------------------------------- | --------------------------------- |
+| Technology                         | Purpose                           |
+| ----------------------------------- | --------------------------------- |
 | React 19 + TypeScript              | UI                                |
 | Vite                               | build/dev server                  |
 | `vite-plugin-pwa`                  | manifest, service worker, offline |
-| Tailwind CSS 4 + Radix UI / shadcn | stylowanie i komponenty           |
-| TanStack Query                     | pobieranie i cache danych z API   |
+| Tailwind CSS 4 + Radix UI / shadcn | styling and components            |
+| TanStack Query                     | data fetching and caching         |
 | React Router                       | routing                           |
 
 **Backend**
 
-| Technologia                   | Zastosowanie              |
-| ----------------------------- | ------------------------- |
-| Node.js + Express 5           | REST API                  |
-| SQLite (`sqlite` + `sqlite3`) | baza danych, plik lokalny |
-| Multer                        | upload zdjęć do przepisów |
-| Vitest + Supertest            | testy API i coverage      |
+| Technology                     | Purpose                |
+| ------------------------------- | ----------------------- |
+| Node.js + Express 5            | REST API                |
+| SQLite (`sqlite` + `sqlite3`)  | database, a local file  |
+| Multer                          | recipe photo uploads    |
+| Vitest + Supertest             | API tests and coverage  |
 
-## Struktura repo
+## Repo structure
 
 ```
 zaku/
 ├── backend/          # Express API + SQLite
 │   ├── routes/v1/    # lists, items, recipes
-│   ├── db.js         # inicjalizacja bazy i schemat tabel
-│   └── index.js      # start serwera (serwuje też build frontendu)
+│   ├── db.js         # DB init and table schema
+│   └── index.js      # starts the server (also serves the frontend build)
 ├── frontend/          # React + Vite PWA
 │   └── src/
-│       ├── pages/     # ekrany aplikacji
+│       ├── pages/     # app screens
 │       ├── components/
-│       └── api/       # klient HTTP (dokleja nagłówek grupy)
-├── shared/            # typy TS współdzielone frontend/backend
+│       └── api/       # HTTP client (attaches the group header)
+├── shared/            # TS types shared between frontend/backend
 ├── Dockerfile
 ├── docker-compose.yml
-├── install.sh          # pierwsza instalacja na serwerze (VPS/Proxmox, systemd)
-└── update.sh            # aktualizacja działającej instalacji
+├── install.sh          # first-time server install (VPS/Proxmox, systemd)
+└── update.sh            # updates a running installation
 ```
 
-## Szybki start (Docker)
+## Quick start (Docker)
 
-Najprostszy sposób, żeby postawić aplikację lokalnie albo na własnym serwerze:
+The simplest way to run the app locally or on your own server:
 
 ```bash
 git clone https://github.com/MrWoodsman/zaku.git
@@ -91,18 +91,18 @@ cd zaku
 docker compose up -d --build
 ```
 
-Aplikacja wystartuje pod `http://localhost:3000` (backend serwuje też zbudowany frontend, więc to jeden kontener na jednym porcie). Baza SQLite i uploady przepisów trzymane są w wolumenach Dockera (`shopping-data`, `shopping-uploads`), więc przeżyją restart/rebuild kontenera.
+The app starts on `http://localhost:3000` (the backend also serves the built frontend, so it's one container on one port). The SQLite database and recipe uploads live in Docker volumes (`shopping-data`, `shopping-uploads`), so they survive container restarts/rebuilds.
 
-Aktualizacja do nowszej wersji:
+Updating to a newer version:
 
 ```bash
 git pull
 docker compose up -d --build
 ```
 
-## Instalacja deweloperska (bez Dockera)
+## Local development (without Docker)
 
-Wymagany Node.js 20+.
+Requires Node.js 20+.
 
 **Backend**
 
@@ -112,7 +112,7 @@ npm install
 node index.js
 ```
 
-Serwer wystartuje na `http://localhost:3000` (albo porcie z `PORT` w `.env`).
+The server starts on `http://localhost:3000` (or whichever `PORT` is set in `.env`).
 
 **Frontend**
 
@@ -122,80 +122,80 @@ npm install
 npm run dev
 ```
 
-Vite wystartuje na `http://localhost:5173` i przekieruje zapytania `/api` oraz `/images` do backendu na `localhost:3000` (patrz `server.proxy` w `frontend/vite.config.ts`) - upewnij się, że backend faktycznie tam działa.
+Vite starts on `http://localhost:5173` and proxies `/api` and `/images` requests to the backend on `localhost:3000` (see `server.proxy` in `frontend/vite.config.ts`) — make sure the backend is actually running there.
 
-## Zmienne środowiskowe
+## Environment variables
 
-Backend czyta konfigurację z `backend/.env` (patrz `backend/.env.example`). Bez tego pliku też zadziała - poniższe wartości to jednocześnie sensowne domyślne:
+The backend reads its config from `backend/.env` (see `backend/.env.example`). It also works without this file — the values below are the sensible defaults:
 
-| Zmienna   | Domyślnie                | Opis                                               |
-| --------- | ------------------------ | -------------------------------------------------- |
-| `PORT`    | `3000`                   | port, na którym startuje Express                   |
-| `DB_PATH` | `./data/database.sqlite` | ścieżka do pliku bazy SQLite (względem `backend/`) |
+| Variable  | Default                  | Description                                    |
+| --------- | ------------------------- | ------------------------------------------------ |
+| `PORT`    | `3000`                    | port the Express server listens on               |
+| `DB_PATH` | `./data/database.sqlite`  | path to the SQLite database file (relative to `backend/`) |
 
-## Testy
+## Tests
 
-Testy API (Vitest + Supertest) są w `backend/`:
+API tests (Vitest + Supertest) live in `backend/`:
 
 ```bash
 cd backend
-npm test               # uruchomienie testów
-npm run test:coverage  # z pokryciem kodu
+npm test               # run the tests
+npm run test:coverage  # with coverage
 ```
 
 ## API
 
-Wszystkie endpointy poza `/api/test` wymagają nagłówka `x-group-id` (kod grupy) - jeśli grupa o danym ID nie istnieje, zostaje utworzona automatycznie przy pierwszym żądaniu.
+Every endpoint except `/api/test` requires an `x-group-id` header (the group code) — if the group doesn't exist yet, it's created automatically on the first request.
 
-| Metoda           | Endpoint                                   | Opis                                                |
-| ---------------- | ------------------------------------------ | --------------------------------------------------- |
-| `GET`            | `/api/v1/lists`                            | listy zakupów w grupie                              |
-| `POST`           | `/api/v1/lists`                            | nowa lista                                          |
-| `GET`            | `/api/v1/lists/:id`                        | szczegóły listy z produktami                        |
-| `PUT` / `DELETE` | `/api/v1/lists/:id`                        | edycja / usunięcie listy                            |
-| `POST`           | `/api/v1/lists/:id/items`                  | dodanie produktu do listy                           |
-| `PUT`            | `/api/v1/lists/:id/items/mark-all`         | odznaczenie wszystkich jako kupione                 |
-| `PUT`            | `/api/v1/lists/:id/items/reset-all`        | reset stanu "kupione"                               |
-| `DELETE`         | `/api/v1/lists/:id/items/delete-completed` | usunięcie kupionych                                 |
-| `DELETE`         | `/api/v1/lists/:id/items/delete-all`       | wyczyszczenie listy                                 |
-| `POST`           | `/api/v1/lists/add-from-recipe`            | dodanie składników przepisu do listy                |
-| `PUT` / `DELETE` | `/api/v1/items/:id`                        | edycja / usunięcie pojedynczego produktu            |
-| `GET`            | `/api/v1/recipes`                          | lista przepisów w grupie                            |
-| `POST` / `PUT`   | `/api/v1/recipes` `/:id`                   | dodanie / edycja przepisu (multipart, pole `image`) |
-| `DELETE`         | `/api/v1/recipes/:id`                      | usunięcie przepisu                                  |
+| Method            | Endpoint                                   | Description                                    |
+| ------------------ | ------------------------------------------- | ------------------------------------------------ |
+| `GET`              | `/api/v1/lists`                            | shopping lists in the group                      |
+| `POST`             | `/api/v1/lists`                            | create a list                                    |
+| `GET`              | `/api/v1/lists/:id`                        | list details with its products                   |
+| `PUT` / `DELETE`   | `/api/v1/lists/:id`                        | edit / delete a list                             |
+| `POST`             | `/api/v1/lists/:id/items`                  | add a product to a list                          |
+| `PUT`              | `/api/v1/lists/:id/items/mark-all`         | mark everything as purchased                     |
+| `PUT`              | `/api/v1/lists/:id/items/reset-all`        | reset the "purchased" state                      |
+| `DELETE`           | `/api/v1/lists/:id/items/delete-completed` | remove purchased items                           |
+| `DELETE`           | `/api/v1/lists/:id/items/delete-all`       | clear a list                                     |
+| `POST`             | `/api/v1/lists/add-from-recipe`            | add a recipe's ingredients to a list             |
+| `PUT` / `DELETE`   | `/api/v1/items/:id`                        | edit / delete a single product                   |
+| `GET`              | `/api/v1/recipes`                          | recipes in the group                             |
+| `POST` / `PUT`     | `/api/v1/recipes` `/:id`                   | create / edit a recipe (multipart, `image` field) |
+| `DELETE`           | `/api/v1/recipes/:id`                      | delete a recipe                                  |
 
-## Wdrożenie produkcyjne (VPS / Proxmox)
+## Production deployment (VPS / Proxmox)
 
-Tak wdrażam aplikację na własnym Proxmoksie - poza Dockerem, jako usługa systemd na Debianie/Ubuntu.
+This is how I deploy the app on my own Proxmox — no Docker, as a systemd service on Debian/Ubuntu.
 
-1. Sklonuj repozytorium do `/opt/shopping-list-pwa` (ścieżkę bazową zakładają oba skrypty).
-2. Jako root uruchom `./install.sh` - instaluje Node.js/npm, buduje frontend, instaluje zależności backendu i tworzy usługę `shopping-app` (systemd), którą od razu uruchamia i włącza na starcie systemu. Dorzuca też alias `shopping-logs` do podglądu logów.
-3. Do kolejnych aktualizacji używaj `./update.sh` - robi `git fetch` + `git reset --hard origin/main`, przebudowuje frontend, aktualizuje zależności backendu i restartuje usługę.
+1. Clone the repo to `/opt/shopping-list-pwa` (both scripts assume this base path).
+2. As root, run `./install.sh` — it installs Node.js/npm, builds the frontend, installs the backend dependencies and creates a `shopping-app` systemd service, which it starts immediately and enables on boot. It also adds a `shopping-logs` alias for tailing logs.
+3. For subsequent updates use `./update.sh` — it does `git fetch` + `git reset --hard origin/main`, rebuilds the frontend, updates the backend dependencies and restarts the service.
 
-Przydatne komendy po instalacji:
+Useful commands after installation:
 
 ```bash
 systemctl status shopping-app
-journalctl -u shopping-app -f     # albo alias: shopping-logs
+journalctl -u shopping-app -f     # or the alias: shopping-logs
 systemctl restart shopping-app
 ```
 
-## Współtworzenie projektu
+## Contributing
 
-PR-y i issue mile widziane - to projekt hobbystyczny, więc nie ma sztywnego procesu, ale trzymam się kilku zasad:
+PRs and issues are welcome — this is a hobby project, so there's no rigid process, but I try to stick to a few rules:
 
-1. Forkuj repo i pracuj na osobnym branchu (np. `feat/nazwa-funkcji`).
-2. Commity staram się pisać w konwencji `typ(zakres): opis` (np. `feat(recipes): dodanie filtrowania`, `fix(lists): poprawka usuwania produktu`) - trzymaj się tego, jeśli możesz.
-3. Jeśli zmieniasz backend, dorzuć/zaktualizuj testy w `backend/routes/v1/*.test.js` i sprawdź, że `npm test` przechodzi.
-4. Otwórz Pull Requesta z krótkim opisem, co i dlaczego zmieniasz.
+1. Fork the repo and work on a separate branch (e.g. `feat/feature-name`).
+2. I try to write commits following the `type(scope): description` convention (e.g. `feat(recipes): add filtering`, `fix(lists): fix item deletion`) — please stick to it if you can.
+3. If you change the backend, add/update tests in `backend/routes/v1/*.test.js` and make sure `npm test` passes.
+4. Open a Pull Request with a short description of what and why you're changing.
 
-Zgłaszanie błędów i pomysłów: [GitHub Issues](https://github.com/MrWoodsman/zaku/issues).
+Report bugs and ideas here: [GitHub Issues](https://github.com/MrWoodsman/zaku/issues).
 
 ## Roadmap
 
-- **Inteligentna lista** - sugestie produktów na podstawie nawyków zakupowych (ekran już jest, logika "wkrótce").
-- Synchronizacja w czasie rzeczywistym między urządzeniami w tej samej grupie (Socket.IO jest już w zależnościach, czeka na spięcie).
+- **Smart list** — product suggestions based on shopping habits (the screen already exists, the logic is "coming soon").
+- Real-time sync across devices in the same group (Socket.IO is already a dependency, waiting to be wired up).
 
-## Licencja
+## License
 
-Projekt dostępny na licencji [MIT](LICENSE) - rób z nim, co chcesz, wystarczy zachować informację o autorze.
+Released under the [MIT license](LICENSE) — do whatever you want with it, just keep the copyright notice.

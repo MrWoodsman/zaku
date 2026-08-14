@@ -84,8 +84,9 @@ export function SettingsScreen({ groupId, onLeave }: { groupId: string; onLeave:
       </div>
 
       {/* SEKCJA OSTATNIA */}
-      <div className="flex flex-col items-center">
+      <div className="flex flex-col items-center gap-2">
         <VersionBadge />
+        <p className="text-xs text-muted-foreground">Zaku — stworzone przez MrWoodsman</p>
       </div>
     </div>
   );
