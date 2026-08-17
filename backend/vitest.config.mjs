@@ -8,7 +8,9 @@ export default defineConfig({
       // danych ani wlasnych plikow testowych do puli "co jest pokryte testami".
       include: ["routes/**", "app.js", "db.js"],
       exclude: ["**/*.test.js"],
-      reporter: ["text"],
+      // "lcov" generuje plik, ktory rozumie rozszerzenie Coverage Gutters w VS Code -
+      // dzieki temu widac wprost w edytorze, ktore linie sa pokryte testami, bez recznych komentarzy.
+      reporter: ["text", "lcov"],
     },
   },
 });

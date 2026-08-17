@@ -7,6 +7,7 @@ const { randomUUID } = require("crypto");
 // ==========================================
 
 // GET /api/v1/lists -> Pobranie wszystkich list
+// TEST ✅
 router.get("/", async (req, res) => {
   const groupId = req.headers["x-group-id"];
   if (!groupId) return res.status(401).json({ message: "Brak ID grupy" });
@@ -34,6 +35,7 @@ router.get("/", async (req, res) => {
 });
 
 // GET /api/v1/lists/:id -> Pobranie jednej listy
+// TEST ✅
 router.get("/:id", async (req, res) => {
   const groupId = req.headers["x-group-id"];
   if (!groupId) return res.status(401).json({ message: "Brak ID grupy" });
@@ -61,6 +63,7 @@ router.get("/:id", async (req, res) => {
 });
 
 // POST /api/v1/lists -> Tworzenie nowej listy
+// TEST ✅
 router.post("/", async (req, res) => {
   const groupId = req.headers["x-group-id"];
   if (!groupId) return res.status(401).json({ message: "Brak ID grupy" });
@@ -84,6 +87,7 @@ router.post("/", async (req, res) => {
 });
 
 // PUT /api/v1/lists/:id -> Edycja nazwy listy
+// TEST ✅
 router.put("/:id", async (req, res) => {
   const groupId = req.headers["x-group-id"];
   if (!groupId) return res.status(401).json({ message: "Brak ID grupy" });
@@ -97,13 +101,14 @@ router.put("/:id", async (req, res) => {
 
     if (req.body.name)
       await req.db.run(`UPDATE lists SET name = ? WHERE id = ?`, [req.body.name, req.params.id]);
-    res.json({ message: "Zaktualizowano listę" });
+    res.status(200).json({ message: "Zaktualizowano listę" });
   } catch (error) {
     res.status(500).json({ message: "Błąd aktualizacji", error: error.message });
   }
 });
 
 // DELETE /api/v1/lists/:id -> Usuwanie listy
+// TEST ✅
 router.delete("/:id", async (req, res) => {
   const groupId = req.headers["x-group-id"];
   if (!groupId) return res.status(401).json({ message: "Brak ID grupy" });
@@ -121,7 +126,7 @@ router.delete("/:id", async (req, res) => {
     await req.db.run(`UPDATE items SET deleted_at = CURRENT_TIMESTAMP WHERE list_id = ?`, [
       req.params.id,
     ]);
-    res.json({ message: "Lista usunięta" });
+    res.status(200).json({ message: "Lista usunięta" });
   } catch (error) {
     res.status(500).json({ message: "Błąd usuwania", error: error.message });
   }
@@ -132,6 +137,7 @@ router.delete("/:id", async (req, res) => {
 // ==========================================
 
 // POST /api/v1/lists/:id/items -> Dodawanie pojedynczego produktu do listy
+// TEST ✅
 router.post("/:id/items", async (req, res) => {
   const groupId = req.headers["x-group-id"];
   if (!groupId) return res.status(401).json({ message: "Brak ID grupy" });
