@@ -60,3 +60,27 @@ export interface AddRecipeToListPayload {
     unit: string;
   }[];
 }
+
+// KOMENDY GŁOSOWE / AI (BETA)
+export interface VoiceCommandItem {
+  name: string;
+  quantity: number;
+  unit: string;
+}
+
+// Odpowiedź /api/v1/voice/parse gdy AI rozwiązał docelową listę - NIC jeszcze nie jest
+// zapisane w bazie, to tylko propozycja do zatwierdzenia przez usera.
+export interface VoiceParseResolvedResponse {
+  list: { id: string; name: string } | null;
+  new_list_name: string | null;
+  items: VoiceCommandItem[];
+}
+
+export interface VoiceCommandClarificationResponse {
+  needs_clarification: true;
+  message: string;
+  candidates: { id: string; name: string }[];
+  items: VoiceCommandItem[];
+}
+
+export type VoiceParseResponse = VoiceParseResolvedResponse | VoiceCommandClarificationResponse;

@@ -4,6 +4,7 @@ const path = require("path");
 const listsRoutes = require("./routes/v1/lists.routes");
 const itemsRoutes = require("./routes/v1/items.routes");
 const recipesRoutes = require("./routes/v1/recipes.routes");
+const voiceRoutes = require("./routes/v1/voice.routes");
 
 // Buduje gotową aplikację Express, ale NIE odpala serwera (brak .listen).
 // Dzięki temu można ją "wziąć" w testach i strzelać w nią requestami przez supertest,
@@ -37,6 +38,7 @@ function createApp(db) {
   app.use("/api/v1/lists", listsRoutes);
   app.use("/api/v1/items", itemsRoutes);
   app.use("/api/v1/recipes", recipesRoutes);
+  app.use("/api/v1/voice", voiceRoutes);
 
   app.get("/api/test", (req, res) => {
     res.json({ message: "Działa V1!" });
