@@ -1,67 +1,87 @@
-# Zaku
+<p align="center">
+  <img src="docs/logo.png" alt="Zaku Logo" width="400">
+</p>
 
-A home shopping list as a Progressive Web App (PWA). No login, no accounts — a household joins with a single shared code and everyone sees the same shopping lists and recipes. Add missing ingredients from a recipe straight to a shopping list with one tap.
+<h1 align="center">Zaku</h1>
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Node.js](https://img.shields.io/badge/node-%3E%3D20-339933?logo=node.js&logoColor=white)](https://nodejs.org)
-[![Docker](https://img.shields.io/badge/docker-ready-2496ED?logo=docker&logoColor=white)](#quick-start-docker)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](#contributing)
+<p align="center">
+  <strong>Free household shopping assistant</strong><br>
+  A home shopping list as a Progressive Web App — no login, no accounts, just a shared code
+</p>
 
-## Table of contents
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
+  <a href="https://nodejs.org"><img src="https://img.shields.io/badge/node-%3E%3D20-339933?logo=node.js&logoColor=white" alt="Node.js"></a>
+  <a href="#quick-start-docker"><img src="https://img.shields.io/badge/docker-ready-2496ED?logo=docker&logoColor=white" alt="Docker"></a>
+  <a href="#contributing"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome"></a>
+  <img src="https://img.shields.io/badge/branch-beta%20%2F%20WIP-orange.svg" alt="Beta branch">
+</p>
 
-- [About the project](#about-the-project)
-- [Features](#features)
-- [Tech stack](#tech-stack)
-- [Repo structure](#repo-structure)
-- [Quick start (Docker)](#quick-start-docker)
-- [Local development (without Docker)](#local-development-without-docker)
-- [Environment variables](#environment-variables)
-- [Tests](#tests)
-- [API](#api)
-- [Production deployment (VPS / Proxmox)](#production-deployment-vps--proxmox)
-- [Contributing](#contributing)
-- [Roadmap](#roadmap)
-- [License](#license)
+> **This is the `beta` branch.** It contains experimental, work-in-progress features that are not on `main` yet — see [Beta / experimental features](#beta--experimental-features) below before you deploy from this branch.
 
-## About the project
+---
 
-A hobby project I mainly build for my own household, but I'm keeping it open — if you want to add something, fix something, or just take inspiration from it, feel free to fork it or open a PR.
+## Screenshots
 
-There's no account system. Instead, every "household" is a group identified by a random code — you enter it once on a device, and everyone with the same code sees the same lists and recipes. Simplicity over everything.
+<p align="center">
+  <img src="docs/screenshot.png" alt="Zaku app screenshot" width="700">
+</p>
+
+---
+
+## What is Zaku?
+
+Zaku is a lightweight PWA for managing shopping lists and recipes together as a household. There's no account system — every "household" is a group identified by a random code. Enter it once on a device and everyone with the same code sees the same lists and recipes. Simplicity over everything.
+
+## Why did I build this?
+
+A hobby project I mainly build for my own household — I wanted something login-free that my whole family could open on their phones without registering, and that could turn a recipe straight into a shopping list. I'm keeping it open: if you want to add something, fix something, or just take inspiration from it, feel free to fork it or open a PR.
 
 ## Features
 
-- **Shopping lists** — create as many lists as you want, add products with quantity and unit, check off purchased items, bulk-clear or reset a list.
-- **Login-free groups** — join a "household" with a code stored in `localStorage`, no password, no registration.
-- **Recipes** — a recipe library with ingredients, preparation steps and a photo, split into drafts and published recipes.
-- **Recipe to shopping list** — add a recipe's missing ingredients to a chosen shopping list with one button.
-- **PWA / offline** — installable on your phone (standalone mode), auto-updating service worker, feels like a native app.
-- **Light / dark theme** — theme switcher (`next-themes`).
-- **Mobile-first UI** — interface built for the phone (Tailwind, Radix UI, `safe-area` support).
+- **Shopping lists** — create as many lists as you want, add products with quantity and unit, check off purchased items, bulk-clear or reset a list
+- **Login-free groups** — join a "household" with a code stored in `localStorage`, no password, no registration
+- **Recipes** — a recipe library with ingredients, preparation steps and a photo, split into drafts and published recipes
+- **Recipe to shopping list** — add a recipe's missing ingredients to a chosen shopping list with one button
+- **PWA / offline** — installable on your phone (standalone mode), auto-updating service worker, feels like a native app
+- **Light / dark theme** — theme switcher (`next-themes`)
+- **Mobile-first UI** — interface built for the phone (Tailwind, Radix UI, `safe-area` support)
 
-## Tech stack
+## Beta / experimental features
+
+This branch adds an **AI voice shopping assistant** that isn't merged into `main` yet — it's a working prototype, not production-ready:
+
+- Speak or type a command (e.g. *"dodaj chleb i mleko do listy Zakupy"*) and it gets sent to `POST /api/v1/voice/parse`.
+- The backend ([backend/services/llm.service.js](backend/services/llm.service.js)) forwards the text to **Google Gemini** (structured JSON output) to extract products + target list.
+- Nothing is written to the database automatically — the result is shown as a preview in the UI ([VoiceCommandOverlay](frontend/src/components/overlay/voice/VoiceCommandOverlay.tsx)), and only the existing lists/items endpoints actually save anything once confirmed.
+
+**Why it's not on `main`:** it depends on an external, paid third-party API (Gemini) that every self-hoster would need their own key for, the UX/error handling is still rough, and it hasn't been tested beyond my own use — treat it as a preview.
+
+**To try it, you need your own Gemini API key:**
+
+1. Get a free key at [Google AI Studio](https://aistudio.google.com/apikey).
+2. Set `GEMINI_API_KEY` in `backend/.env` (see [Environment variables](#environment-variables) below).
+3. Without a key, everything else in the app works normally — only the voice assistant endpoint returns an error (`502 Błąd usługi AI`).
+
+## Tech Stack
 
 **Frontend**
 
-| Technology                         | Purpose                           |
-| ----------------------------------- | --------------------------------- |
-| React 19 + TypeScript              | UI                                |
-| Vite                               | build/dev server                  |
-| `vite-plugin-pwa`                  | manifest, service worker, offline |
-| Tailwind CSS 4 + Radix UI / shadcn | styling and components            |
-| TanStack Query                     | data fetching and caching         |
-| React Router                       | routing                           |
+- React 19 + TypeScript
+- Vite
+- `vite-plugin-pwa` — manifest, service worker, offline support
+- Tailwind CSS 4 + Radix UI / shadcn
+- TanStack Query
+- React Router
 
 **Backend**
 
-| Technology                     | Purpose                |
-| ------------------------------- | ----------------------- |
-| Node.js + Express 5            | REST API                |
-| SQLite (`sqlite` + `sqlite3`)  | database, a local file  |
-| Multer                          | recipe photo uploads    |
-| Vitest + Supertest             | API tests and coverage  |
+- Node.js + Express 5
+- SQLite (`sqlite` + `sqlite3`)
+- Multer — recipe photo uploads
+- Vitest + Supertest — API tests and coverage
 
-## Repo structure
+## Repo Structure
 
 ```
 zaku/
@@ -81,7 +101,7 @@ zaku/
 └── update.sh            # updates a running installation
 ```
 
-## Quick start (Docker)
+## Quick Start (Docker)
 
 The simplest way to run the app locally or on your own server:
 
@@ -91,7 +111,7 @@ cd zaku
 docker compose up -d --build
 ```
 
-The app starts on `http://localhost:3000` (the backend also serves the built frontend, so it's one container on one port). The SQLite database and recipe uploads live in Docker volumes (`shopping-data`, `shopping-uploads`), so they survive container restarts/rebuilds.
+App available at http://localhost:3000 — the backend also serves the built frontend, so it's one container on one port. The SQLite database and recipe uploads live in Docker volumes (`shopping-data`, `shopping-uploads`), so they survive container restarts/rebuilds.
 
 Updating to a newer version:
 
@@ -100,7 +120,7 @@ git pull
 docker compose up -d --build
 ```
 
-## Local development (without Docker)
+## Local Setup (without Docker)
 
 Requires Node.js 20+.
 
@@ -124,14 +144,16 @@ npm run dev
 
 Vite starts on `http://localhost:5173` and proxies `/api` and `/images` requests to the backend on `localhost:3000` (see `server.proxy` in `frontend/vite.config.ts`) — make sure the backend is actually running there.
 
-## Environment variables
+## Environment Variables
 
 The backend reads its config from `backend/.env` (see `backend/.env.example`). It also works without this file — the values below are the sensible defaults:
 
-| Variable  | Default                  | Description                                    |
-| --------- | ------------------------- | ------------------------------------------------ |
-| `PORT`    | `3000`                    | port the Express server listens on               |
-| `DB_PATH` | `./data/database.sqlite`  | path to the SQLite database file (relative to `backend/`) |
+| Variable         | Default                    | Description                                                              |
+| ---------------- | --------------------------- | --------------------------------------------------------------------------- |
+| `PORT`           | `3000`                      | port the Express server listens on                                       |
+| `DB_PATH`        | `./data/database.sqlite`   | path to the SQLite database file (relative to `backend/`)                |
+| `GEMINI_API_KEY` | *(empty)*                   | **beta only** — enables the AI voice assistant, see [Beta / experimental features](#beta--experimental-features); leave empty to disable it |
+| `GEMINI_MODEL`   | `gemini-3.1-flash-lite`     | **beta only** — Gemini model used to parse voice commands                |
 
 ## Tests
 
@@ -147,24 +169,25 @@ npm run test:coverage  # with coverage
 
 Every endpoint except `/api/test` requires an `x-group-id` header (the group code) — if the group doesn't exist yet, it's created automatically on the first request.
 
-| Method            | Endpoint                                   | Description                                    |
-| ------------------ | ------------------------------------------- | ------------------------------------------------ |
-| `GET`              | `/api/v1/lists`                            | shopping lists in the group                      |
-| `POST`             | `/api/v1/lists`                            | create a list                                    |
-| `GET`              | `/api/v1/lists/:id`                        | list details with its products                   |
-| `PUT` / `DELETE`   | `/api/v1/lists/:id`                        | edit / delete a list                             |
-| `POST`             | `/api/v1/lists/:id/items`                  | add a product to a list                          |
-| `PUT`              | `/api/v1/lists/:id/items/mark-all`         | mark everything as purchased                     |
-| `PUT`              | `/api/v1/lists/:id/items/reset-all`        | reset the "purchased" state                      |
-| `DELETE`           | `/api/v1/lists/:id/items/delete-completed` | remove purchased items                           |
-| `DELETE`           | `/api/v1/lists/:id/items/delete-all`       | clear a list                                     |
-| `POST`             | `/api/v1/lists/add-from-recipe`            | add a recipe's ingredients to a list             |
-| `PUT` / `DELETE`   | `/api/v1/items/:id`                        | edit / delete a single product                   |
-| `GET`              | `/api/v1/recipes`                          | recipes in the group                             |
-| `POST` / `PUT`     | `/api/v1/recipes` `/:id`                   | create / edit a recipe (multipart, `image` field) |
-| `DELETE`           | `/api/v1/recipes/:id`                      | delete a recipe                                  |
+| Method           | Endpoint                                   | Description                                        |
+| ----------------- | ------------------------------------------- | ---------------------------------------------------- |
+| `GET`             | `/api/v1/lists`                            | shopping lists in the group                          |
+| `POST`            | `/api/v1/lists`                            | create a list                                        |
+| `GET`             | `/api/v1/lists/:id`                        | list details with its products                       |
+| `PUT` / `DELETE`  | `/api/v1/lists/:id`                        | edit / delete a list                                 |
+| `POST`            | `/api/v1/lists/:id/items`                  | add a product to a list                              |
+| `PUT`             | `/api/v1/lists/:id/items/mark-all`         | mark everything as purchased                         |
+| `PUT`             | `/api/v1/lists/:id/items/reset-all`        | reset the "purchased" state                          |
+| `DELETE`          | `/api/v1/lists/:id/items/delete-completed` | remove purchased items                               |
+| `DELETE`          | `/api/v1/lists/:id/items/delete-all`       | clear a list                                         |
+| `POST`            | `/api/v1/lists/add-from-recipe`            | add a recipe's ingredients to a list                 |
+| `PUT` / `DELETE`  | `/api/v1/items/:id`                        | edit / delete a single product                       |
+| `GET`             | `/api/v1/recipes`                          | recipes in the group                                 |
+| `POST` / `PUT`    | `/api/v1/recipes` `/:id`                   | create / edit a recipe (multipart, `image` field)    |
+| `DELETE`          | `/api/v1/recipes/:id`                      | delete a recipe                                      |
+| `POST`            | `/api/v1/voice/parse`                      | **beta only** — parse a voice/text command into products via Gemini (requires `GEMINI_API_KEY`, nothing is saved) |
 
-## Production deployment (VPS / Proxmox)
+## Deploy to Your Server (VPS / Proxmox)
 
 This is how I deploy the app on my own Proxmox — no Docker, as a systemd service on Debian/Ubuntu.
 
@@ -193,8 +216,8 @@ Report bugs and ideas here: [GitHub Issues](https://github.com/MrWoodsman/zaku/i
 
 ## Roadmap
 
-- **Smart list** — product suggestions based on shopping habits (the screen already exists, the logic is "coming soon").
-- Real-time sync across devices in the same group (Socket.IO is already a dependency, waiting to be wired up).
+- **Smart list** — product suggestions based on shopping habits (the screen already exists, the logic is "coming soon")
+- Real-time sync across devices in the same group (Socket.IO is already a dependency, waiting to be wired up)
 
 ## License
 
