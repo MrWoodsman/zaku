@@ -118,7 +118,6 @@ export function ShoppingScreen() {
                 {purchasedItems.map((item) => (
                   <motion.div
                     key={item.id}
-                    layout
                     initial={{ opacity: 0, height: 0, marginBottom: 0 }}
                     animate={{ opacity: 1, height: "auto", marginBottom: 8 }}
                     exit={{ opacity: 0, height: 0, marginBottom: 0 }}

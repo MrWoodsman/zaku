@@ -71,11 +71,8 @@ export const useToggleItemMutation = (id: string) => {
       queryClient.setQueryData(["shoppingList", id], context?.previousList);
       showErrorToast(err);
     },
-
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["shoppingList", id] });
-      queryClient.invalidateQueries({ queryKey: ["shoppingLists"] });
-    },
+    // Bez invalidate na sukces - optymistyczny update już ma poprawny stan,
+    // a refetchInterval w useShoppingListQuery i tak zsynchronizuje z serwerem
   });
 };
 

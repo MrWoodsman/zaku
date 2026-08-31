@@ -17,12 +17,16 @@ interface Release {
 
 export function VersionBadge() {
   const [isOpen, setIsOpen] = useState(false);
-
   // 1. HISTORIA ZMIAN (Najnowsza wersja ZAWSZE musi być jako PIERWSZA w tablicy!)
   const changelog: Release[] = [
     {
+      version: "0.56.1",
+      date: "31.08.2026",
+      changes: ["Naprawiono spowolnienie przy odznaczaniu produktów na dużych listach zakupów"],
+    },
+    {
       version: "0.56.0",
-      date: "08.08.2026",
+      date: "31.08.2026",
       changes: [
         "Dodanie histori zakupionych prduktów, z grupowaniem na dni dzięki czemu łatwo można sprawdzić co ostatnio było zakupione",
       ],
