@@ -21,6 +21,13 @@ export function VersionBadge() {
   // 1. HISTORIA ZMIAN (Najnowsza wersja ZAWSZE musi być jako PIERWSZA w tablicy!)
   const changelog: Release[] = [
     {
+      version: "0.56.0",
+      date: "08.08.2026",
+      changes: [
+        "Dodanie histori zakupionych prduktów, z grupowaniem na dni dzięki czemu łatwo można sprawdzić co ostatnio było zakupione",
+      ],
+    },
+    {
       version: "0.55.0",
       date: "08.08.2026",
       changes: [

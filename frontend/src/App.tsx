@@ -22,6 +22,7 @@ import { RecipesDraftsScreen } from "./pages/RecipesDraftsScreen";
 import { RecipeEditorScreen } from "./pages/RecipeEditorScreen";
 import { RecipeViewScreen } from "./pages/RecipeViewScreen";
 import { RecipesAllScreen } from "./pages/RecipesAllScreen";
+import { LogsScreen } from "./pages/LogsScreen";
 
 function App() {
   const { groupId, joinGroup, leaveGroup } = useGroup();
@@ -69,6 +70,8 @@ function App() {
           <Route path={ROUTES.RECIPES_ALL_MY} element={<RecipesAllScreen />} />
           <Route path={ROUTES.RECIPES_DRAFTS} element={<RecipesDraftsScreen />} />
           <Route path={ROUTES.RECIPES_VIEW(":id")} element={<RecipeViewScreen />} />
+          {/* LOGS */}
+          <Route path={ROUTES.LOGS} element={<LogsScreen />} />
           {/* === ???? === */}
           <Route path={ROUTES.AUTO_LIST} element={<AutoListScreen />} />
           {/* === USTAWIENIA === */}

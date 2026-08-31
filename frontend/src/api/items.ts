@@ -1,5 +1,24 @@
-import type { AggregateShoppingItem } from "@shared/types";
+import type { AggregateShoppingItem, HistoryItem } from "@shared/types";
 import { fetchWithGroup } from "./api";
+
+// POBIERANIE UKONCZONYCH PRZEDMIOTÓW (stronami)
+export interface CompletedItemsPage {
+  items: HistoryItem[];
+  nextCursor: string | null;
+}
+
+export const fetchCompletedItems = async (
+  cursor?: string | null,
+): Promise<CompletedItemsPage> => {
+  const url = cursor
+    ? `/api/v1/items/completed?cursor=${encodeURIComponent(cursor)}`
+    : "/api/v1/items/completed";
+  const response = await fetchWithGroup(url);
+
+  if (!response.ok) throw new Error("Błąd pobierania");
+
+  return response.json();
+};
 
 // ZMIANA STANU PRZEDMIOTU
 export const toggleItemApi = async (itemId: string, completed: boolean) => {

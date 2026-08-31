@@ -1,6 +1,6 @@
 import React from "react";
 import { ROUTES } from "@/config/routes";
-import { ListChecks, ChefHat, Settings, Bot } from "lucide-react";
+import { ListChecks, ChefHat, Settings, Bot, LogsIcon } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 // Definicja Propsów
@@ -39,6 +39,10 @@ export function BottomNav() {
           isActive={path.startsWith(ROUTES.SHOPPING_LISTS)}
         >
           <ListChecks />
+        </BottomNavItem>
+
+        <BottomNavItem to={ROUTES.LOGS} label="Historia" isActive={path === ROUTES.LOGS}>
+          <LogsIcon />
         </BottomNavItem>
 
         <BottomNavItem

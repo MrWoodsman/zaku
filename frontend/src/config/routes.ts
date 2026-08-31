@@ -3,6 +3,7 @@ export const ROUTES = {
   SHOPPING_LISTS: "/shopping",
   SHOPPING_ALL: "/shopping/all",
   AUTO_LIST: "/auto-list",
+  LOGS: "/logs",
   RECIPES: "/recipes",
   RECIPES_ALL_MY: "/recipes/all",
   RECIPES_VIEW: (id: string) => `/recipes/view/${id}`,

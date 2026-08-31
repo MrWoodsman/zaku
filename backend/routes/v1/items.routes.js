@@ -16,12 +16,51 @@ router.get("/", async (req, res) => {
       [groupId],
     );
 
-    const mappedItems = items.map((item) => ({
+    res.json(items);
+  } catch (error) {
+    res.status(500).json({ message: "Błąd", error: error.message });
+  }
+});
+
+// GET /api/v1/items/completed -> Pobiera zakupione przedmioty stronami (kursor po completed_at + id)
+router.get("/completed", async (req, res) => {
+  const groupId = req.headers["x-group-id"];
+  if (!groupId) return res.status(401).json({ message: "Brak ID grupy" });
+
+  const limit = Math.min(Number(req.query.limit) || 50, 100);
+  const cursor = req.query.cursor;
+
+  try {
+    const params = [groupId];
+    let cursorSql = "";
+
+    if (cursor) {
+      const separatorIndex = String(cursor).lastIndexOf("_");
+      const cursorCompletedAt = cursor.slice(0, separatorIndex);
+      const cursorId = cursor.slice(separatorIndex + 1);
+      cursorSql = "AND (i.completed_at < ? OR (i.completed_at = ? AND i.id < ?))";
+      params.push(cursorCompletedAt, cursorCompletedAt, cursorId);
+    }
+
+    const items = await req.db.all(
+      `SELECT i.id, i.name, i.quantity, i.unit, i.completed_at, i.list_id, l.name as list_name
+    FROM items i
+    JOIN lists l ON i.list_id = l.id
+    WHERE l.group_id = ? AND i.completed_at IS NOT NULL ${cursorSql}
+    ORDER BY i.completed_at DESC, i.id DESC
+    LIMIT ?`,
+      [...params, limit + 1],
+    );
+
+    const hasMore = items.length > limit;
+    const page = items.slice(0, limit).map((item) => ({
       ...item,
       completed: !!item.completed_at,
     }));
+    const last = page.at(-1);
+    const nextCursor = hasMore && last ? `${last.completed_at}_${last.id}` : null;
 
-    res.json(mappedItems);
+    res.json({ items: page, nextCursor });
   } catch (error) {
     res.status(500).json({ message: "Błąd", error: error.message });
   }

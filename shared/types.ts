@@ -15,6 +15,10 @@ export interface ShoppingItem {
   completed: boolean;
 }
 
+export interface HistoryItem extends ShoppingItem {
+  completed_at: string;
+}
+
 export interface AggregateShoppingItem extends ShoppingItem {
   list_id: string;
   list_name?: string;
