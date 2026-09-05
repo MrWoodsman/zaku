@@ -14,7 +14,11 @@ export function ItemCard({ listId, item, onToggle }: ItemCardProps) {
   return (
     <Card
       className={cn(
-        "overflow-hidden border py-0 shadow-sm ring-0 transition-colors duration-200",
+        // overflow-visible (not -hidden): on iOS Safari, overflow-hidden + rounded
+        // corners + box-shadow on the same element renders the shadow's square
+        // corners poking out past the radius. Nothing here bleeds past the edge,
+        // so there's nothing for overflow-hidden to actually clip.
+        "overflow-visible border py-0 shadow-sm ring-0 transition-colors duration-200",
         item.completed ? "border-highlight/20 bg-highlight/5" : "border-foreground/5 bg-card",
       )}
     >

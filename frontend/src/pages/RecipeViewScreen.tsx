@@ -64,18 +64,23 @@ export function RecipeViewScreen() {
       <div className="w-full h-dvh flex flex-col bg-background overflow-y-auto pb-12">
         <div className="w-full max-w-2xl mx-auto flex flex-col gap-6 pt-[max(12px,env(safe-area-inset-top))] px-2">
           {/* ZDJĘCIE ORAZ PASEK OPCJI (TRZY KROPKI) */}
-          <div className="relative w-full aspect-video rounded-xl overflow-hidden shadow-md bg-secondary/30">
-            {data?.image_url ? (
-              <img
-                src={data.image_url}
-                className="w-full h-full object-cover"
-                alt={`Zdjęcie ${data?.name}`}
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                <ChefHat size={48} className="opacity-40" />
-              </div>
-            )}
+          {/* Cień i przycinanie celowo na dwoch oddzielnych warstwach: overflow-hidden +
+              rounded + box-shadow na jednym elemencie potrafi na iOS Safari zrenderowac
+              cien z kwadratowymi rogami wystajacymi poza zaokraglenie. */}
+          <div className="relative w-full aspect-video rounded-xl shadow-md">
+            <div className="absolute inset-0 overflow-hidden rounded-xl bg-secondary/30">
+              {data?.image_url ? (
+                <img
+                  src={data.image_url}
+                  className="w-full h-full object-cover"
+                  alt={`Zdjęcie ${data?.name}`}
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                  <ChefHat size={48} className="opacity-40" />
+                </div>
+              )}
+            </div>
 
             {/* Przycisk Menu (Trzy kropki) w prawym górnym rogu zdjęcia */}
             <div className="absolute top-3 right-3">
