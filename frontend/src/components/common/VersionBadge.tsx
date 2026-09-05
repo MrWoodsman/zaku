@@ -20,6 +20,19 @@ export function VersionBadge() {
   // 1. HISTORIA ZMIAN (Najnowsza wersja ZAWSZE musi być jako PIERWSZA w tablicy!)
   const changelog: Release[] = [
     {
+      version: "0.57",
+      date: "05.09.2026",
+      changes: [
+        "Odświeżenie wyglądu całej aplikacji - nowy kolor akcentu (pomarańczowy) na przyciskach, plakietkach i zaznaczonych produktach",
+        "Przebudowa list zakupowych - pasek postępu i wyraźne oznaczenie ukończonej listy zamiast samych liczb",
+        "Przebudowa ekranu historii zakupów - czytelniejsze karty produktów zamiast gołego tekstu",
+        "Przebudowa ekranu ustawień na prostszą listę oraz dodanie wyboru języka interfejsu (na razie samo przełączanie, bez tłumaczenia treści)",
+        "Nowe ilustracje na ekranie powitalnym i w samouczku (wcześniej były tam puste placeholdery)",
+        "Poprawki drobnych błędów wizualnych (nierówne obrysy i odstępy na kartach, cień dający wrażenie krzywych rogów)",
+        "Naprawiono lukę bezpieczeństwa pozwalającą zresetować lub skasować cudzą listę bez dostępu do grupy",
+      ],
+    },
+    {
       version: "0.56.1",
       date: "31.08.2026",
       changes: ["Naprawiono spowolnienie przy odznaczaniu produktów na dużych listach zakupów"],
