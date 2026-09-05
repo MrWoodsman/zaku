@@ -42,7 +42,7 @@ export function RecipesListNavbar({ inputVal, setInputVal, draftsCount }: Recipe
             onOpenAll={() => navigate(ROUTES.RECIPES_ALL_MY)}
             draftsCount={draftsCount}
           >
-            <Button variant="default" size={"icon"} onClick={(e) => e.currentTarget.blur()}>
+            <Button variant="accent" size={"icon"} onClick={(e) => e.currentTarget.blur()}>
               <MoreVerticalIcon className="size-4" />
             </Button>
           </RecipeAddOverlay>

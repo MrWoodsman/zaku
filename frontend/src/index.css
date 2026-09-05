@@ -63,6 +63,12 @@
   /* DODANE */
   --bacground-tone: var(--color-neutral-300);
   --progres-dots: var(--color-neutral-400);
+
+  /* Accent/highlight color - for small badges/indicators (e.g. the "to buy"
+     count badge on the aggregate list button), not to be confused with
+     shadcn's --accent (neutral hover/muted surface color) above. */
+  --highlight: oklch(0.75 0.183 55.934); /* orange-400 */
+  --highlight-foreground: oklch(0.98 0.016 73.684); /* orange-50 */
 }
 
 html,
@@ -134,6 +140,8 @@ body {
   /* DODANE */
   --color-bacground-tone: var(--bacground-tone);
   --color-progres-dots: var(--progres-dots);
+  --color-highlight: var(--highlight);
+  --color-highlight-foreground: var(--highlight-foreground);
 }
 
 .dark {
@@ -171,6 +179,12 @@ body {
   /* DODANE */
   --bacground-tone: var(--color-neutral-900);
   --progres-dots: var(--color-neutral-700);
+
+  /* Slightly less saturated and a touch darker than the light-mode value -
+     a fully saturated orange (e.g. orange-600) reads as too intense/loud
+     against a near-black background. */
+  --highlight: oklch(0.7 0.15 55);
+  --highlight-foreground: oklch(0.98 0.016 73.684); /* orange-50 */
 }
 
 @layer base {

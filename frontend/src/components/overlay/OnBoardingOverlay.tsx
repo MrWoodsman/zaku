@@ -31,7 +31,7 @@ export function OnBoardingOverlay({ onComplete }: { onComplete: () => void }) {
           {steps.map((_, i) => (
             <div
               key={i}
-              className={`h-2 w-2 rounded-full transition-all ${i === currentStep ? "bg-primary w-6" : "bg-progres-dots"}`}
+              className={`h-2 w-2 rounded-full transition-all ${i === currentStep ? "bg-highlight w-6" : "bg-progres-dots"}`}
             />
           ))}
         </div>

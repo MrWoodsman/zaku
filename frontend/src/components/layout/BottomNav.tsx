@@ -15,10 +15,10 @@ interface NavItemProps {
 function BottomNavItem({ to, label, isActive, children }: NavItemProps) {
   return (
     <Link to={to} className="w-full flex flex-col items-center -space-y-1.5">
-      <div className={`[&>svg]:size-6 ${isActive ? "text-primary" : "text-neutral-400"}`}>
+      <div className={`[&>svg]:size-6 ${isActive ? "text-highlight" : "text-neutral-400"}`}>
         {children}
       </div>
-      <span className={`text-[10px] ${isActive ? "text-primary font-medium" : "text-neutral-400"}`}>
+      <span className={`text-[10px] ${isActive ? "text-highlight font-medium" : "text-neutral-400"}`}>
         {label}
       </span>
     </Link>

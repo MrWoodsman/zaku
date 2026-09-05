@@ -265,7 +265,8 @@ export function RecipeEditorScreen() {
               <Button
                 disabled={isPending}
                 size="icon"
-                className="h-10 w-10 rounded-xl shadow-sm bg-primary text-primary-foreground"
+                variant="accent"
+                className="h-10 w-10 rounded-xl shadow-sm"
               >
                 {isPending ? <Loader2 size={20} className="animate-spin" /> : <Save size={20} />}
               </Button>

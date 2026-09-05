@@ -86,7 +86,7 @@ function EmptyListPrompt({ searchInput }: { searchInput: string }) {
           </EmptyHeader>
           <EmptyContent>
             <ListAddOverlay>
-              <Button variant="default" onClick={(e) => e.currentTarget.blur()}>
+              <Button variant="accent" onClick={(e) => e.currentTarget.blur()}>
                 Dodaj liste <Plus className="size-4" />
               </Button>
             </ListAddOverlay>
@@ -104,7 +104,7 @@ function EmptyListPrompt({ searchInput }: { searchInput: string }) {
           </EmptyHeader>
           <EmptyContent>
             <ListAddOverlay>
-              <Button variant="default" onClick={(e) => e.currentTarget.blur()}>
+              <Button variant="accent" onClick={(e) => e.currentTarget.blur()}>
                 Dodaj liste <Plus className="size-4" />
               </Button>
             </ListAddOverlay>

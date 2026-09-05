@@ -134,7 +134,7 @@ function FilterPill({
       onClick={onClick}
       className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
         isActive
-          ? "bg-primary text-primary-foreground shadow-sm"
+          ? "bg-highlight text-highlight-foreground shadow-sm"
           : "bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border/50"
       }`}
     >

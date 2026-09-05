@@ -108,7 +108,8 @@ export function ItemSettingsOverlay({ listId, item }: ItemSettingsProps) {
           </label>
 
           <Button
-            className="justify-start h-14 text-base bg-primary"
+            variant="accent"
+            className="justify-start h-14 text-base"
             onClick={() => {
               const trimmedName = name.trim();
               if (!trimmedName) return;

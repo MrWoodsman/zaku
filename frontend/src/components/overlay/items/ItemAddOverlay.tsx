@@ -71,7 +71,7 @@ export function ItemAddOverlay({ listId }: ItemAddOverlayProps) {
   return (
     <Drawer open={isOpen} onOpenChange={setIsOpen}>
       <DrawerTrigger asChild>
-        <Button variant={"default"} onClick={(e) => e.currentTarget.blur()}>
+        <Button variant={"accent"} onClick={(e) => e.currentTarget.blur()}>
           Dodaj <Plus className="size-4" />
         </Button>
       </DrawerTrigger>

@@ -47,12 +47,12 @@ export function ShoppingListsNavbar({
             }}
           >
             <ShoppingBagIcon className="size-4" />
-            <div className="absolute -bottom-0.5 -left-0.5 text-[10px] bg-orange-400 text-orange-100 py-.5 px-1 rounded-2xl">
+            <div className="absolute -bottom-1 -left-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-highlight px-1 text-[10px] leading-none font-medium text-highlight-foreground">
               {itemToButSum}
             </div>
           </Button>
           <ListAddOverlay>
-            <Button variant="default" onClick={(e) => e.currentTarget.blur()}>
+            <Button variant="accent" onClick={(e) => e.currentTarget.blur()}>
               Dodaj <Plus className="size-4" />
             </Button>
           </ListAddOverlay>
