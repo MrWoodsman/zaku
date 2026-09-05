@@ -39,6 +39,7 @@ export const useDeleteItemMutation = (listId: string) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shoppingList", listId] });
       queryClient.invalidateQueries({ queryKey: ["shoppingLists"] });
+      queryClient.invalidateQueries({ queryKey: ["shoppingItems", "all"] });
     },
     onError: showErrorToast,
   });
@@ -109,6 +110,7 @@ export const useUpdateItemMutation = (listId: string) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shoppingList", listId] });
       queryClient.invalidateQueries({ queryKey: ["shoppingLists"] });
+      queryClient.invalidateQueries({ queryKey: ["shoppingItems", "all"] });
     },
     onError: showErrorToast,
   });

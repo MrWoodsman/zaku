@@ -12,7 +12,7 @@ router.get("/", async (req, res) => {
        FROM items i
        JOIN lists l ON i.list_id = l.id
        WHERE l.group_id = ? AND i.deleted_at IS NULL AND l.deleted_at IS NULL
-       ORDER BY i.completed_at ASC, i.name ASC`,
+       ORDER BY (i.completed_at IS NULL) DESC, i.completed_at DESC, i.name ASC`,
       [groupId],
     );
 
