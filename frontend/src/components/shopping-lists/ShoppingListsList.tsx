@@ -59,7 +59,7 @@ export function ShoppingListsList({
             <CardContent className="flex items-center gap-3">
               {/* Strefa klikalna - nawigacja do listy. Przycisk opcji zostaje poza nią. */}
               <div
-                className="flex min-w-0 flex-1 cursor-pointer items-center gap-3"
+                className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 transition-transform active:scale-[0.98]"
                 onClick={() => navigate(`/shopping/${el.id}`)}
               >
                 <div

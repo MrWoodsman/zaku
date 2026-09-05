@@ -20,7 +20,7 @@ export function ItemCard({ listId, item, onToggle }: ItemCardProps) {
     >
       <CardContent className="flex items-stretch gap-2 pr-0 pl-3">
         <div
-          className="left-wrap flex w-full cursor-pointer items-center gap-2.5 py-3 select-none"
+          className="left-wrap flex w-full cursor-pointer items-center gap-2.5 py-3 select-none transition-transform active:scale-[0.98]"
           onClick={() => onToggle(!item.completed)}
         >
           <Checkbox

@@ -10,7 +10,7 @@ export function AutoListScreen() {
         </div>
       </div>
 
-      <h1 className="text-2xl font-bold text-foreground mb-3">Inteligentna Lista</h1>
+      <h1 className="text-2xl font-bold tracking-tight text-foreground mb-3">Inteligentna Lista</h1>
 
       <p className="text-sm text-muted-foreground max-w-70 leading-relaxed">
         Twój asystent zakupowy uczy się nawyków. Zbieramy statystyki, aby w przyszłości móc z
