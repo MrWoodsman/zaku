@@ -103,9 +103,11 @@ export function RecipesAllScreen() {
       {/* Lista przepisów */}
       <div className="content flex-1 flex flex-col px-2 pb-4 gap-3 overflow-y-auto">
         {filteredRecipes.length === 0 ? (
-          <div className="text-center p-8 text-muted-foreground mt-6 flex flex-col items-center gap-2">
-            <Search size={32} className="opacity-20" />
-            <p>Brak wyników dla tych filtrów.</p>
+          <div className="mt-6 flex flex-col items-center gap-3 p-8 text-center">
+            <div className="flex size-14 items-center justify-center rounded-2xl bg-highlight/10 text-highlight">
+              <Search size={24} />
+            </div>
+            <p className="text-sm text-muted-foreground">Brak wyników dla tych filtrów.</p>
           </div>
         ) : (
           filteredRecipes.map((recipe) => <RecipeItem key={recipe.id} recipe={recipe} />)

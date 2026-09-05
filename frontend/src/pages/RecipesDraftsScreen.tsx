@@ -57,8 +57,8 @@ export function RecipesDraftsScreen() {
 
       <div className="content flex flex-col px-2 pb-4 gap-3 overflow-y-auto">
         <div className="mx-1 mt-1 mb-2 p-3.5 bg-secondary/30 border border-secondary/50 rounded-xl flex items-start gap-3.5 shadow-sm shrink-0">
-          <div className="bg-secondary/60 p-2.5 rounded-lg shrink-0 mt-0.5">
-            <PenBox size={20} className="text-foreground/80" />
+          <div className="bg-highlight/10 p-2.5 rounded-lg shrink-0 mt-0.5">
+            <PenBox size={20} className="text-highlight" />
           </div>
 
           <div className="flex flex-col gap-1 w-full">
@@ -75,7 +75,14 @@ export function RecipesDraftsScreen() {
         </div>
 
         {filteredDrafts.length === 0 ? (
-          <div className="text-center p-8 text-neutral-500 mt-6">Brak wyników.</div>
+          <div className="mt-6 flex flex-col items-center gap-3 p-8 text-center">
+            <div className="flex size-14 items-center justify-center rounded-2xl bg-highlight/10 text-highlight">
+              <PenBox size={24} />
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {drafts.length === 0 ? "Brak szkiców do dokończenia." : "Brak wyników."}
+            </p>
+          </div>
         ) : (
           filteredDrafts.map((recipe) => <RecipeItem key={recipe.id} recipe={recipe} />)
         )}

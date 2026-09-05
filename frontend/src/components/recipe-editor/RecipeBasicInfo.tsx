@@ -41,7 +41,7 @@ export function RecipeBasicInfo({
       {/* Zdjęcie (teraz klikalne, wywołuje input) */}
       <div
         onClick={() => fileInputRef.current?.click()}
-        className="w-full aspect-video bg-secondary/30 rounded-xl border-2 border-dashed border-border/60 flex flex-col items-center justify-center gap-2 overflow-hidden relative cursor-pointer hover:bg-secondary/50 transition-colors"
+        className="w-full aspect-video bg-secondary/30 rounded-xl border-2 border-dashed border-border/60 flex flex-col items-center justify-center gap-2 overflow-hidden relative cursor-pointer hover:bg-secondary/50 active:scale-[0.98] transition-all"
       >
         {/* Ukryty input pliku */}
         <input

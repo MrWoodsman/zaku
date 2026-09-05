@@ -6,7 +6,7 @@ import { LanguageSection } from "@/components/settings/LanguageSection";
 export function SettingsScreen({ groupId, onLeave }: { groupId: string; onLeave: () => void }) {
   return (
     <div className="p-4 space-y-6 pt-[max(16px,env(safe-area-inset-top))]">
-      <h1 className="text-2xl font-bold">Ustawienia</h1>
+      <h1 className="text-2xl font-bold tracking-tight">Ustawienia</h1>
 
       <GroupSection groupId={groupId} onLeave={onLeave} />
       <AppearanceSection />

@@ -14,7 +14,10 @@ interface NavItemProps {
 // Komponent pomocniczy
 function BottomNavItem({ to, label, isActive, children }: NavItemProps) {
   return (
-    <Link to={to} className="w-full flex flex-col items-center -space-y-1.5">
+    <Link
+      to={to}
+      className="w-full flex flex-col items-center -space-y-1.5 transition-transform active:scale-90"
+    >
       <div className={`[&>svg]:size-6 ${isActive ? "text-highlight" : "text-neutral-400"}`}>
         {children}
       </div>

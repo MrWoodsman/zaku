@@ -64,18 +64,23 @@ export function RecipeViewScreen() {
       <div className="w-full h-dvh flex flex-col bg-background overflow-y-auto pb-12">
         <div className="w-full max-w-2xl mx-auto flex flex-col gap-6 pt-[max(12px,env(safe-area-inset-top))] px-2">
           {/* ZDJĘCIE ORAZ PASEK OPCJI (TRZY KROPKI) */}
-          <div className="relative w-full aspect-video rounded-xl overflow-hidden shadow-md bg-secondary/30">
-            {data?.image_url ? (
-              <img
-                src={data.image_url}
-                className="w-full h-full object-cover"
-                alt={`Zdjęcie ${data?.name}`}
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                <ChefHat size={48} className="opacity-40" />
-              </div>
-            )}
+          {/* Cień i przycinanie celowo na dwoch oddzielnych warstwach: overflow-hidden +
+              rounded + box-shadow na jednym elemencie potrafi na iOS Safari zrenderowac
+              cien z kwadratowymi rogami wystajacymi poza zaokraglenie. */}
+          <div className="relative w-full aspect-video rounded-xl shadow-md">
+            <div className="absolute inset-0 overflow-hidden rounded-xl bg-secondary/30">
+              {data?.image_url ? (
+                <img
+                  src={data.image_url}
+                  className="w-full h-full object-cover"
+                  alt={`Zdjęcie ${data?.name}`}
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                  <ChefHat size={48} className="opacity-40" />
+                </div>
+              )}
+            </div>
 
             {/* Przycisk Menu (Trzy kropki) w prawym górnym rogu zdjęcia */}
             <div className="absolute top-3 right-3">
@@ -200,12 +205,12 @@ export function RecipeViewScreen() {
                   className="flex items-center justify-between p-3 rounded-lg bg-secondary/30 border border-border/40"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="text-xs font-semibold text-muted-foreground bg-foreground/5 border border-foreground/10 px-2 py-1 min-h-6 min-w-6 flex items-center justify-center rounded-md">
+                    <span className="text-xs font-semibold text-highlight bg-highlight/10 border border-highlight/20 px-2 py-1 min-h-6 min-w-6 flex items-center justify-center rounded-md">
                       {index + 1}
                     </span>
                     <span className="font-medium text-foreground">{item.name}</span>
                   </div>
-                  <span className="text-sm font-semibold text-primary">
+                  <span className="font-mono text-sm font-semibold text-foreground">
                     {item.quantity} {item.unit}
                   </span>
                 </div>
@@ -226,7 +231,7 @@ export function RecipeViewScreen() {
                   key={item.id || index}
                   className="flex gap-4 p-4 rounded-xl bg-card border border-border/50 shadow-sm"
                 >
-                  <div className="shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-foreground/5 border border-foreground/10 text-primary font-bold text-sm">
+                  <div className="shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-highlight/10 border border-highlight/20 text-highlight font-bold text-sm">
                     {item.order || index + 1}
                   </div>
 

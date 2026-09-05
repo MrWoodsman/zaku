@@ -8,13 +8,14 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
-import { Card, CardAction, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "../ui/button";
 // TYPE
 import { type ShoppingListData } from "@shared/types";
 import { ListSettingsOverlay } from "../overlay/lists/ListSettingsOverlay";
 import { ListAddOverlay } from "../overlay/lists/ListAddOverlay";
-import { Plus } from "lucide-react";
+import { Plus, ShoppingBag, Check, Search } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type ShoppingListsListProps = {
   shoppingLists: ShoppingListData[];
@@ -46,27 +47,51 @@ export function ShoppingListsList({
     return <EmptyListPrompt searchInput={searchInput} />;
 
   return (
-    <div className="shopping-lists-list h-full space-y-2 px-2 overflow-y-auto scrollbar-gutter-stable pb-[env(safe-area-bottom)]">
+    <div className="shopping-lists-list h-full space-y-3 px-2 overflow-y-auto scrollbar-gutter-stable pb-[env(safe-area-bottom)]">
       {shoppingLists.map((el) => {
-        const listCompletePercent = Math.floor((el.completedCount / el.itemsIn) * 100);
+        const total = el.itemsIn;
+        const done = el.completedCount;
+        const percent = total > 0 ? Math.round((done / total) * 100) : 0;
+        const isComplete = total > 0 && done === total;
+
         return (
-          // 1. Zdejmujemy onClick stąd! Karta to teraz tylko "pojemnik".
-          <Card key={el.id} className="border border-foreground/5">
-            <CardHeader>
-              {/* 2. Tworzymy klikalną strefę na teksty (lewa strona) */}
-              <div className="flex-1 cursor-pointer" onClick={() => navigate(`/shopping/${el.id}`)}>
-                <CardTitle>{el.name}</CardTitle>
-                <CardDescription>
-                  {el.completedCount}/{el.itemsIn} |{" "}
-                  {listCompletePercent ? listCompletePercent : "0"}%
-                </CardDescription>
+          <Card key={el.id} className="overflow-visible border border-foreground/5 ring-0 py-3">
+            <CardContent className="flex items-center gap-3">
+              {/* Strefa klikalna - nawigacja do listy. Przycisk opcji zostaje poza nią. */}
+              <div
+                className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 transition-transform active:scale-[0.98]"
+                onClick={() => navigate(`/shopping/${el.id}`)}
+              >
+                <div
+                  className={cn(
+                    "flex size-10 shrink-0 items-center justify-center rounded-xl",
+                    isComplete ? "bg-highlight/15 text-highlight" : "bg-foreground/5 text-foreground/60",
+                  )}
+                >
+                  {isComplete ? <Check className="size-5" /> : <ShoppingBag className="size-5" />}
+                </div>
+
+                <div className="min-w-0 flex-1 space-y-1.5">
+                  <p className="truncate text-base font-medium">{el.name}</p>
+                  <div className="flex items-center gap-2">
+                    <div className="h-1.5 w-full max-w-24 shrink-0 overflow-hidden rounded-full bg-foreground/10">
+                      <div
+                        className={cn(
+                          "h-full rounded-full transition-[width]",
+                          isComplete ? "bg-highlight" : "bg-foreground/40",
+                        )}
+                        style={{ width: `${percent}%` }}
+                      />
+                    </div>
+                    <span className="shrink-0 font-mono text-xs text-muted-foreground">
+                      {isComplete ? "Gotowe" : `${done}/${total}`}
+                    </span>
+                  </div>
+                </div>
               </div>
 
-              {/* 3. Prawa strona z przyciskiem opcji (odizolowana od nawigacji) */}
-              <CardAction className="row-span-full! flex items-center justify-center h-full rounded-sm">
-                <ListSettingsOverlay listId={el.id} listName={el.name} />
-              </CardAction>
-            </CardHeader>
+              <ListSettingsOverlay listId={el.id} listName={el.name} />
+            </CardContent>
           </Card>
         );
       })}
@@ -80,7 +105,9 @@ function EmptyListPrompt({ searchInput }: { searchInput: string }) {
       {searchInput?.length == 0 ? (
         <Empty className="border border-dashed h-full">
           <EmptyHeader>
-            <EmptyMedia variant="default"></EmptyMedia>
+            <EmptyMedia className="size-14 rounded-2xl bg-highlight/10 text-highlight">
+              <ShoppingBag className="size-6" />
+            </EmptyMedia>
             <EmptyTitle>Jakoś tu pusto...</EmptyTitle>
             <EmptyDescription>Nie znaleziono żadnej listy zakupowej</EmptyDescription>
           </EmptyHeader>
@@ -95,7 +122,9 @@ function EmptyListPrompt({ searchInput }: { searchInput: string }) {
       ) : (
         <Empty className="border border-dashed h-full">
           <EmptyHeader>
-            <EmptyMedia variant="default"></EmptyMedia>
+            <EmptyMedia variant="icon">
+              <Search className="size-4" />
+            </EmptyMedia>
             <EmptyTitle>Nic nie znaleziono</EmptyTitle>
             <EmptyDescription className="text-balance">
               Nie znaleziono pasującej listy do `

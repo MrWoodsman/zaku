@@ -1,24 +1,30 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { ListChecks, Zap, Share2, Smartphone } from "lucide-react";
 
 const steps = [
-  { title: "Witaj!", desc: "To Twoja nowa lista zakupów." },
-  { title: "Szybkie dodawanie", desc: "Wpisz produkt i naciśnij plus." },
-  { title: "Udostępnianie", desc: "Wyślij listę do domowników." },
-  { title: "Szybki dostęp", desc: "Dodaj do ekranu głównego telefonu." },
+  { title: "Witaj!", desc: "To Twoja nowa lista zakupów.", icon: ListChecks },
+  { title: "Szybkie dodawanie", desc: "Wpisz produkt i naciśnij plus.", icon: Zap },
+  { title: "Udostępnianie", desc: "Wyślij listę do domowników.", icon: Share2 },
+  { title: "Szybki dostęp", desc: "Dodaj do ekranu głównego telefonu.", icon: Smartphone },
 ];
 
 export function OnBoardingOverlay({ onComplete }: { onComplete: () => void }) {
   const [currentStep, setCurrentStep] = useState(0);
+  const StepIcon = steps[currentStep].icon;
 
   return (
     <Card className="fixed inset-0 w-full h-full border-none shadow-none bg-background rounded-none flex flex-col justify-between pt-[max(16px,env(safe-area-inset-top))]">
       {" "}
       <CardContent className="flex-2">
-        {/* Tu możesz dodać jakąś grafikę/ilustrację dla każdego kroku */}
-        <div className="h-full bg-bacground-tone rounded-xl flex items-center justify-center">
-          Ilustracja {currentStep + 1}
+        <div className="h-full bg-bacground-tone/50 rounded-xl flex items-center justify-center">
+          <div className="relative">
+            <div className="absolute inset-0 rounded-full bg-highlight/20 blur-2xl" />
+            <div className="relative flex size-28 items-center justify-center rounded-3xl border border-highlight/20 bg-highlight/10">
+              <StepIcon className="size-12 text-highlight" strokeWidth={1.5} />
+            </div>
+          </div>
         </div>
       </CardContent>
       <CardHeader>
