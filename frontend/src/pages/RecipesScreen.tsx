@@ -110,7 +110,7 @@ function RecipeCard({
     <Card
       key={recipe.id}
       onClick={() => navigate(ROUTES.RECIPES_VIEW(recipe.id))}
-      className="group relative flex flex-col shrink-0 overflow-hidden cursor-pointer transition-all hover:shadow-md hover:border-primary/30 pt-0 pb-0"
+      className="group relative flex flex-col shrink-0 overflow-hidden cursor-pointer transition-all hover:shadow-md hover:border-primary/30 active:scale-[0.98] pt-0 pb-0"
     >
       {/* SEKCJA ZDJĘCIA (Przeniesiona na górę dla lepszego efektu) */}
       <div className="relative aspect-video w-full overflow-hidden bg-muted">
