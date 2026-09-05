@@ -112,7 +112,7 @@ export function ItemsInListOverlay({ listID, items = [] }: ItemsInListOverlayPro
               }
               disabled={markAllMutation.isPending || isEverythingBought}
             >
-              <CheckCheck className="mr-3 size-5 text-primary" />
+              <CheckCheck className="mr-3 size-5 text-highlight" />
               Zaznacz wszystko jako kupione
             </Button>
 

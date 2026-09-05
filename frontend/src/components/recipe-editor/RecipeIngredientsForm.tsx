@@ -74,7 +74,7 @@ export function RecipeIngredientsForm({
                 size="icon"
                 onClick={() => removeIngredient(ing.id)}
                 disabled={ingredients.length === 1}
-                className="h-11 w-11 justify-self-end disabled:opacity-30 bg-destructive/25 border-2 border-destructive/25 text-red-500 hover:text-red-500 hover:bg-red-500/10 shrink-0"
+                className="h-11 w-11 justify-self-end disabled:opacity-30 bg-destructive/25 border-2 border-destructive/25 text-destructive hover:text-destructive hover:bg-destructive/10 shrink-0"
               >
                 <Trash2 size={18} />
               </Button>

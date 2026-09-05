@@ -25,7 +25,7 @@ export function RecipeStepsForm({ steps, addStep, updateStep, removeStep }: Reci
             className="flex flex-col gap-2 p-3 bg-secondary/10 border border-border/50 rounded-xl relative"
           >
             <div className="flex items-center justify-between">
-              <span className="font-bold text-sm text-muted-foreground bg-background px-2 py-1 rounded-md border border-border/50">
+              <span className="font-bold text-sm text-highlight bg-highlight/10 px-2 py-1 rounded-md border border-highlight/20">
                 Krok {index + 1}
               </span>
               <Button
@@ -33,7 +33,7 @@ export function RecipeStepsForm({ steps, addStep, updateStep, removeStep }: Reci
                 size="icon"
                 onClick={() => removeStep(step.id)}
                 disabled={steps.length === 1}
-                className="h-8 w-8 disabled:opacity-30 bg-destructive/25 border-2 border-destructive/25 text-red-500 hover:text-red-500 hover:bg-red-500/10"
+                className="h-8 w-8 disabled:opacity-30 bg-destructive/25 border-2 border-destructive/25 text-destructive hover:text-destructive hover:bg-destructive/10"
               >
                 <Trash2 size={16} />
               </Button>
