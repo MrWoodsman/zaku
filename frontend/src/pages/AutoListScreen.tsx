@@ -4,9 +4,9 @@ export function AutoListScreen() {
   return (
     <div className="h-full flex flex-col items-center justify-center p-6 text-center pt-[max(16px,env(safe-area-inset-top))] bg-background">
       <div className="relative mb-6">
-        <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full" />
-        <div className="relative p-5 bg-primary/10 rounded-full border border-primary/20">
-          <Wand2 className="size-12 text-primary" />
+        <div className="absolute inset-0 bg-highlight/20 blur-xl rounded-full" />
+        <div className="relative p-5 bg-highlight/10 rounded-full border border-highlight/20">
+          <Wand2 className="size-12 text-highlight" />
         </div>
       </div>
 

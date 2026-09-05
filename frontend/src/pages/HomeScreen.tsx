@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Dices, Clock, Info } from "lucide-react";
+import { Dices, Clock, Info, ShoppingBag } from "lucide-react";
 import { ROUTES } from "@/config/routes";
 
 interface HomeScreenProps {
@@ -60,7 +60,12 @@ export function HomeScreen({ onJoin }: HomeScreenProps) {
       {/* GŁÓWNY EKRAN */}
       <div className="w-full h-full flex flex-col p-4 pt-[max(16px,env(safe-area-inset-top))] relative z-10">
         <div className="flex-1 flex items-center justify-center">
-          <div className="w-48 aspect-square bg-foreground/10 rounded-2xl"></div>
+          <div className="relative">
+            <div className="absolute inset-0 rounded-full bg-highlight/20 blur-2xl" />
+            <div className="relative flex size-40 items-center justify-center rounded-3xl border border-highlight/20 bg-highlight/10">
+              <ShoppingBag className="size-16 text-highlight" strokeWidth={1.5} />
+            </div>
+          </div>
         </div>
 
         <div className="flex flex-col gap-6 pb-[max(8px,env(safe-area-inset-bottom))]">

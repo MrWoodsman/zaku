@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ItemSettingsOverlay } from "@/components/overlay/items/ItemSettingsOverlay";
+import { cn } from "@/lib/utils";
 import type { ShoppingItem } from "@shared/types";
 
 export interface ItemCardProps {
@@ -12,27 +13,31 @@ export interface ItemCardProps {
 export function ItemCard({ listId, item, onToggle }: ItemCardProps) {
   return (
     <Card
-      className={`border-dashed border border-foreground/20 overflow-hidden transition-colors duration-200 ${
-        item.completed ? "bg-foreground/7.5 text-primary" : "bg-foreground/7.5"
-      } py-0`}
+      className={cn(
+        "overflow-hidden border py-0 shadow-sm transition-colors duration-200",
+        item.completed ? "border-highlight/20 bg-highlight/5" : "border-foreground/5 bg-card",
+      )}
     >
-      <CardContent className="px-2 pr-0 flex gap-2 items-stretch relative">
+      <CardContent className="flex items-stretch gap-2 px-2 pr-0">
         <div
-          className="left-wrap w-full py-1 flex items-center cursor-pointer select-none"
+          className="left-wrap flex w-full cursor-pointer items-center gap-2.5 py-2.5 select-none"
           onClick={() => onToggle(!item.completed)}
         >
-          <div className="button h-10 aspect-square flex items-center justify-center">
-            <Checkbox
-              checked={item.completed}
-              className="size-4.5 border-foreground/25 bg-foreground/2.5"
-            />
-          </div>
-          <div className="column flex flex-col">
-            <h1 className={`font-medium text-sm ${item.completed && "line-through"}`}>
+          <Checkbox
+            checked={item.completed}
+            className="size-5 shrink-0 border-foreground/25 bg-foreground/2.5"
+          />
+          <div className="column flex min-w-0 flex-col">
+            <h1
+              className={cn(
+                "truncate text-sm font-medium",
+                item.completed && "text-muted-foreground line-through",
+              )}
+            >
               {item.name}
             </h1>
-            <h2 className="text-[12px] text-primary/60 flex items-center gap-1.5">
-              <span>
+            <h2 className="flex items-center gap-1.5 text-[12px] text-muted-foreground">
+              <span className="font-mono">
                 {item.quantity} {item.unit}
               </span>
 
@@ -40,7 +45,7 @@ export function ItemCard({ listId, item, onToggle }: ItemCardProps) {
               {item.list_name && (
                 <>
                   <span className="text-[10px]">•</span>
-                  <span className="bg-foreground/5 px-1.5 rounded-sm">{item.list_name}</span>
+                  <span className="rounded-sm bg-foreground/5 px-1.5">{item.list_name}</span>
                 </>
               )}
             </h2>
