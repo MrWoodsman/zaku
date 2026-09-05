@@ -43,10 +43,15 @@ router.get("/", async (req, res) => {
 // POBIERANIE POJEDYNCZEGO PRZEPISU ZE SKŁADNIKAMI I KROKAMI
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
+  const groupId = req.headers["x-group-id"];
+  if (!groupId) return res.status(401).json({ message: "Brak ID grupy" });
 
   try {
-    // 1. Pobieramy główne dane przepisu
-    const recipe = await req.db.get("SELECT * FROM recipes WHERE id = ?", [id]);
+    // 1. Pobieramy główne dane przepisu - tylko własny (grupy) lub globalny, nieusunięty
+    const recipe = await req.db.get(
+      "SELECT * FROM recipes WHERE id = ? AND (group_id = ? OR is_global = 1) AND deleted_at IS NULL",
+      [id, groupId],
+    );
 
     if (!recipe) {
       return res.status(404).json({ message: "Nie znaleziono przepisu" });

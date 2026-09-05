@@ -190,30 +190,68 @@ router.put("/:id/items/mark-all", async (req, res) => {
 
 // PUT /api/v1/lists/:id/items/reset-all
 router.put("/:id/items/reset-all", async (req, res) => {
-  // Analogicznie: weryfikacja list + UPDATE items SET completed_at = NULL WHERE list_id = ?
-  await req.db.run(
-    `UPDATE items SET completed_at = NULL WHERE list_id = ? AND deleted_at IS NULL`,
-    [req.params.id],
-  );
-  res.json({ message: "Reset" });
+  const groupId = req.headers["x-group-id"];
+  if (!groupId) return res.status(401).json({ message: "Brak ID grupy" });
+
+  try {
+    const list = await req.db.get(
+      `SELECT id FROM lists WHERE id = ? AND group_id = ? AND deleted_at IS NULL`,
+      [req.params.id, groupId],
+    );
+    if (!list) return res.status(404).json({ message: "Nie znaleziono listy" });
+
+    await req.db.run(
+      `UPDATE items SET completed_at = NULL WHERE list_id = ? AND deleted_at IS NULL`,
+      [req.params.id],
+    );
+    res.json({ message: "Reset" });
+  } catch (error) {
+    res.status(500).json({ message: "Błąd", error: error.message });
+  }
 });
 
 // DELETE /api/v1/lists/:id/items/delete-completed
 router.delete("/:id/items/delete-completed", async (req, res) => {
-  await req.db.run(
-    `UPDATE items SET deleted_at = CURRENT_TIMESTAMP WHERE list_id = ? AND completed_at IS NOT NULL AND deleted_at IS NULL`,
-    [req.params.id],
-  );
-  res.json({ message: "Usunięto kupione" });
+  const groupId = req.headers["x-group-id"];
+  if (!groupId) return res.status(401).json({ message: "Brak ID grupy" });
+
+  try {
+    const list = await req.db.get(
+      `SELECT id FROM lists WHERE id = ? AND group_id = ? AND deleted_at IS NULL`,
+      [req.params.id, groupId],
+    );
+    if (!list) return res.status(404).json({ message: "Nie znaleziono listy" });
+
+    await req.db.run(
+      `UPDATE items SET deleted_at = CURRENT_TIMESTAMP WHERE list_id = ? AND completed_at IS NOT NULL AND deleted_at IS NULL`,
+      [req.params.id],
+    );
+    res.json({ message: "Usunięto kupione" });
+  } catch (error) {
+    res.status(500).json({ message: "Błąd", error: error.message });
+  }
 });
 
 // DELETE /api/v1/lists/:id/items/delete-all
 router.delete("/:id/items/delete-all", async (req, res) => {
-  await req.db.run(
-    `UPDATE items SET deleted_at = CURRENT_TIMESTAMP WHERE list_id = ? AND deleted_at IS NULL`,
-    [req.params.id],
-  );
-  res.json({ message: "Wyczyszczono" });
+  const groupId = req.headers["x-group-id"];
+  if (!groupId) return res.status(401).json({ message: "Brak ID grupy" });
+
+  try {
+    const list = await req.db.get(
+      `SELECT id FROM lists WHERE id = ? AND group_id = ? AND deleted_at IS NULL`,
+      [req.params.id, groupId],
+    );
+    if (!list) return res.status(404).json({ message: "Nie znaleziono listy" });
+
+    await req.db.run(
+      `UPDATE items SET deleted_at = CURRENT_TIMESTAMP WHERE list_id = ? AND deleted_at IS NULL`,
+      [req.params.id],
+    );
+    res.json({ message: "Wyczyszczono" });
+  } catch (error) {
+    res.status(500).json({ message: "Błąd", error: error.message });
+  }
 });
 
 // POST /api/v1/lists/add-from-recipe
