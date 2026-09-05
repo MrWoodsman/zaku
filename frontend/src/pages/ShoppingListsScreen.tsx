@@ -28,8 +28,6 @@ export function ShoppingListsScreen() {
       />
     );
 
-  console.log(data);
-
   let ToBuySum = 0;
   data.map((list) => (ToBuySum += list.itemsIn - list.completedCount));
 
