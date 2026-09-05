@@ -85,7 +85,7 @@ export function HomeScreen({ onJoin }: HomeScreenProps) {
                   <button
                     key={recentId}
                     onClick={() => executeJoin(recentId)}
-                    className="px-4 py-2 bg-bacground-tone/50 hover:bg-bacground-tone/25 text-primary rounded-full text-sm font-medium transition-colors border border-bacground-tone"
+                    className="px-4 py-2 bg-bacground-tone/50 hover:bg-bacground-tone/25 active:scale-95 text-primary rounded-full text-sm font-medium transition-all border border-bacground-tone"
                   >
                     {recentId}
                   </button>
@@ -108,7 +108,7 @@ export function HomeScreen({ onJoin }: HomeScreenProps) {
               <button
                 type="button"
                 onClick={handleAddSuffix}
-                className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium bg-bacground-tone/80 text-primary hover:text-primary/75 hover:bg-background/50 rounded-md transition-all border border-foreground/15"
+                className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium bg-bacground-tone/80 text-primary hover:text-primary/75 hover:bg-background/50 active:scale-95 rounded-md transition-all border border-foreground/15"
               >
                 <Dices size={14} />
                 Losuj
@@ -119,7 +119,7 @@ export function HomeScreen({ onJoin }: HomeScreenProps) {
               <button
                 type="button"
                 onClick={() => setShowHelp(true)}
-                className="text-[11px] text-primary/75 hover:text-primary/50 transition-colors flex items-center gap-1.5 cursor-pointer py-1"
+                className="text-[11px] text-primary/75 hover:text-primary/50 active:opacity-60 transition-colors flex items-center gap-1.5 cursor-pointer py-1"
               >
                 <Info size={12} />
                 <span>Wymyśl trudną nazwę i udostępnij ją domownikom.</span>
