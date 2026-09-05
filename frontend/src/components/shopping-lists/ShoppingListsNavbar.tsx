@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 // ROUTES
 import { ROUTES } from "@/config/routes";
 // ICONS
-import { Package, Plus, Search } from "lucide-react";
+import { Plus, Search, ShoppingBagIcon } from "lucide-react";
 // UI
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,10 +12,15 @@ import { ListAddOverlay } from "../overlay/lists/ListAddOverlay";
 
 type ShoppingListsNavbarProps = {
   inputVal: string;
+  itemToButSum: number;
   setInputVal: (val: string) => void;
 };
 
-export function ShoppingListsNavbar({ inputVal, setInputVal }: ShoppingListsNavbarProps) {
+export function ShoppingListsNavbar({
+  inputVal,
+  setInputVal,
+  itemToButSum,
+}: ShoppingListsNavbarProps) {
   const navigate = useNavigate();
 
   return (
@@ -34,14 +39,17 @@ export function ShoppingListsNavbar({ inputVal, setInputVal }: ShoppingListsNavb
         </ButtonGroup>
         <div className="flex gap-2">
           <Button
-            className="hidden"
+            className="relative"
             variant="secondary"
             onClick={(e) => {
               e.currentTarget.blur();
               navigate(ROUTES.SHOPPING_ALL);
             }}
           >
-            Razem <Package className="size-4" />
+            <ShoppingBagIcon className="size-4" />
+            <div className="absolute -bottom-0.5 -left-0.5 text-[10px] bg-orange-400 text-orange-100 py-.5 px-1 rounded-2xl">
+              {itemToButSum}
+            </div>
           </Button>
           <ListAddOverlay>
             <Button variant="default" onClick={(e) => e.currentTarget.blur()}>

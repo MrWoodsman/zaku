@@ -7,7 +7,7 @@ router.get("/", async (req, res) => {
   if (!groupId) return res.status(401).json({ message: "Brak ID grupy" });
 
   try {
-    const items = await req.db.all(
+    let items = await req.db.all(
       `SELECT i.id, i.name, i.quantity, i.unit, i.completed_at, i.list_id, l.name as list_name 
        FROM items i
        JOIN lists l ON i.list_id = l.id
@@ -15,6 +15,8 @@ router.get("/", async (req, res) => {
        ORDER BY i.completed_at ASC, i.name ASC`,
       [groupId],
     );
+
+    items = items.map((i) => ({ ...i, completed: !!i.completed_at }));
 
     res.json(items);
   } catch (error) {

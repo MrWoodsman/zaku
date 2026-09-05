@@ -48,6 +48,9 @@ export function ShoppingAllScreen() {
   const toBuyItems = items.filter((item) => !item.completed);
   const purchasedItems = items.filter((item) => item.completed);
 
+  console.log(toBuyItems);
+  console.log(purchasedItems);
+
   return (
     <div className="shopping-lists-list h-full flex flex-col bg-background">
       {/* TOP NAVIGATION */}

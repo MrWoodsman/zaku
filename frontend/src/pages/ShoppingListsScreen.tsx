@@ -28,9 +28,18 @@ export function ShoppingListsScreen() {
       />
     );
 
+  console.log(data);
+
+  let ToBuySum = 0;
+  data.map((list) => (ToBuySum += list.itemsIn - list.completedCount));
+
   return (
     <div className="w-full h-full flex flex-col gap-2">
-      <ShoppingListsNavbar inputVal={searchInput} setInputVal={setSearchInput} />
+      <ShoppingListsNavbar
+        inputVal={searchInput}
+        setInputVal={setSearchInput}
+        itemToButSum={ToBuySum}
+      />
       {error ? (
         <div className="flex flex-col items-center justify-center h-full gap-4 p-6 text-center">
           <div className="p-4 bg-destructive/20 rounded-full text-destructive">
