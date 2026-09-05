@@ -18,9 +18,9 @@ export function ItemCard({ listId, item, onToggle }: ItemCardProps) {
         item.completed ? "border-highlight/20 bg-highlight/5" : "border-foreground/5 bg-card",
       )}
     >
-      <CardContent className="flex items-stretch gap-2 px-2 pr-0">
+      <CardContent className="flex items-stretch gap-2 pr-0 pl-3">
         <div
-          className="left-wrap flex w-full cursor-pointer items-center gap-2.5 py-2.5 select-none"
+          className="left-wrap flex w-full cursor-pointer items-center gap-2.5 py-3 select-none"
           onClick={() => onToggle(!item.completed)}
         >
           <Checkbox
