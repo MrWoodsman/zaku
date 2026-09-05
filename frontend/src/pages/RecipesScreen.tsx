@@ -6,7 +6,7 @@ import { ChefHat, CrownIcon, Edit, Globe, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 // NEW
-import { MoreVertical, Clock } from "lucide-react";
+import { MoreVertical, Clock, Search as SearchIcon, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -67,7 +67,7 @@ export function RecipesScreen() {
               <RecipeCard key={recipe.id} recipe={recipe} setRecipeToDelete={setRecipeToDelete} />
             ))
           ) : (
-            <RecipesNoFound />
+            <RecipesNoFound isSearching={searchVal.trim().length > 0} />
           )}
         </div>
       </div>
@@ -105,8 +105,6 @@ function RecipeCard({
 }) {
   const { groupId } = useGroup();
   const navigate = useNavigate();
-
-  console.log(recipe);
 
   return (
     <Card
@@ -208,26 +206,30 @@ function RecipeCard({
   );
 }
 
-function RecipesNoFound() {
+function RecipesNoFound({ isSearching }: { isSearching: boolean }) {
+  const navigate = useNavigate();
+
   return (
-    <div className="flex-1 flex flex-col items-center justify-center text-center gap-3 text-muted-foreground p-4 min-h-[50vh]">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="48"
-        height="48"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="opacity-20 mb-2"
-      >
-        <circle cx="11" cy="11" r="8"></circle>
-        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-      </svg>
-      <p className="text-lg font-medium">Nie znaleziono przepisów</p>
-      <p className="text-sm">Spróbuj wpisać inną nazwę w wyszukiwarce.</p>
+    <div className="flex-1 flex flex-col items-center justify-center text-center gap-1 p-4 min-h-[50vh]">
+      <div className="mb-3 flex size-14 items-center justify-center rounded-2xl bg-highlight/10 text-highlight">
+        {isSearching ? <SearchIcon className="size-6" /> : <ChefHat className="size-6" />}
+      </div>
+      {isSearching ? (
+        <>
+          <p className="text-lg font-medium">Nie znaleziono przepisów</p>
+          <p className="text-sm text-muted-foreground">Spróbuj wpisać inną nazwę w wyszukiwarce.</p>
+        </>
+      ) : (
+        <>
+          <p className="text-lg font-medium">Brak przepisów</p>
+          <p className="mb-4 text-sm text-muted-foreground">
+            Dodaj swój pierwszy przepis, żeby zobaczyć go tutaj.
+          </p>
+          <Button variant="accent" onClick={() => navigate(ROUTES.RECIPES_EDITOR)}>
+            Dodaj przepis <Plus className="size-4" />
+          </Button>
+        </>
+      )}
     </div>
   );
 }
