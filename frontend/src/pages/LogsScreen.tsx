@@ -112,7 +112,7 @@ interface HistoryItemProps {
 
 export function HistoryItem({ item }: HistoryItemProps) {
   return (
-    <Card className="overflow-visible border border-foreground/5 bg-card py-0 shadow-sm ring-0">
+    <Card className="overflow-visible border border-foreground/5 bg-card py-0 ring-0">
       <CardContent className="flex items-center gap-3 px-3 py-2.5">
         <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-highlight/10 text-highlight">
           <Check className="size-4" />
