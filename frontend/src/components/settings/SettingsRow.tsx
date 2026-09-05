@@ -12,22 +12,17 @@ interface SettingsRowProps extends React.ButtonHTMLAttributes<HTMLButtonElement>
 // DropdownMenuTrigger asChild clones a ref and aria-*/data-* props onto its
 // child to open/position the menu - without forwarding them the trigger
 // silently does nothing when clicked.
+//
+// Two explicit branches (button vs. div) instead of a single JSX element with
+// a dynamic `Comp` tag: TypeScript checks a variable-tag element against the
+// INTERSECTION of both elements' prop types, which onClick can't satisfy
+// (MouseEventHandler<HTMLButtonElement> vs. MouseEventHandler<HTMLDivElement>
+// aren't mutually assignable) - a real tsc -b build fails on it even though
+// this repo's `tsc --noEmit` pass didn't catch it.
 export const SettingsRow = forwardRef<HTMLButtonElement | HTMLDivElement, SettingsRowProps>(
   ({ icon, label, trailing, destructive, className, onClick, ...rest }, ref) => {
-    const Comp = onClick ? "button" : "div";
-
-    return (
-      <Comp
-        ref={ref as never}
-        type={onClick ? "button" : undefined}
-        onClick={onClick}
-        className={cn(
-          "flex w-full items-center gap-3 px-1 py-3 text-left",
-          onClick && "transition-colors active:bg-foreground/5",
-          className,
-        )}
-        {...rest}
-      >
+    const content = (
+      <>
         {icon && (
           <span className={cn("shrink-0", destructive ? "text-destructive" : "text-muted-foreground")}>
             {icon}
@@ -42,7 +37,37 @@ export const SettingsRow = forwardRef<HTMLButtonElement | HTMLDivElement, Settin
           {label}
         </span>
         {trailing}
-      </Comp>
+      </>
+    );
+
+    const rowClassName = cn(
+      "flex w-full items-center gap-3 px-1 py-3 text-left",
+      onClick && "transition-colors active:bg-foreground/5",
+      className,
+    );
+
+    if (onClick) {
+      return (
+        <button
+          ref={ref as React.Ref<HTMLButtonElement>}
+          type="button"
+          onClick={onClick}
+          className={rowClassName}
+          {...rest}
+        >
+          {content}
+        </button>
+      );
+    }
+
+    return (
+      <div
+        ref={ref as React.Ref<HTMLDivElement>}
+        className={rowClassName}
+        {...(rest as React.HTMLAttributes<HTMLDivElement>)}
+      >
+        {content}
+      </div>
     );
   },
 );
