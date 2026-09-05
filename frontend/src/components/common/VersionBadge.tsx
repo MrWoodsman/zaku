@@ -20,6 +20,11 @@ export function VersionBadge() {
   // 1. HISTORIA ZMIAN (Najnowsza wersja ZAWSZE musi być jako PIERWSZA w tablicy!)
   const changelog: Release[] = [
     {
+      version: "0.57.1",
+      date: "05.09.2026",
+      changes: ["Naprawiono błąd builda blokujący aktualizację aplikacji na serwerze"],
+    },
+    {
       version: "0.57",
       date: "05.09.2026",
       changes: [
