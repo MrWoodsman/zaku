@@ -55,7 +55,7 @@ export function ShoppingListsList({
         const isComplete = total > 0 && done === total;
 
         return (
-          <Card key={el.id} className="border border-foreground/5 shadow-sm py-3">
+          <Card key={el.id} className="border border-foreground/5 shadow-sm ring-0 py-3">
             <CardContent className="flex items-center gap-3">
               {/* Strefa klikalna - nawigacja do listy. Przycisk opcji zostaje poza nią. */}
               <div

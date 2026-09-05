@@ -14,7 +14,7 @@ export function ItemCard({ listId, item, onToggle }: ItemCardProps) {
   return (
     <Card
       className={cn(
-        "overflow-hidden border py-0 shadow-sm transition-colors duration-200",
+        "overflow-hidden border py-0 shadow-sm ring-0 transition-colors duration-200",
         item.completed ? "border-highlight/20 bg-highlight/5" : "border-foreground/5 bg-card",
       )}
     >
