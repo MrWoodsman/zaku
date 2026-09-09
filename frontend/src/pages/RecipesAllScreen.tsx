@@ -55,7 +55,7 @@ export function RecipesAllScreen() {
   });
 
   return (
-    <div className="w-full h-full flex flex-col gap-3 bg-background pt-[max(8px,env(safe-area-inset-top))]">
+    <div className="w-full h-full flex flex-col gap-3 bg-background pt-[max(8px,var(--safe-top))]">
       <div className="px-2 shrink-0 flex flex-col gap-3">
         {/* Wyszukiwarka */}
         <div className="relative">

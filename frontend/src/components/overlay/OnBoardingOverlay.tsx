@@ -15,7 +15,7 @@ export function OnBoardingOverlay({ onComplete }: { onComplete: () => void }) {
   const StepIcon = steps[currentStep].icon;
 
   return (
-    <Card className="fixed inset-0 w-full h-full border-none shadow-none bg-background rounded-none flex flex-col justify-between pt-[max(16px,env(safe-area-inset-top))]">
+    <Card className="fixed inset-0 w-full h-full border-none shadow-none bg-background rounded-none flex flex-col justify-between pt-[max(16px,var(--safe-top))]">
       {" "}
       <CardContent className="flex-2">
         <div className="h-full bg-bacground-tone/50 rounded-xl flex items-center justify-center">
@@ -31,7 +31,7 @@ export function OnBoardingOverlay({ onComplete }: { onComplete: () => void }) {
         <CardTitle>{steps[currentStep].title}</CardTitle>
         <p className="text-muted-foreground">{steps[currentStep].desc}</p>
       </CardHeader>
-      <CardFooter className="flex flex-col gap-4 pb-[max(16px,env(safe-area-inset-bottom))]">
+      <CardFooter className="flex flex-col gap-4 pb-[max(16px,var(--safe-bottom))]">
         {/* KROPKI (Indykatory) */}
         <div className="flex gap-2">
           {steps.map((_, i) => (

@@ -62,7 +62,7 @@ export function RecipeViewScreen() {
   return (
     <>
       <div className="w-full h-dvh flex flex-col bg-background overflow-y-auto pb-12">
-        <div className="w-full max-w-2xl mx-auto flex flex-col gap-6 pt-[max(12px,env(safe-area-inset-top))] px-2">
+        <div className="w-full max-w-2xl mx-auto flex flex-col gap-6 pt-[max(12px,var(--safe-top))] px-2">
           {/* ZDJĘCIE ORAZ PASEK OPCJI (TRZY KROPKI) */}
           {/* Cień i przycinanie celowo na dwoch oddzielnych warstwach: overflow-hidden +
               rounded + box-shadow na jednym elemencie potrafi na iOS Safari zrenderowac

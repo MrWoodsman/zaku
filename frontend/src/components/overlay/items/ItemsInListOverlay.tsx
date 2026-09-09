@@ -95,7 +95,7 @@ export function ItemsInListOverlay({ listID, items = [] }: ItemsInListOverlayPro
         </Button>
       </DrawerTrigger>
 
-      <DrawerContent className="bg-background border-border px-4 pb-[max(24px,env(safe-area-inset-bottom))]">
+      <DrawerContent className="bg-background border-border px-4 pb-[max(24px,var(--safe-bottom))]">
         <DrawerHeader className="px-0 text-left pb-4">
           <DrawerTitle className="text-xl">Opcje listy</DrawerTitle>
         </DrawerHeader>

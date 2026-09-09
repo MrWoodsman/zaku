@@ -34,7 +34,7 @@ export function BottomNav() {
   const path = location.pathname;
 
   return (
-    <nav className="border-t bg-background pt-3 pb-[max(8px,env(safe-area-inset-bottom))] px-4">
+    <nav className="border-t bg-background pt-3 pb-[max(8px,var(--safe-bottom))] px-4">
       <div className="flex justify-around items-center">
         <BottomNavItem
           to={ROUTES.SHOPPING_LISTS}

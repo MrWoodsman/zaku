@@ -121,7 +121,7 @@ export function RecipeToShoppingListOverlay({
         onInteractOutside={(e) => {
           e.preventDefault();
         }}
-        className="bg-background border-border max-h-[90dvh] flex flex-col pb-[max(16px,env(safe-area-inset-bottom))]"
+        className="bg-background border-border max-h-[90dvh] flex flex-col pb-[max(16px,var(--safe-bottom))]"
       >
         <DrawerHeader className="text-left px-4">
           <DrawerTitle className="text-xl flex items-center gap-2">

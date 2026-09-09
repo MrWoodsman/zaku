@@ -19,7 +19,7 @@ export function RecipesListNavbar({ inputVal, setInputVal, draftsCount }: Recipe
   const navigate = useNavigate();
 
   return (
-    <div className="search-container flex gap-2 px-2 pt-[max(8px,env(safe-area-inset-top))]">
+    <div className="search-container flex gap-2 px-2 pt-[max(8px,var(--safe-top))]">
       <ButtonGroup aria-label="Button group" className="w-full">
         <ButtonGroup className="w-full">
           <Button variant={"outline"} size={"icon"}>

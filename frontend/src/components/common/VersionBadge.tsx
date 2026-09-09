@@ -180,7 +180,7 @@ export function VersionBadge() {
       </DrawerTrigger>
 
       <DrawerContent
-        className="bg-background border-border px-4 pb-[max(24px,env(safe-area-inset-bottom))]"
+        className="bg-background border-border px-4 pb-[max(24px,var(--safe-bottom))]"
         onOpenAutoFocus={(event) => event.preventDefault()}
       >
         <DrawerHeader className="px-0 text-left pb-4">

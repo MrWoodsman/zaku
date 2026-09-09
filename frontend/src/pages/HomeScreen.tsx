@@ -58,7 +58,7 @@ export function HomeScreen({ onJoin }: HomeScreenProps) {
   return (
     <>
       {/* GŁÓWNY EKRAN */}
-      <div className="w-full h-full flex flex-col p-4 pt-[max(16px,env(safe-area-inset-top))] relative z-10">
+      <div className="w-full h-full flex flex-col p-4 pt-[max(16px,var(--safe-top))] relative z-10">
         <div className="flex-1 flex items-center justify-center">
           <div className="relative">
             <div className="absolute inset-0 rounded-full bg-highlight/20 blur-2xl" />
@@ -68,7 +68,7 @@ export function HomeScreen({ onJoin }: HomeScreenProps) {
           </div>
         </div>
 
-        <div className="flex flex-col gap-6 pb-[max(8px,env(safe-area-inset-bottom))]">
+        <div className="flex flex-col gap-6 pb-[max(8px,var(--safe-bottom))]">
           <div className="space-y-1">
             <h2 className="text-2xl font-semibold tracking-tight">Dołącz do grupy</h2>
             <p className="text-sm text-neutral-400">Wpisz ID, aby zarządzać wspólnymi zakupami.</p>
@@ -150,7 +150,7 @@ export function HomeScreen({ onJoin }: HomeScreenProps) {
 
       {/* Sam panel wyjeżdżający z dołu */}
       <div
-        className={`fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-background/75 rounded-t-3xl p-6 pb-[max(32px,env(safe-area-inset-bottom))] transition-transform duration-300 ease-out shadow-[0_-10px_40px_rgba(0,0,0,0.5)] ${
+        className={`fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-background/75 rounded-t-3xl p-6 pb-[max(32px,var(--safe-bottom))] transition-transform duration-300 ease-out shadow-[0_-10px_40px_rgba(0,0,0,0.5)] ${
           showHelp ? "translate-y-0" : "translate-y-full"
         }`}
       >

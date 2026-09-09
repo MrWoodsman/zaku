@@ -51,7 +51,7 @@ export function LogsScreen() {
   return (
     <div className="shopping-lists-list h-full flex flex-col bg-background">
       {/* TOP NAVIGATION */}
-      <div className="pt-[max(8px,env(safe-area-inset-top))] px-2 pb-2 bg-background border-b z-50 flex items-center gap-2 shrink-0">
+      <div className="pt-[max(8px,var(--safe-top))] px-2 pb-2 bg-background border-b z-50 flex items-center gap-2 shrink-0">
         <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-highlight/10 text-highlight">
           <ClockCheckIcon size={18} />
         </div>

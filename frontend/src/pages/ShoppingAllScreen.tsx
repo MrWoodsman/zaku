@@ -48,7 +48,7 @@ export function ShoppingAllScreen() {
   return (
     <div className="shopping-lists-list h-full flex flex-col bg-background">
       {/* TOP NAVIGATION */}
-      <div className="pt-[max(8px,env(safe-area-inset-top))] px-2 pb-2 bg-background border-b z-50 flex items-center justify-between gap-3 shrink-0">
+      <div className="pt-[max(8px,var(--safe-top))] px-2 pb-2 bg-background border-b z-50 flex items-center justify-between gap-3 shrink-0">
         <Breadcrumb className="flex-1 min-w-0">
           <BreadcrumbList className="flex-nowrap min-w-0 gap-1">
             <BreadcrumbItem className="shrink-0">

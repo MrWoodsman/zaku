@@ -37,7 +37,7 @@ export function ListAddOverlay({ children }: ListAddOverlayProps) {
     <Drawer open={isOpen} onOpenChange={setIsOpen}>
       <DrawerTrigger asChild>{children}</DrawerTrigger>
 
-      <DrawerContent className="bg-background border-border px-4 pb-[max(24px,env(safe-area-inset-bottom))]">
+      <DrawerContent className="bg-background border-border px-4 pb-[max(24px,var(--safe-bottom))]">
         <DrawerHeader className="px-0 text-left">
           <DrawerTitle>Utwórz nową listę</DrawerTitle>
           <DrawerDescription>Wpisz nazwę dla swojej nowej listy zakupów.</DrawerDescription>

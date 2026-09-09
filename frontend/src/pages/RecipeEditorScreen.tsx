@@ -250,7 +250,7 @@ export function RecipeEditorScreen() {
     <>
       <div className="w-full h-dvh flex flex-col bg-background overflow-hidden relative">
         {/* GÓRNY PASEK Z MENU ZAPISU */}
-        <div className="flex items-center justify-between p-4 border-b border-border/40 shrink-0 bg-background pt-[max(12px,env(safe-area-inset-top))]">
+        <div className="flex items-center justify-between p-4 border-b border-border/40 shrink-0 bg-background pt-[max(12px,var(--safe-top))]">
           <Button variant="ghost" size="icon" onClick={handleBackClick} className="-ml-2">
             <ArrowLeft size={22} />
           </Button>
