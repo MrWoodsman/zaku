@@ -58,6 +58,30 @@ async function initDB() {
     )
   `);
 
+  // Generated once on first run and reused forever after - existing push
+  // subscriptions are tied to this exact key pair, so it must stay stable.
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS vapid_keys (
+      id INTEGER PRIMARY KEY CHECK (id = 1),
+      public_key TEXT NOT NULL,
+      private_key TEXT NOT NULL
+    )
+  `);
+
+  // One push subscription per device (browser). Re-subscribing (e.g. after
+  // switching group) just overwrites the row for that deviceId.
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS push_subscriptions (
+      device_id TEXT PRIMARY KEY,
+      group_id TEXT NOT NULL,
+      endpoint TEXT NOT NULL,
+      p256dh TEXT NOT NULL,
+      auth TEXT NOT NULL,
+      created_at DATETIME DEFAULT (datetime('now','localtime')),
+      FOREIGN KEY (group_id) REFERENCES groups(id)
+    )
+  `);
+
   // Tracks, per device, when a list was last opened/seen (no user accounts, so
   // "who saw what" is keyed by the client-generated deviceId, not a user id)
   await db.exec(`

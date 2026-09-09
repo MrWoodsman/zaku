@@ -41,6 +41,7 @@ A hobby project I mainly build for my own household — I wanted something login
 - **Recipes** — a recipe library with ingredients, preparation steps and a photo, split into drafts and published recipes
 - **Recipe to shopping list** — add a recipe's missing ingredients to a chosen shopping list with one button
 - **PWA / offline** — installable on your phone (standalone mode), auto-updating service worker, feels like a native app
+- **Push notifications** — get notified when someone else adds products to a shared list (requires HTTPS, see [Environment Variables](#environment-variables))
 - **Light / dark theme** — theme switcher (`next-themes`)
 - **Mobile-first UI** — interface built for the phone (Tailwind, Radix UI, `safe-area` support)
 
@@ -129,10 +130,15 @@ Vite starts on `http://localhost:5173` and proxies `/api` and `/images` requests
 
 The backend reads its config from `backend/.env` (see `backend/.env.example`). It also works without this file — the values below are the sensible defaults:
 
-| Variable  | Default                    | Description                                                |
-| --------- | --------------------------- | ------------------------------------------------------------ |
-| `PORT`    | `3000`                      | port the Express server listens on                          |
-| `DB_PATH` | `./data/database.sqlite`   | path to the SQLite database file (relative to `backend/`)   |
+| Variable             | Default                       | Description                                                                                    |
+| -------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------ |
+| `PORT`               | `3000`                         | port the Express server listens on                                                              |
+| `DB_PATH`            | `./data/database.sqlite`      | path to the SQLite database file (relative to `backend/`)                                       |
+| `VAPID_PUBLIC_KEY`   | auto-generated on first run   | public VAPID key for push notifications; set it to pin a known pair (e.g. across a DB migration) |
+| `VAPID_PRIVATE_KEY`  | auto-generated on first run   | private VAPID key — keep it secret if you set it manually                                       |
+| `VAPID_SUBJECT`      | `mailto:admin@example.com`    | contact URI push services may use to reach you about your server                                |
+
+> **Push notifications need HTTPS.** The Push API only works in a [secure context](https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts) — `localhost` is fine for local dev, but on a real server (VPS/Proxmox) you need a valid TLS certificate (e.g. a reverse proxy with Let's Encrypt) in front of the app. Everything else in Zaku works fine over plain HTTP; only push notifications require it.
 
 ## Tests
 
@@ -160,10 +166,14 @@ Every endpoint except `/api/test` requires an `x-group-id` header (the group cod
 | `DELETE`          | `/api/v1/lists/:id/items/delete-completed` | remove purchased items                               |
 | `DELETE`          | `/api/v1/lists/:id/items/delete-all`       | clear a list                                         |
 | `POST`            | `/api/v1/lists/add-from-recipe`            | add a recipe's ingredients to a list                 |
+| `POST`            | `/api/v1/lists/:id/seen`                   | mark a list as seen by this device (`deviceId`)       |
 | `PUT` / `DELETE`  | `/api/v1/items/:id`                        | edit / delete a single product                       |
 | `GET`             | `/api/v1/recipes`                          | recipes in the group                                 |
 | `POST` / `PUT`    | `/api/v1/recipes` `/:id`                   | create / edit a recipe (multipart, `image` field)    |
 | `DELETE`          | `/api/v1/recipes/:id`                      | delete a recipe                                      |
+| `GET`             | `/api/v1/push/vapid-public-key`            | public VAPID key, for `pushManager.subscribe()`       |
+| `POST`            | `/api/v1/push/subscribe`                   | save this device's push subscription                 |
+| `DELETE`          | `/api/v1/push/subscribe`                   | remove this device's push subscription                |
 
 ## Deploy to Your Server (VPS / Proxmox)
 

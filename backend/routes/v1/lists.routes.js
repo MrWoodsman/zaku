@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { randomUUID } = require("crypto");
+const { scheduleListChangedNotification } = require("../../services/pushService");
 
 // ==========================================
 // OPERACJE NA SAMYCH LISTACH
@@ -173,13 +174,13 @@ router.post("/:id/items", async (req, res) => {
   if (!groupId) return res.status(401).json({ message: "Brak ID grupy" });
   const listId = req.params.id;
   const name = (req.body.name || "").trim();
-  const { quantity = 1, unit = "szt." } = req.body;
+  const { quantity = 1, unit = "szt.", deviceId } = req.body;
 
   if (!name) return res.status(400).json({ message: "Nazwa pusta" });
 
   try {
     const list = await req.db.get(
-      `SELECT id FROM lists WHERE id = ? AND group_id = ? AND deleted_at IS NULL`,
+      `SELECT id, name FROM lists WHERE id = ? AND group_id = ? AND deleted_at IS NULL`,
       [listId, groupId],
     );
     if (!list) return res.status(404).json({ message: "Nie znaleziono listy" });
@@ -191,6 +192,13 @@ router.post("/:id/items", async (req, res) => {
     );
 
     res.status(201).json({ message: "Dodano produkt" }); // Celowo uproszczone dla czytelności
+
+    scheduleListChangedNotification(req.db, {
+      groupId,
+      listId,
+      listName: list.name,
+      excludeDeviceId: deviceId,
+    });
   } catch (error) {
     res.status(500).json({ message: "Błąd", error: error.message });
   }
