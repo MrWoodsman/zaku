@@ -12,14 +12,16 @@ import {
 } from "@/api/items";
 import { type ShoppingListData } from "@shared/types";
 import { showErrorToast } from "@/utils/toastHandler";
+import { useDeviceId } from "@/hooks/useDeviceId";
 
 // DODAWANIE PRZEDMIOTÓW
 export const useAddItemMutation = (listId: string) => {
   const queryClient = useQueryClient();
+  const deviceId = useDeviceId();
 
   return useMutation({
     mutationFn: ({ name, quantity, unit }: { name: string; quantity: number; unit: string }) =>
-      addItemApi(listId, name, quantity, unit),
+      addItemApi(listId, name, quantity, unit, deviceId),
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shoppingList", listId] });

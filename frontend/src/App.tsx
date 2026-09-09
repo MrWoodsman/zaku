@@ -6,9 +6,11 @@ import { ROUTES } from "@/config/routes";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useGroup } from "./hooks/useGroup";
 import { useDeviceId } from "./hooks/useDeviceId";
+import { usePushNotifications } from "./hooks/usePushNotifications";
 
 // COMPONENTS
 import { OnBoardingOverlay } from "./components/overlay/OnBoardingOverlay";
+import { NotificationPromptOverlay } from "./components/overlay/NotificationPromptOverlay";
 import { AppLayout } from "./components/layout/AppLayout";
 
 // SCREENS
@@ -28,14 +30,24 @@ import { LogsScreen } from "./pages/LogsScreen";
 function App() {
   const { groupId, joinGroup, leaveGroup } = useGroup();
   useDeviceId(); // ensures a deviceId exists in localStorage from app start
+  const { isSupported: isPushSupported } = usePushNotifications();
 
   const [showOnboarding, setShowOnboarding] = useState(() => {
     return !localStorage.getItem("has-seen-onboarding");
   });
 
+  const [showNotificationPrompt, setShowNotificationPrompt] = useState(() => {
+    return !localStorage.getItem("has-seen-notification-prompt");
+  });
+
   const handleCompleteOnboarding = () => {
     localStorage.setItem("has-seen-onboarding", "true");
     setShowOnboarding(false);
+  };
+
+  const handleCompleteNotificationPrompt = () => {
+    localStorage.setItem("has-seen-notification-prompt", "true");
+    setShowNotificationPrompt(false);
   };
 
   // 1. STRAŻNIK: ONBOARDING
@@ -52,7 +64,18 @@ function App() {
     return <HomeScreen onJoin={joinGroup} />;
   }
 
-  // 3. GŁÓWNA APLIKACJA
+  // 3. STRAŻNIK: PROŚBA O POWIADOMIENIA (po dołączeniu do grupy, bo subskrypcja
+  // push wymaga już znanego groupId; pomijamy calkiem, jesli przegladarka
+  // i tak nie wspiera push - patrz usePushNotifications)
+  if (showNotificationPrompt && isPushSupported) {
+    return (
+      <div className="fixed inset-0 z-50 bg-background w-full h-full">
+        <NotificationPromptOverlay onComplete={handleCompleteNotificationPrompt} />
+      </div>
+    );
+  }
+
+  // 4. GŁÓWNA APLIKACJA
   return (
     <>
       <Routes>
@@ -86,7 +109,7 @@ function App() {
       {/* <--- GLOBALNY TOASTER ---> */}
       <Toaster
         position="top-center"
-        toastOptions={{ style: { marginTop: "env(safe-area-inset-top)" } }}
+        toastOptions={{ style: { marginTop: "var(--safe-top)" } }}
       />
     </>
   );

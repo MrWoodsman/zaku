@@ -53,11 +53,17 @@ export const universalToggleItemApi = async (itemId: string, completed: boolean)
 };
 
 // DODAWNIE PRZEDMIOTÓW (Zostaje w podkategorii list!)
-export const addItemApi = async (listId: string, name: string, quantity: number, unit: string) => {
+export const addItemApi = async (
+  listId: string,
+  name: string,
+  quantity: number,
+  unit: string,
+  deviceId: string,
+) => {
   const response = await fetchWithGroup(`/api/v1/lists/${listId}/items`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name, quantity, unit }),
+    body: JSON.stringify({ name, quantity, unit, deviceId }),
   });
 
   if (!response.ok) {

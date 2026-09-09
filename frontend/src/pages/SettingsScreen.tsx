@@ -2,15 +2,17 @@ import { VersionBadge } from "@/components/common/VersionBadge";
 import { GroupSection } from "@/components/settings/GroupSection";
 import { AppearanceSection } from "@/components/settings/AppearanceSection";
 import { LanguageSection } from "@/components/settings/LanguageSection";
+import { NotificationsSection } from "@/components/settings/NotificationsSection";
 
 export function SettingsScreen({ groupId, onLeave }: { groupId: string; onLeave: () => void }) {
   return (
-    <div className="p-4 space-y-6 pt-[max(16px,env(safe-area-inset-top))]">
+    <div className="p-4 space-y-6 pt-[max(16px,var(--safe-top))]">
       <h1 className="text-2xl font-bold tracking-tight">Ustawienia</h1>
 
       <GroupSection groupId={groupId} onLeave={onLeave} />
       <AppearanceSection />
       <LanguageSection />
+      <NotificationsSection />
 
       <div className="flex flex-col items-center gap-2">
         <VersionBadge />
