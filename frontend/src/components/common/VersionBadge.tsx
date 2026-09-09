@@ -20,6 +20,15 @@ export function VersionBadge() {
   // 1. HISTORIA ZMIAN (Najnowsza wersja ZAWSZE musi być jako PIERWSZA w tablicy!)
   const changelog: Release[] = [
     {
+      version: "0.58.0-beta.1",
+      date: "09.09.2026",
+      changes: [
+        "Wersja testowa (beta) - jeśli coś nie działa jak trzeba, daj znać",
+        "Dodano powiadomienia push - dostaniesz powiadomienie, gdy ktoś inny doda produkty do wspólnej listy (włącz/wyłącz w Ustawieniach)",
+        "Naprawiono odstępy w przeglądarce mobilnej (Safari/Chrome) - treść nie chowała się już pod górnym paskiem ani nie było pustego miejsca nad dolnym menu",
+      ],
+    },
+    {
       version: "0.57.1",
       date: "05.09.2026",
       changes: ["Naprawiono błąd builda blokujący aktualizację aplikacji na serwerze"],
