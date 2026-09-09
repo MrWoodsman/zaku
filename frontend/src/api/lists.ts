@@ -65,6 +65,19 @@ export const fetchShoppingListApi = async (listId: string): Promise<ShoppingList
   return response.json();
 };
 
+// MARK LIST AS SEEN (resets the unread/new-items count for this device)
+export const markListAsSeenApi = async (listId: string, deviceId: string) => {
+  const response = await fetchWithGroup(`/api/v1/lists/${listId}/seen`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ deviceId }),
+  });
+
+  if (!response.ok) throw new Error("Failed to mark list as seen");
+
+  return response.json();
+};
+
 // DODAWANIE PRZEPISU DO LISTY
 export const addRecipeToListApi = async (payload: AddRecipeToListPayload) => {
   const response = await fetchWithGroup("/api/v1/lists/add-from-recipe", {

@@ -132,6 +132,36 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
+// POST /api/v1/lists/:id/seen -> Marks the list as seen by this device (for unread-count tracking)
+router.post("/:id/seen", async (req, res) => {
+  const groupId = req.headers["x-group-id"];
+  if (!groupId) return res.status(401).json({ message: "Brak ID grupy" });
+  const listId = req.params.id;
+  const deviceId = req.body.deviceId;
+
+  if (!deviceId) return res.status(400).json({ message: "Missing deviceId" });
+
+  try {
+    const list = await req.db.get(
+      `SELECT id FROM lists WHERE id = ? AND group_id = ? AND deleted_at IS NULL`,
+      [listId, groupId],
+    );
+    if (!list) return res.status(404).json({ message: "Nie znaleziono listy" });
+
+    await req.db.run(
+      `INSERT INTO list_views (device_id, list_id, last_seen_at)
+        VALUES (?, ?, datetime('now','localtime'))
+        ON CONFLICT (device_id, list_id)
+        DO UPDATE SET last_seen_at = datetime('now','localtime')`,
+      [deviceId, listId],
+    );
+
+    res.status(200).json({ message: "Marked as seen" });
+  } catch (error) {
+    res.status(500).json({ message: "Błąd", error: error.message });
+  }
+});
+
 // ==========================================
 // OPERACJE NA ELEMENTACH (W KONTEKŚCIE LISTY)
 // ==========================================

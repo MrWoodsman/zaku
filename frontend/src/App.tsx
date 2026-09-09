@@ -5,6 +5,7 @@ import { Toaster } from "sonner";
 import { ROUTES } from "@/config/routes";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useGroup } from "./hooks/useGroup";
+import { useDeviceId } from "./hooks/useDeviceId";
 
 // COMPONENTS
 import { OnBoardingOverlay } from "./components/overlay/OnBoardingOverlay";
@@ -26,6 +27,7 @@ import { LogsScreen } from "./pages/LogsScreen";
 
 function App() {
   const { groupId, joinGroup, leaveGroup } = useGroup();
+  useDeviceId(); // ensures a deviceId exists in localStorage from app start
 
   const [showOnboarding, setShowOnboarding] = useState(() => {
     return !localStorage.getItem("has-seen-onboarding");

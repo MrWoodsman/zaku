@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { ROUTES } from "@/config/routes";
 import { motion, AnimatePresence } from "framer-motion";
@@ -24,12 +25,23 @@ import { useToggleItemMutation } from "@/hooks/useItemMutations";
 import { useShoppingListQuery } from "@/hooks/useLists";
 import { Loading } from "@/components/common/Loading";
 import { NotFound } from "@/components/common/NotFound";
+import { useDeviceId } from "@/hooks/useDeviceId";
+import { markListAsSeenApi } from "@/api/lists";
 
 export function ShoppingScreen() {
   const { id } = useParams() as { id: string };
+  const deviceId = useDeviceId();
 
   const { data, isLoading, error } = useShoppingListQuery(id);
   const toggleItemMutation = useToggleItemMutation(id!);
+
+  // Mark this list as seen by this device whenever it's opened,
+  // so the backend can compute how many items are still unseen.
+  useEffect(() => {
+    markListAsSeenApi(id, deviceId)
+      .then(() => console.log("[seen] marked list as seen", { id, deviceId }))
+      .catch((error) => console.error("[seen] failed to mark list as seen", error));
+  }, [id, deviceId]);
 
   if (isLoading)
     return (

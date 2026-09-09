@@ -58,6 +58,18 @@ async function initDB() {
     )
   `);
 
+  // Tracks, per device, when a list was last opened/seen (no user accounts, so
+  // "who saw what" is keyed by the client-generated deviceId, not a user id)
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS list_views (
+      device_id TEXT NOT NULL,
+      list_id TEXT NOT NULL,
+      last_seen_at DATETIME DEFAULT (datetime('now','localtime')),
+      PRIMARY KEY (device_id, list_id),
+      FOREIGN KEY (list_id) REFERENCES lists(id)
+    )
+  `);
+
   // Tworzeymy tabele Przepisów
   await db.exec(`
     CREATE TABLE IF NOT EXISTS recipes (
