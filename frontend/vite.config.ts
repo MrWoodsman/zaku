@@ -10,8 +10,16 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
+      strategies: "injectManifest", // wlasny service worker (src/sw.ts) zamiast auto-generowanego, zeby dopisac obsluge push
+      srcDir: "src",
+      filename: "sw.ts",
+      // Service worker wylaczony w dev: vite-plugin-pwa ma znany problem
+      // z rejestracja dev-sw jako modulu na wlasnej domenie (dev.mrwoodsman.pl) -
+      // rejestracja konczy sie bledem "Unexpected token export" i nic nie dziala.
+      // Produkcyjny build (npm run build) nie jest tym dotkniety - service worker
+      // i push notifications tam dzialaja normalnie, wiec tam warto testowac push.
       devOptions: {
-        enabled: true,
+        enabled: false,
       },
       registerType: "autoUpdate", // automatycznie odświeża apkę, jak zmienisz kod
       manifest: {
