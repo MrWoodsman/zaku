@@ -48,13 +48,18 @@ export function BottomNav() {
           <LogsIcon />
         </BottomNavItem>
 
-        <BottomNavItem
-          to={ROUTES.AUTO_LIST}
-          label="Uzupełnianie"
-          isActive={path === ROUTES.AUTO_LIST}
-        >
-          <Bot />
-        </BottomNavItem>
+{
+  // eslint-disable-next-line no-constant-condition
+  0 ? 
+    <BottomNavItem
+      to={ROUTES.AUTO_LIST}
+      label="Uzupełnianie"
+      isActive={path === ROUTES.AUTO_LIST}
+    >
+      <Bot />
+    </BottomNavItem>
+  : null
+}
 
         <BottomNavItem
           to={ROUTES.RECIPES}
