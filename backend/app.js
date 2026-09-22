@@ -4,6 +4,7 @@ const path = require("path");
 const listsRoutes = require("./routes/v1/lists.routes");
 const itemsRoutes = require("./routes/v1/items.routes");
 const recipesRoutes = require("./routes/v1/recipes.routes");
+const scanRoutes = require("./routes/v1/scan.routes");
 const pushRoutes = require("./routes/v1/push.routes");
 
 // Buduje gotową aplikację Express, ale NIE odpala serwera (brak .listen).
@@ -39,6 +40,7 @@ function createApp(db) {
   app.use("/api/v1/items", itemsRoutes);
   app.use("/api/v1/recipes", recipesRoutes);
   app.use("/api/v1/push", pushRoutes);
+  app.use("/api/v1/scan", scanRoutes);
 
   app.get("/api/test", (req, res) => {
     res.json({ message: "Działa V1!" });

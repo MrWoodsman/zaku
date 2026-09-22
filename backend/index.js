@@ -10,9 +10,14 @@ async function startServer() {
 
     // TWORZENIE FODLERU DO PRZECHOWYWANIA ZDJEC
     const uploadDir = path.join(__dirname, "uploads", "recipes");
+    const uploadDirRefund = path.join(__dirname, "uploads", "refunds");
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
       console.log("Utworzono brakujący katalog na zdjęcia: uploads/recipes");
+    }
+    if (!fs.existsSync(uploadDirRefund)) {
+      fs.mkdirSync(uploadDirRefund, { recursive: true });
+      console.log("Utworzono brakujący katalog na zdjęcia: uploads/refunds");
     }
 
     const app = createApp(db);
