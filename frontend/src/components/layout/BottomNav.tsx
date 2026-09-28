@@ -1,6 +1,6 @@
 import React from "react";
 import { ROUTES } from "@/config/routes";
-import { ListChecks, ChefHat, Settings, Bot, LogsIcon } from "lucide-react";
+import { ListChecks, ChefHat, Settings, Bot, LogsIcon, TicketSlash } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 // Definicja Propsów
@@ -60,6 +60,14 @@ export function BottomNav() {
     </BottomNavItem>
   : null
 }
+
+        <BottomNavItem
+          to={ROUTES.DEPOSIT_SCREEN}
+          label="Kaucja"
+          isActive={path.startsWith(ROUTES.DEPOSIT_SCREEN)}
+        >
+          <TicketSlash />
+        </BottomNavItem>
 
         <BottomNavItem
           to={ROUTES.RECIPES}

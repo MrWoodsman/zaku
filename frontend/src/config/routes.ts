@@ -9,6 +9,7 @@ export const ROUTES = {
   RECIPES_VIEW: (id: string) => `/recipes/view/${id}`,
   RECIPES_EDITOR: "/recipes/editor",
   RECIPES_DRAFTS: "/recipes/drafts",
+  DEPOSIT_SCREEN: "/deposit",
   SETTINGS: "/settings",
 
   // SCIEZKI DYNAMICZNE

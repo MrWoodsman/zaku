@@ -26,6 +26,7 @@ import { RecipeEditorScreen } from "./pages/RecipeEditorScreen";
 import { RecipeViewScreen } from "./pages/RecipeViewScreen";
 import { RecipesAllScreen } from "./pages/RecipesAllScreen";
 import { LogsScreen } from "./pages/LogsScreen";
+import { DepositVouchersScreen } from "./pages/DepositVouchersScreen";
 
 function App() {
   const { groupId, joinGroup, leaveGroup } = useGroup();
@@ -95,6 +96,8 @@ function App() {
           <Route path={ROUTES.RECIPES_ALL_MY} element={<RecipesAllScreen />} />
           <Route path={ROUTES.RECIPES_DRAFTS} element={<RecipesDraftsScreen />} />
           <Route path={ROUTES.RECIPES_VIEW(":id")} element={<RecipeViewScreen />} />
+          {/* DEPOSIT */}
+          <Route path={ROUTES.DEPOSIT_SCREEN} element={<DepositVouchersScreen />} />
           {/* LOGS */}
           <Route path={ROUTES.LOGS} element={<LogsScreen />} />
           {/* === ???? === */}
