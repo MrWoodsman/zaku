@@ -6,6 +6,7 @@ const fs = require("fs");
 const path = require("path");
 // Najlepiej wyciągnąć import na górę pliku
 const { readBarcodes } = require("zxing-wasm");
+const { createDisplayImage } = require("../../services/imageService");
 
 // 1. MULTER - PAMIĘĆ RAM (do szybkiego skanowania)
 const memoryStorage = multer.memoryStorage();
@@ -84,12 +85,22 @@ router.post("/deposit", uploadDisk.single("image"), async (req, res) => {
       shopId = shop.id;
     }
 
-    const imageUrl = req.file ? `/images/refunds/${req.file.filename}` : null;
+    // Light display version for the app + the untouched original (full quality,
+    // e.g. to re-read the barcode later) - see imageService
+    let imageUrl = null;
+    let imageOriginalUrl = null;
+    if (req.file) {
+      const { displayName, originalName } = await createDisplayImage(req.file.path, {
+        keepOriginal: true,
+      });
+      imageUrl = `/images/refunds/${displayName}`;
+      imageOriginalUrl = originalName ? `/images/refunds/${originalName}` : null;
+    }
 
     const result = await req.db.run(
-      `INSERT INTO deposits (group_id, shop_id, value, code, expiring_date, image_url)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [groupId, shopId, value, depositNumber || null, depositDate || null, imageUrl],
+      `INSERT INTO deposits (group_id, shop_id, value, code, expiring_date, image_url, image_original_url)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [groupId, shopId, value, depositNumber || null, depositDate || null, imageUrl, imageOriginalUrl],
     );
 
     const deposit = await req.db.get(`SELECT * FROM deposits WHERE id = ?`, [result.lastID]);

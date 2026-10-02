@@ -193,6 +193,13 @@ async function initDB() {
 
   await db.exec(`CREATE INDEX IF NOT EXISTS idx_deposits_group ON deposits (group_id)`);
 
+  // Full-quality original of the photo (image_url is the light display version).
+  // Added after the table existed, and SQLite has no "ADD COLUMN IF NOT EXISTS".
+  const depositColumns = await db.all(`PRAGMA table_info(deposits)`);
+  if (!depositColumns.some((column) => column.name === "image_original_url")) {
+    await db.exec(`ALTER TABLE deposits ADD COLUMN image_original_url TEXT DEFAULT NULL`);
+  }
+
   console.log("Baza danych SQLite została załadowana i tabele są gotowe!");
   return db;
 }

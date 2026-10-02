@@ -4,6 +4,7 @@ const { randomUUID } = require("crypto");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const { createDisplayImage } = require("../../services/imageService");
 
 // KONFIGURACJA ZAPISU PLIKÓW
 const storage = multer.diskStorage({
@@ -108,7 +109,7 @@ router.post("/", upload.single("image"), async (req, res) => {
   // Budujemy ścieżkę do zdjęcia
   let imageUrl = "";
   if (req.file) {
-    imageUrl = `/images/recipes/${req.file.filename}`;
+    imageUrl = `/images/recipes/${(await createDisplayImage(req.file.path)).displayName}`;
   }
 
   try {
@@ -216,7 +217,7 @@ router.put("/:id", upload.single("image"), async (req, res) => {
     // Obsługa zdjęcia: jeśli przesłano nowe, bierzemy jego ścieżkę. Jeśli nie, zostawiamy stare.
     let imageUrl = existingRecipe.image_url;
     if (req.file) {
-      imageUrl = `/images/recipes/${req.file.filename}`;
+      imageUrl = `/images/recipes/${(await createDisplayImage(req.file.path)).displayName}`;
 
       // Opcjonalnie: stary plik ze starego zdjęcia można by skasować z dysku,
       // żeby nie śmiecić (jeśli istniał)
