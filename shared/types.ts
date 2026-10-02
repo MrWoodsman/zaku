@@ -64,3 +64,13 @@ export interface AddRecipeToListPayload {
     unit: string;
   }[];
 }
+
+// This group's preference for a shop (null = normal)
+export type ShopStatus = "favorite" | "hidden" | null;
+
+// Shop from GET /api/v1/shops
+export interface Shop {
+  id: number;
+  name: string;
+  status: ShopStatus;
+}
