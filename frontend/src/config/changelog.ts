@@ -21,7 +21,11 @@ export const CHANGELOG: Release[] = [
       "Odświeżony wygląd głównych przycisków",
       "Zdjęcia ładują się szybciej - najpierw lżejsza wersja, potem pełna jakość",
       "Okienko „Co nowego?” po każdej aktualizacji aplikacji",
+      "Nowa ikona aplikacji",
+      "Poprawiony rozmiar tekstu w całej aplikacji",
+      "Z dolnego menu zniknęła zakładka, która jeszcze nic nie robiła",
       "Drobne poprawki: większy kalendarz, wyszukiwanie sklepów, przyciski w nagłówkach nie przeskakują między zakładkami",
+      "Dokładniejsze logi błędów na serwerze - problemy będą szybciej znajdowane i naprawiane",
     ],
   },
   {
