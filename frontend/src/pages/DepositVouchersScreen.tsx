@@ -3,10 +3,11 @@ import { useEffect, useRef } from "react";
 import { useItemsCompletedQuery } from "@/hooks/useItems";
 import { Loading } from "@/components/common/Loading";
 import { NotFound } from "@/components/common/NotFound";
-import { Plus, SortDescIcon, TicketSlash } from "lucide-react";
+import { Plus, SortDescIcon, StarIcon, TicketSlash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DepositAddOverlay } from "@/components/overlay/deposit/depositAddOverlay";
 import { EmptyDepositPrompt } from "@/components/deposit/EmptyDepositPrompt";
+import { ShopPreferencesOverlay } from "@/components/overlay/deposit/ShopPreferencesOverlay";
 
 export function DepositVouchersScreen() {
   const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } =
@@ -57,6 +58,11 @@ export function DepositVouchersScreen() {
         </div>
 
         <div className="flex gap-2">
+          <ShopPreferencesOverlay>
+            <Button size="icon" variant={"secondary"} aria-label="Twoje sklepy">
+              <StarIcon />
+            </Button>
+          </ShopPreferencesOverlay>
           <Button size="icon" variant={"secondary"}>
             <SortDescIcon />
           </Button>
