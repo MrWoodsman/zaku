@@ -3,6 +3,7 @@ const sqlite3 = require("sqlite3");
 const { open } = require("sqlite");
 const path = require("path");
 const fs = require("fs");
+const { logger } = require("./logger");
 
 async function initDB() {
   const dbPath = process.env.DB_PATH || path.join(__dirname, "data", "database.sqlite");
@@ -11,7 +12,7 @@ async function initDB() {
 
   if (!fs.existsSync(dirPath)) {
     fs.mkdirSync(dirPath, { recursive: true });
-    console.log(`Utworzono brakujący folder dla bazy danych: ${dirPath}`);
+    logger.info(`Utworzono brakujący folder dla bazy danych: ${dirPath}`);
   }
 
   const db = await open({
@@ -200,7 +201,7 @@ async function initDB() {
     await db.exec(`ALTER TABLE deposits ADD COLUMN image_original_url TEXT DEFAULT NULL`);
   }
 
-  console.log("Baza danych SQLite została załadowana i tabele są gotowe!");
+  logger.info("Baza danych SQLite została załadowana i tabele są gotowe!");
   return db;
 }
 

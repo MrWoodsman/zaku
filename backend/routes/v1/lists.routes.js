@@ -31,6 +31,7 @@ router.get("/", async (req, res) => {
 
     res.json(lists);
   } catch (error) {
+    req.log.error({ err: error }, "Failed: GET /api/v1/lists");
     res.status(500).json({ message: "Błąd serwera", error: error.message });
   }
 });
@@ -59,6 +60,7 @@ router.get("/:id", async (req, res) => {
 
     res.json(list);
   } catch (error) {
+    req.log.error({ err: error }, "Failed: GET /api/v1/lists/:id");
     res.status(500).json({ message: "Błąd serwera", error: error.message });
   }
 });
@@ -83,6 +85,7 @@ router.post("/", async (req, res) => {
       list: { id, groupId, name, itemsIn: 0, completedCount: 0, items: [] },
     });
   } catch (error) {
+    req.log.error({ err: error }, "Failed: POST /api/v1/lists");
     res.status(500).json({ message: "Błąd tworzenia", error: error.message });
   }
 });
@@ -104,6 +107,7 @@ router.put("/:id", async (req, res) => {
       await req.db.run(`UPDATE lists SET name = ? WHERE id = ?`, [req.body.name, req.params.id]);
     res.status(200).json({ message: "Zaktualizowano listę" });
   } catch (error) {
+    req.log.error({ err: error }, "Failed: PUT /api/v1/lists/:id");
     res.status(500).json({ message: "Błąd aktualizacji", error: error.message });
   }
 });
@@ -129,6 +133,7 @@ router.delete("/:id", async (req, res) => {
     ]);
     res.status(200).json({ message: "Lista usunięta" });
   } catch (error) {
+    req.log.error({ err: error }, "Failed: DELETE /api/v1/lists/:id");
     res.status(500).json({ message: "Błąd usuwania", error: error.message });
   }
 });
@@ -159,6 +164,7 @@ router.post("/:id/seen", async (req, res) => {
 
     res.status(200).json({ message: "Marked as seen" });
   } catch (error) {
+    req.log.error({ err: error }, "Failed: POST /api/v1/lists/:id/seen");
     res.status(500).json({ message: "Błąd", error: error.message });
   }
 });
@@ -200,6 +206,7 @@ router.post("/:id/items", async (req, res) => {
       excludeDeviceId: deviceId,
     });
   } catch (error) {
+    req.log.error({ err: error }, "Failed: POST /api/v1/lists/:id/items");
     res.status(500).json({ message: "Błąd", error: error.message });
   }
 });
@@ -222,6 +229,7 @@ router.put("/:id/items/mark-all", async (req, res) => {
     );
     res.json({ message: "Wszystko kupione" });
   } catch (error) {
+    req.log.error({ err: error }, "Failed: PUT /api/v1/lists/:id/items/mark-all");
     res.status(500).json({ message: "Błąd", error: error.message });
   }
 });
@@ -244,6 +252,7 @@ router.put("/:id/items/reset-all", async (req, res) => {
     );
     res.json({ message: "Reset" });
   } catch (error) {
+    req.log.error({ err: error }, "Failed: PUT /api/v1/lists/:id/items/reset-all");
     res.status(500).json({ message: "Błąd", error: error.message });
   }
 });
@@ -266,6 +275,7 @@ router.delete("/:id/items/delete-completed", async (req, res) => {
     );
     res.json({ message: "Usunięto kupione" });
   } catch (error) {
+    req.log.error({ err: error }, "Failed: DELETE /api/v1/lists/:id/items/delete-completed");
     res.status(500).json({ message: "Błąd", error: error.message });
   }
 });
@@ -288,6 +298,7 @@ router.delete("/:id/items/delete-all", async (req, res) => {
     );
     res.json({ message: "Wyczyszczono" });
   } catch (error) {
+    req.log.error({ err: error }, "Failed: DELETE /api/v1/lists/:id/items/delete-all");
     res.status(500).json({ message: "Błąd", error: error.message });
   }
 });
@@ -347,6 +358,7 @@ router.post("/add-from-recipe", async (req, res) => {
     await req.db.run("COMMIT");
     res.status(201).json({ message: "Dodano składniki do listy", targetListId });
   } catch (error) {
+    req.log.error({ err: error }, "Failed: POST /api/v1/lists/add-from-recipe");
     await req.db.run("ROLLBACK");
     res.status(500).json({ message: "Błąd", error: error.message });
   }

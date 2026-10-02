@@ -33,7 +33,7 @@ router.post("/", uploadMemory.single("barcodeImage"), async (req, res) => {
   }
 
   try {
-    console.log("Odebrano zdjęcie do RAMu, przetwarzanie...");
+    req.log.debug("Odebrano zdjęcie do RAMu, przetwarzanie...");
 
     // Zamiast fs.readFile, używamy bezpośrednio bufora z RAM
     const results = await readBarcodes(req.file.buffer, {
@@ -48,6 +48,7 @@ router.post("/", uploadMemory.single("barcodeImage"), async (req, res) => {
       res.json({ success: false, message: "Nie odnaleziono kodu na zdjęciu." });
     }
   } catch (error) {
+    req.log.error({ err: error }, "Failed: POST /api/v1/scan");
     res.status(500).json({ message: "Błąd serwera: " + error.message });
   }
 });
@@ -107,6 +108,7 @@ router.post("/deposit", uploadDisk.single("image"), async (req, res) => {
 
     res.status(201).json({ success: true, message: "Kupon kaucji został dodany.", deposit });
   } catch (error) {
+    req.log.error({ err: error }, "Failed: POST /api/v1/scan/deposit");
     removeUploadedFile();
     res.status(500).json({ message: "Błąd podczas zapisu: " + error.message });
   }

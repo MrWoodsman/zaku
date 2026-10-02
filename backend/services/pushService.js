@@ -1,4 +1,5 @@
 const webpush = require("web-push");
+const { logger } = require("../logger");
 
 // Resolves the VAPID key pair: env vars win (for pinning a known pair across
 // deploys), otherwise a pair generated on first run and persisted in the DB
@@ -84,7 +85,7 @@ async function notifyListChanged(db, { groupId, listId, listName, excludeDeviceI
       if (error.statusCode === 404 || error.statusCode === 410) {
         await db.run(`DELETE FROM push_subscriptions WHERE device_id = ?`, [sub.device_id]);
       } else {
-        console.error("Błąd wysyłki push:", error.message);
+        logger.error({ err: error, deviceId: sub.device_id, statusCode: error.statusCode }, "Błąd wysyłki push");
       }
     }
   }
@@ -106,7 +107,7 @@ function scheduleListChangedNotification(db, params) {
   const timer = setTimeout(() => {
     pendingSends.delete(params.listId);
     notifyListChanged(db, params).catch((error) =>
-      console.error("Błąd powiadomienia push:", error.message),
+      logger.error({ err: error, listId: params.listId }, "Błąd powiadomienia push"),
     );
   }, DEBOUNCE_MS);
 

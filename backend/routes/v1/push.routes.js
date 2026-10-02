@@ -30,6 +30,7 @@ router.post("/subscribe", async (req, res) => {
 
     res.status(201).json({ message: "Subscribed" });
   } catch (error) {
+    req.log.error({ err: error }, "Failed: POST /api/v1/push/subscribe");
     res.status(500).json({ message: "Błąd", error: error.message });
   }
 });
@@ -43,6 +44,7 @@ router.delete("/subscribe", async (req, res) => {
     await req.db.run(`DELETE FROM push_subscriptions WHERE device_id = ?`, [deviceId]);
     res.status(200).json({ message: "Unsubscribed" });
   } catch (error) {
+    req.log.error({ err: error }, "Failed: DELETE /api/v1/push/subscribe");
     res.status(500).json({ message: "Błąd", error: error.message });
   }
 });

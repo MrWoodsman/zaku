@@ -137,6 +137,9 @@ The backend reads its config from `backend/.env` (see `backend/.env.example`). I
 | `VAPID_PUBLIC_KEY`   | auto-generated on first run   | public VAPID key for push notifications; set it to pin a known pair (e.g. across a DB migration) |
 | `VAPID_PRIVATE_KEY`  | auto-generated on first run   | private VAPID key — keep it secret if you set it manually                                       |
 | `VAPID_SUBJECT`      | `mailto:admin@example.com`    | contact URI push services may use to reach you about your server                                |
+| `LOG_LEVEL`          | `info`                         | `fatal` / `error` / `warn` / `info` / `debug`                                                  |
+| `LOG_DIR`            | `./data/logs`                  | daily-rotated logs: readable `app.YYYY-MM-DD.N.log` + full JSON in `json/`; `off` = console only  |
+| `LOG_RETENTION_DAYS` | `14`                           | how many days of log files to keep                                                               |
 
 > **Push notifications need HTTPS.** The Push API only works in a [secure context](https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts) — `localhost` is fine for local dev, but on a real server (VPS/Proxmox) you need a valid TLS certificate (e.g. a reverse proxy with Let's Encrypt) in front of the app. Everything else in Zaku works fine over plain HTTP; only push notifications require it.
 
@@ -188,6 +191,7 @@ Useful commands after installation:
 ```bash
 systemctl status shopping-app
 journalctl -u shopping-app -f     # or the alias: shopping-logs
+grep ERROR /opt/shopping-list-pwa/backend/data/logs/*.log   # errors only (log files are kept for 14 days)
 systemctl restart shopping-app
 ```
 

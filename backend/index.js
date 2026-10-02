@@ -3,6 +3,17 @@ const path = require("path");
 const fs = require("fs");
 const { initDB } = require("./db");
 const { createApp } = require("./app");
+const { logger } = require("./logger");
+
+// Crashes still crash (docker/systemd restarts the app), but now leave the stack in the logs
+process.on("uncaughtException", (err) => {
+  logger.fatal({ err }, "Uncaught exception");
+  process.exit(1);
+});
+process.on("unhandledRejection", (reason) => {
+  logger.fatal({ err: reason }, "Unhandled promise rejection");
+  process.exit(1);
+});
 
 async function startServer() {
   try {
@@ -13,11 +24,11 @@ async function startServer() {
     const uploadDirRefund = path.join(__dirname, "uploads", "refunds");
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
-      console.log("Utworzono brakujący katalog na zdjęcia: uploads/recipes");
+      logger.info("Utworzono brakujący katalog na zdjęcia: uploads/recipes");
     }
     if (!fs.existsSync(uploadDirRefund)) {
       fs.mkdirSync(uploadDirRefund, { recursive: true });
-      console.log("Utworzono brakujący katalog na zdjęcia: uploads/refunds");
+      logger.info("Utworzono brakujący katalog na zdjęcia: uploads/refunds");
     }
 
     const app = createApp(db);
@@ -30,9 +41,9 @@ async function startServer() {
     });
 
     const PORT = process.env.PORT || 3000;
-    app.listen(PORT, () => console.log(`Serwer działa na http://localhost:${PORT}`));
+    app.listen(PORT, () => logger.info(`Serwer działa na http://localhost:${PORT}`));
   } catch (error) {
-    console.error("Błąd podczas startu serwera/bazy:", error);
+    logger.fatal({ err: error }, "Błąd podczas startu serwera/bazy");
   }
 }
 

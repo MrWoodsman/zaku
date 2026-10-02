@@ -54,6 +54,7 @@ router.get("/", async (req, res) => {
     const hasMore = rows.length > limit;
     res.json({ items: rows.slice(0, limit), nextOffset: hasMore ? offset + limit : null });
   } catch (error) {
+    req.log.error({ err: error }, "Failed: GET /api/v1/deposits");
     res.status(500).json({ message: "Błąd", error: error.message });
   }
 });
@@ -79,6 +80,7 @@ router.get("/summary", async (req, res) => {
 
     res.json(summary);
   } catch (error) {
+    req.log.error({ err: error }, "Failed: GET /api/v1/deposits/summary");
     res.status(500).json({ message: "Błąd", error: error.message });
   }
 });
@@ -106,6 +108,7 @@ router.put("/:id/used", async (req, res) => {
     const deposit = await req.db.get(`SELECT id, used_at FROM deposits WHERE id = ?`, [req.params.id]);
     res.json(deposit);
   } catch (error) {
+    req.log.error({ err: error }, "Failed: PUT /api/v1/deposits/:id/used");
     res.status(500).json({ message: "Błąd", error: error.message });
   }
 });
@@ -142,6 +145,7 @@ router.put("/:id", async (req, res) => {
 
     res.json({ success: true });
   } catch (error) {
+    req.log.error({ err: error }, "Failed: PUT /api/v1/deposits/:id");
     res.status(500).json({ message: "Błąd", error: error.message });
   }
 });
@@ -162,6 +166,7 @@ router.delete("/:id", async (req, res) => {
 
     res.json({ success: true });
   } catch (error) {
+    req.log.error({ err: error }, "Failed: DELETE /api/v1/deposits/:id");
     res.status(500).json({ message: "Błąd", error: error.message });
   }
 });

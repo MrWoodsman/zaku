@@ -1,6 +1,7 @@
 const sharp = require("sharp");
 const fs = require("fs/promises");
 const path = require("path");
+const { logger } = require("../logger");
 
 // Longest side of the display version. Phone photos are ~4000px / 2-5 MB - way more
 // than a screen needs, and the reason big photos loaded in visible strips on phones.
@@ -32,7 +33,7 @@ async function createDisplayImage(filePath, { keepOriginal = false } = {}) {
       .jpeg({ quality: QUALITY, progressive: true, mozjpeg: true })
       .toFile(tempPath);
   } catch (error) {
-    console.warn(`Nie udało się przygotować zdjęcia ${parsed.base}:`, error.message);
+    logger.warn({ err: error, file: parsed.base }, "Nie udało się przygotować zdjęcia");
     await fs.rm(tempPath, { force: true });
     return { displayName: parsed.base, originalName: null };
   }

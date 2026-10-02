@@ -20,6 +20,7 @@ router.get("/", async (req, res) => {
 
     res.json(items);
   } catch (error) {
+    req.log.error({ err: error }, "Failed: GET /api/v1/items");
     res.status(500).json({ message: "Błąd", error: error.message });
   }
 });
@@ -64,6 +65,7 @@ router.get("/completed", async (req, res) => {
 
     res.json({ items: page, nextCursor });
   } catch (error) {
+    req.log.error({ err: error }, "Failed: GET /api/v1/items/completed");
     res.status(500).json({ message: "Błąd", error: error.message });
   }
 });
@@ -112,6 +114,7 @@ router.put("/:id", async (req, res) => {
 
     res.json({ message: "Zaktualizowano produkt" });
   } catch (error) {
+    req.log.error({ err: error }, "Failed: PUT /api/v1/items/:id");
     res.status(500).json({ message: "Błąd", error: error.message });
   }
 });
@@ -132,6 +135,7 @@ router.delete("/:id", async (req, res) => {
     await req.db.run(`UPDATE items SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?`, [itemId]);
     res.json({ message: "Produkt usunięty" });
   } catch (error) {
+    req.log.error({ err: error }, "Failed: DELETE /api/v1/items/:id");
     res.status(500).json({ message: "Błąd", error: error.message });
   }
 });

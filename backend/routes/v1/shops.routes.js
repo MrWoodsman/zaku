@@ -23,6 +23,7 @@ router.get("/", async (req, res) => {
 
     res.json(shops);
   } catch (error) {
+    req.log.error({ err: error }, "Failed: GET /api/v1/shops");
     res.status(500).json({ message: "Błąd", error: error.message });
   }
 });
@@ -59,6 +60,7 @@ router.put("/:id/status", async (req, res) => {
 
     res.json({ id: shopId, status });
   } catch (error) {
+    req.log.error({ err: error }, "Failed: PUT /api/v1/shops/:id/status");
     res.status(500).json({ message: "Błąd", error: error.message });
   }
 });

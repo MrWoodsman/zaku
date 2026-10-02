@@ -37,6 +37,7 @@ router.get("/", async (req, res) => {
 
     res.json(recipes);
   } catch (error) {
+    req.log.error({ err: error }, "Failed: GET /api/v1/recipes");
     res.status(500).json({ message: "Błąd serwera", error: error.message });
   }
 });
@@ -78,7 +79,7 @@ router.get("/:id", async (req, res) => {
     // 5. Odsyłamy gotowy obiekt
     res.json(fullRecipe);
   } catch (error) {
-    console.error("Błąd pobierania detali przepisu:", error);
+    req.log.error({ err: error }, "Błąd pobierania detali przepisu");
     res
       .status(500)
       .json({ message: "Błąd serwera podczas pobierania przepisu", error: error.message });
@@ -162,15 +163,15 @@ router.post("/", upload.single("image"), async (req, res) => {
   } catch (error) {
     // JEŚLI COKOLWIEK SIĘ WYSYPIE - COFAMY WSZYSTKO
     await req.db.run("ROLLBACK");
-    console.error("Błąd bazy danych:", error);
+    req.log.error({ err: error }, "Błąd bazy danych");
 
     // USUWANIE ZDJECIA JESLI JUZ ZAPISANE
     if (req.file) {
       fs.unlink(req.file.path, (err) => {
         if (err) {
-          console.error("Nie udało się usunąć osieroconego zdjęcia z dysku:", err);
+          req.log.warn({ err }, "Nie udało się usunąć osieroconego zdjęcia z dysku");
         } else {
-          console.log("Usunięto zdjęcie z dysku po błędzie bazy danych.");
+          req.log.info("Usunięto zdjęcie z dysku po błędzie bazy danych.");
         }
       });
     }
@@ -268,12 +269,12 @@ router.put("/:id", upload.single("image"), async (req, res) => {
   } catch (error) {
     // JEŚLI BŁĄD - COFAMY ZMIANY W BAZIE
     await req.db.run("ROLLBACK");
-    console.error("Błąd bazy danych przy edycji:", error);
+    req.log.error({ err: error }, "Błąd bazy danych przy edycji");
 
     // USUWANIE NOWO DODANEGO ZDJĘCIA W RAZIE AWARII
     if (req.file) {
       fs.unlink(req.file.path, (err) => {
-        if (err) console.error("Nie udało się usunąć osieroconego zdjęcia:", err);
+        if (err) req.log.warn({ err }, "Nie udało się usunąć osieroconego zdjęcia");
       });
     }
 
@@ -315,7 +316,7 @@ router.delete("/:id", async (req, res) => {
     res.json({ message: "Pomyślnie usunięto przepis" });
   } catch (error) {
     await req.db.run("ROLLBACK");
-    console.error("Błąd przy usuwaniu przepisu:", error);
+    req.log.error({ err: error }, "Błąd przy usuwaniu przepisu");
     res.status(500).json({ message: "Błąd serwera przy usuwaniu przepisu", error: error.message });
   }
 });
