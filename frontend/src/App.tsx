@@ -7,10 +7,12 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { useGroup } from "./hooks/useGroup";
 import { useDeviceId } from "./hooks/useDeviceId";
 import { usePushNotifications } from "./hooks/usePushNotifications";
+import { useWhatsNew } from "./hooks/useWhatsNew";
 
 // COMPONENTS
 import { OnBoardingOverlay } from "./components/overlay/OnBoardingOverlay";
 import { NotificationPromptOverlay } from "./components/overlay/NotificationPromptOverlay";
+import { WhatsNewOverlay } from "./components/overlay/WhatsNewOverlay";
 import { AppLayout } from "./components/layout/AppLayout";
 
 // SCREENS
@@ -32,6 +34,7 @@ function App() {
   const { groupId, joinGroup, leaveGroup } = useGroup();
   useDeviceId(); // ensures a deviceId exists in localStorage from app start
   const { isSupported: isPushSupported } = usePushNotifications();
+  const whatsNew = useWhatsNew();
 
   const [showOnboarding, setShowOnboarding] = useState(() => {
     return !localStorage.getItem("has-seen-onboarding");
@@ -109,6 +112,8 @@ function App() {
           />
         </Route>
       </Routes>
+      {/* Once after an update - only here, so it never stacks on onboarding / group / push prompt */}
+      <WhatsNewOverlay releases={whatsNew.releases} onClose={whatsNew.markSeen} />
       {/* <--- GLOBALNY TOASTER ---> */}
       <Toaster
         position="top-center"
