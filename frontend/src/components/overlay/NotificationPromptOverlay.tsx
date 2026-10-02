@@ -51,7 +51,7 @@ export function NotificationPromptOverlay({ onComplete }: { onComplete: () => vo
           )}
         </label>
 
-        <Button variant="accent" className="w-full" onClick={onComplete}>
+        <Button variant="raised" className="w-full" onClick={onComplete}>
           Dalej
         </Button>
       </CardFooter>

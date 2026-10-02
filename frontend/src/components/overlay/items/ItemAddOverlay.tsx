@@ -131,6 +131,7 @@ export function ItemAddOverlay({ listId }: ItemAddOverlayProps) {
 
           <Button
             type="submit" // ZMIANA: Dodano typ submit
+            variant="raised"
             className="w-full h-11 mt-2"
             disabled={(addItemMutation.isPending && !keepOpen) || newItemName.length == 0} // Wyłączamy przycisk tylko, jeśli okienko ma się zamknąć
           >

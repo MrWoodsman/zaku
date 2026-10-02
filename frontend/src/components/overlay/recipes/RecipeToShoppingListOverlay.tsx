@@ -225,6 +225,7 @@ export function RecipeToShoppingListOverlay({
         {/* SEKCJA DÓŁ - Przycisk zawsze widoczny na samym dole, nie przewija się z listą */}
         <div className="px-4 pt-4 mt-2">
           <Button
+            variant="raised"
             onClick={handleSubmit}
             disabled={
               isPending || (mode === "existing" && !selectedListId) || selectedIngIds.length === 0

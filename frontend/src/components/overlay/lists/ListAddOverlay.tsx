@@ -55,6 +55,7 @@ export function ListAddOverlay({ children }: ListAddOverlayProps) {
             className="border p-3 rounded-lg text-base text-foreground bg-background focus:outline-none focus:ring-2 focus:ring-primary"
           />
           <Button
+            variant="raised"
             className="w-full h-11"
             disabled={addListMutation.isPending || newListName.trim() === ""}
             onClick={handleCreate}

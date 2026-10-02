@@ -79,6 +79,7 @@ export function ListSettingsOverlay({ listId, listName }: ListSettingsProps) {
                   Anuluj
                 </Button>
                 <Button
+                  variant="raised"
                   className="flex-1 h-11"
                   disabled={renameListMutation.isPending || newName.trim() === ""}
                   onClick={() =>

@@ -55,6 +55,7 @@ export function OnBoardingOverlay({ onComplete }: { onComplete: () => void }) {
           )}
           <Button
             type="button"
+            variant="raised"
             className="flex-1"
             onClick={() =>
               currentStep < steps.length - 1 ? setCurrentStep((s) => s + 1) : onComplete()
