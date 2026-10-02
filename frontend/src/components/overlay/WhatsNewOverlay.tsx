@@ -20,7 +20,9 @@ export function WhatsNewOverlay({ releases, onClose }: WhatsNewOverlayProps) {
   const [latest] = releases;
 
   return (
-    <Drawer open={releases.length > 0} onOpenChange={(open) => !open && onClose()}>
+    // dismissible={false}: no closing by swiping down, tapping outside or Escape -
+    // only the button, so the update news isn't skipped by accident
+    <Drawer open={releases.length > 0} dismissible={false}>
       <DrawerContent
         className="bg-background border-border px-4 pb-[max(24px,var(--safe-bottom))]"
         onOpenAutoFocus={(event) => event.preventDefault()}
