@@ -10,19 +10,26 @@ import {
 import { Button } from "@/components/ui/button";
 
 interface WhatsNewOverlayProps {
-  // Unseen releases, newest first (empty = closed)
+  // Releases to show, newest first (empty = closed)
   releases: Release[];
   onClose: () => void;
+  // false (popped up after an update): closes only with the button, so the news isn't
+  // skipped by accident. true (opened from Settings): swipe / tap outside work too,
+  // and the "updated to" / "history is in Settings" wording is dropped.
+  openedManually?: boolean;
 }
 
-// Shown once after the app updates to a new version - see useWhatsNew
-export function WhatsNewOverlay({ releases, onClose }: WhatsNewOverlayProps) {
+// Shown once after the app updates to a new version (see useWhatsNew),
+// and on demand from Settings
+export function WhatsNewOverlay({ releases, onClose, openedManually = false }: WhatsNewOverlayProps) {
   const [latest] = releases;
 
   return (
-    // dismissible={false}: no closing by swiping down, tapping outside or Escape -
-    // only the button, so the update news isn't skipped by accident
-    <Drawer open={releases.length > 0} dismissible={false}>
+    <Drawer
+      open={releases.length > 0}
+      dismissible={openedManually}
+      onOpenChange={(open) => !open && onClose()}
+    >
       <DrawerContent
         className="bg-background border-border px-4 pb-[max(24px,var(--safe-bottom))]"
         onOpenAutoFocus={(event) => event.preventDefault()}
@@ -39,8 +46,9 @@ export function WhatsNewOverlay({ releases, onClose }: WhatsNewOverlayProps) {
               </div>
               <DrawerTitle className="text-xl">Co nowego?</DrawerTitle>
               <DrawerDescription>
-                Aplikacja została zaktualizowana do{" "}
+                {openedManually ? "Nowości w wersji " : "Aplikacja została zaktualizowana do "}
                 <span className="font-mono font-medium text-foreground">v{latest.version}</span>
+                {openedManually && ` · ${latest.date}`}
               </DrawerDescription>
             </DrawerHeader>
 
@@ -73,11 +81,13 @@ export function WhatsNewOverlay({ releases, onClose }: WhatsNewOverlayProps) {
             </div>
 
             <Button variant="raised" className="mt-5 h-11 w-full" onClick={onClose}>
-              Super, sprawdzam!
+              {openedManually ? "Zamknij" : "Super, sprawdzam!"}
             </Button>
-            <p className="mt-3 text-center text-xs text-muted-foreground">
-              Pełna historia zmian jest w Ustawieniach.
-            </p>
+            {!openedManually && (
+              <p className="mt-3 text-center text-xs text-muted-foreground">
+                Pełna historia zmian jest w Ustawieniach.
+              </p>
+            )}
           </>
         )}
       </DrawerContent>

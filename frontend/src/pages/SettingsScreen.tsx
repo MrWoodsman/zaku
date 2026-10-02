@@ -3,6 +3,7 @@ import { GroupSection } from "@/components/settings/GroupSection";
 import { AppearanceSection } from "@/components/settings/AppearanceSection";
 import { LanguageSection } from "@/components/settings/LanguageSection";
 import { NotificationsSection } from "@/components/settings/NotificationsSection";
+import { AppSection } from "@/components/settings/AppSection";
 
 export function SettingsScreen({ groupId, onLeave }: { groupId: string; onLeave: () => void }) {
   return (
@@ -13,6 +14,7 @@ export function SettingsScreen({ groupId, onLeave }: { groupId: string; onLeave:
       <AppearanceSection />
       <LanguageSection />
       <NotificationsSection />
+      <AppSection />
 
       <div className="flex flex-col items-center gap-2">
         <VersionBadge />
