@@ -59,3 +59,5 @@ lerna-debug.log*
 
 # AI
 .agents/*
+# Personal task list - kept local only
+TODO.md
