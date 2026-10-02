@@ -66,8 +66,13 @@ export interface AddRecipeToListPayload {
 }
 
 // INTERRFACE DO addDepositApi
+// Barcode type read from the voucher photo: "gs1" = GS1-128 (Code128 with a leading
+// FNC1, e.g. Lidl), null = plain Code128
+export type DepositCodeFormat = "gs1" | null;
+
 export interface AddDepositPayload {
   depositNumber: string;
+  depositCodeFormat: DepositCodeFormat;
   depositValue: number;
   depositDate: string;
   depositShop: number;
@@ -81,6 +86,7 @@ export interface Deposit {
   shop_name: string | null;
   value: number;
   code: string | null;
+  code_format: DepositCodeFormat;
   expiring_date: string | null; // yyyy-MM-dd
   image_url: string | null; // light display version
   image_original_url: string | null; // full-quality original (null for older uploads)

@@ -18,6 +18,7 @@ import { DepositDatePicker } from "@/components/deposit/DepositDatePicker";
 import { addDays, format } from "date-fns";
 import { DepositShopSelect } from "@/components/deposit/DepositShopSelect";
 import { useShopsQuery } from "@/hooks/useShops";
+import type { DepositCodeFormat } from "@shared/types";
 
 interface ListAddOverlayProps {
   children: React.ReactNode;
@@ -29,6 +30,8 @@ export function DepositAddOverlay({ children }: ListAddOverlayProps) {
   // DANE DEPOZYTU
   const [depositImage, setDepositImage] = useState<File | null>(null);
   const [depositNumber, setDepositNumber] = useState<string>("");
+  // "gs1" when the scanned barcode is GS1-128 - needed to regenerate it correctly
+  const [depositCodeFormat, setDepositCodeFormat] = useState<DepositCodeFormat>(null);
   const [depositValue, setDepositValue] = useState<number | string>("");
   const [depositShop, setDepositShop] = useState<number | null>(null);
   const [depositDate, setDepositDate] = useState<Date | undefined>(
@@ -62,6 +65,7 @@ export function DepositAddOverlay({ children }: ListAddOverlayProps) {
   const resetForm = () => {
     clearImage();
     setDepositNumber("");
+    setDepositCodeFormat(null);
     setDepositValue("");
     setDepositShop(null);
     setDepositDate(addDays(new Date(), 30));
@@ -74,6 +78,7 @@ export function DepositAddOverlay({ children }: ListAddOverlayProps) {
     createDeposit(
       {
         depositNumber: depositNumber,
+        depositCodeFormat: depositCodeFormat,
         depositValue: Number(depositValue),
         // Local date only - toISOString() would convert to UTC and could shift the day back
         depositDate: format(depositDate, "yyyy-MM-dd"),
@@ -135,12 +140,14 @@ export function DepositAddOverlay({ children }: ListAddOverlayProps) {
                     setDepositImage(file);
                     replacePreview(URL.createObjectURL(file));
                     setDepositNumber("");
+                    setDepositCodeFormat(null);
                     setIsProcessing(true);
                     // sendRequestToProcesPhoto(file);
                     scanMutation.mutate(file, {
                       onSuccess: (data) => {
                         if (data.success) {
                           setDepositNumber(String(data.code));
+                          setDepositCodeFormat(data.codeFormat === "gs1" ? "gs1" : null);
                           setIsProcessing(false);
                         } else {
                           clearImage();

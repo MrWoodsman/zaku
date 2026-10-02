@@ -90,3 +90,22 @@ describe("POST /api/v1/scan/deposit - zdjęcie", () => {
     expect(original.equals(photo)).toBe(true);
   });
 });
+
+describe("POST /api/v1/scan/deposit - format kodu", () => {
+  it("zapisuje code_format gs1, a nieznany format ignoruje", async () => {
+    const add = (format) =>
+      request(app)
+        .post("/api/v1/scan/deposit")
+        .set("x-group-id", "g1")
+        .field("depositNumber", "201000123456789012345678")
+        .field("depositValue", "0.5")
+        .field("depositCodeFormat", format);
+
+    const gs1 = await add("gs1");
+    expect(gs1.status).toBe(201);
+    expect(gs1.body.deposit.code_format).toBe("gs1");
+
+    const unknown = await add("cokolwiek");
+    expect(unknown.body.deposit.code_format).toBeNull();
+  });
+});

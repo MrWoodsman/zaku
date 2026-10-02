@@ -10,11 +10,14 @@ interface DepositTicketProps {
 
 // Renders the barcode into a detached <svg> and returns its markup,
 // or null when the code can't be encoded
-const renderBarcodeSvg = (code: string) => {
+const renderBarcodeSvg = (code: string, isGs1: boolean) => {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   try {
     JsBarcode(svg, code, {
       format: "CODE128",
+      // GS1-128: adds the leading FNC1 the original voucher had - without it a till
+      // may read the same digits but not recognise it as a GS1 voucher
+      ean128: isGs1,
       background: "transparent",
       lineColor: "#0c0a09",
       height: 72,
@@ -49,8 +52,8 @@ function Notch({ side }: { side: "left" | "right" }) {
 // Code128 - the same format the backend reads from the photo.
 export function DepositTicket({ deposit }: DepositTicketProps) {
   const svgMarkup = useMemo(
-    () => (deposit.code ? renderBarcodeSvg(deposit.code) : null),
-    [deposit.code],
+    () => (deposit.code ? renderBarcodeSvg(deposit.code, deposit.code_format === "gs1") : null),
+    [deposit.code, deposit.code_format],
   );
   const state = getDepositState(deposit);
   const stamp =

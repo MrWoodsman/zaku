@@ -40,10 +40,19 @@ router.post("/", uploadMemory.single("barcodeImage"), async (req, res) => {
       tryHarder: true,
       formats: ["Code128"],
       maxNumberOfSymbols: 1,
+      // Raw content. The default "HRI" formats GS1 codes for humans with the field
+      // numbers in brackets, e.g. Lidl's "(20)10(00)..." - not what's printed on the voucher
+      textMode: "Plain",
     });
 
-    if (results && results.length > 0 && results[0].text.trim() !== "") {
-      res.json({ success: true, code: results[0].text });
+    // Plain text of a GS1 code can contain GS (ASCII 29) field separators - drop control chars
+    const code = results?.[0]?.text.replace(/[\x00-\x1f]/g, "").trim();
+
+    if (code) {
+      // "]C1" = GS1-128: Code128 with a leading FNC1. The regenerated barcode needs it
+      // too, otherwise the till may not recognise the voucher.
+      const codeFormat = results[0].symbologyIdentifier === "]C1" ? "gs1" : null;
+      res.json({ success: true, code, codeFormat });
     } else {
       res.json({ success: false, message: "Nie odnaleziono kodu na zdjęciu." });
     }
@@ -65,7 +74,7 @@ router.post("/deposit", uploadDisk.single("image"), async (req, res) => {
 
   try {
     // Tutaj odbierasz resztę danych z formularza
-    const { depositNumber, depositValue, depositDate, depositShop } = req.body;
+    const { depositNumber, depositValue, depositDate, depositShop, depositCodeFormat } = req.body;
 
     const value = Number(depositValue);
     if (!Number.isFinite(value) || value <= 0) {
@@ -99,9 +108,19 @@ router.post("/deposit", uploadDisk.single("image"), async (req, res) => {
     }
 
     const result = await req.db.run(
-      `INSERT INTO deposits (group_id, shop_id, value, code, expiring_date, image_url, image_original_url)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [groupId, shopId, value, depositNumber || null, depositDate || null, imageUrl, imageOriginalUrl],
+      `INSERT INTO deposits (group_id, shop_id, value, code, code_format, expiring_date, image_url, image_original_url)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        groupId,
+        shopId,
+        value,
+        depositNumber || null,
+        // Only "gs1" is a known format, anything else = plain Code128
+        depositCodeFormat === "gs1" ? "gs1" : null,
+        depositDate || null,
+        imageUrl,
+        imageOriginalUrl,
+      ],
     );
 
     const deposit = await req.db.get(`SELECT * FROM deposits WHERE id = ?`, [result.lastID]);

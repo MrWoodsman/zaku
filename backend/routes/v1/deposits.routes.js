@@ -34,7 +34,7 @@ router.get("/", async (req, res) => {
   try {
     // Fetch one extra row to know whether there's a next page
     const rows = await req.db.all(
-      `SELECT d.id, d.shop_id, s.name AS shop_name, d.value, d.code, d.expiring_date,
+      `SELECT d.id, d.shop_id, s.name AS shop_name, d.value, d.code, d.code_format, d.expiring_date,
               d.image_url, d.image_original_url, d.added_at, d.used_at
        FROM deposits d
        LEFT JOIN shops s ON s.id = d.shop_id

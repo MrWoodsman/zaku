@@ -32,6 +32,7 @@ export const createDepositApi = async (payload: AddDepositPayload) => {
   // Dopiero tutaj budujemy FormData dla backendu
   const formData = new FormData();
   formData.append("depositNumber", payload.depositNumber);
+  if (payload.depositCodeFormat) formData.append("depositCodeFormat", payload.depositCodeFormat);
   formData.append("depositValue", String(payload.depositValue));
   formData.append("depositDate", payload.depositDate);
   formData.append("depositShop", String(payload.depositShop));

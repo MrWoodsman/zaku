@@ -201,6 +201,19 @@ async function initDB() {
     await db.exec(`ALTER TABLE deposits ADD COLUMN image_original_url TEXT DEFAULT NULL`);
   }
 
+  // Barcode format: "gs1" (GS1-128, Code128 with a leading FNC1) or NULL (plain Code128)
+  if (!depositColumns.some((column) => column.name === "code_format")) {
+    await db.exec(`ALTER TABLE deposits ADD COLUMN code_format TEXT DEFAULT NULL`);
+  }
+
+  // v0.59.0 stored GS1 codes in "human readable" form with brackets, e.g. "(20)10(00)...".
+  // Strip them back to the printed digits and remember it's GS1. Safe to run every start.
+  await db.exec(`
+    UPDATE deposits
+    SET code = REPLACE(REPLACE(code, '(', ''), ')', ''), code_format = 'gs1'
+    WHERE code LIKE '(%'
+  `);
+
   logger.info("Baza danych SQLite została załadowana i tabele są gotowe!");
   return db;
 }
