@@ -90,6 +90,8 @@ export function DepositDetailsOverlay({ deposit, children }: DepositDetailsOverl
               <HoldToConfirmButton
                 variant="destructive"
                 className="h-11 w-full"
+                duration="delete"
+                hint="Przytrzymaj, aby usunąć kupon"
                 disabled={isDeleting}
                 onConfirm={handleDelete}
                 holdingLabel="Trzymaj…"
@@ -141,7 +143,8 @@ export function DepositDetailsOverlay({ deposit, children }: DepositDetailsOverl
                     disabled={isSettingUsed}
                     onConfirm={markUsed}
                     // Short enough not to hold up the till, long enough to rule out a stray tap
-                    durationMs={800}
+                    duration="normal"
+                    hint="Przytrzymaj, aby oznaczyć kupon jako wykorzystany"
                     holdingLabel="Trzymaj…"
                     doneLabel="Wykorzystany"
                   >
