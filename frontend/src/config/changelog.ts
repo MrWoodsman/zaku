@@ -20,7 +20,7 @@ export const CHANGELOG: Release[] = [
       "Ważne akcje (wykorzystanie kuponu, usuwanie list, produktów i przepisów) wymagają teraz przytrzymania - koniec z przypadkowym usunięciem",
       "Odświeżony wygląd głównych przycisków",
       "Zdjęcia ładują się szybciej - najpierw lżejsza wersja, potem pełna jakość",
-      "Okienko „Co nowego?” po każdej aktualizacji aplikacji",
+      "Okienko „Co nowego?” po każdej aktualizacji aplikacji - można je też otworzyć w Ustawieniach, a historia zmian ma nowy wygląd",
       "Nowa ikona aplikacji",
       "Poprawiony rozmiar tekstu w całej aplikacji",
       "Z dolnego menu zniknęła zakładka, która jeszcze nic nie robiła",
