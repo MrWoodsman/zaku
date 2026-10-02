@@ -13,6 +13,7 @@ import { EllipsisVertical, Trash2, Check } from "lucide-react";
 import { type ShoppingItem } from "@shared/types";
 import { useDeleteItemMutation, useUpdateItemMutation } from "@/hooks/useItemMutations";
 import { showSuccessToast } from "@/utils/toastHandler";
+import { HoldToConfirmButton } from "@/components/common/HoldToConfirmButton";
 
 interface ItemSettingsProps {
   listId: string;
@@ -138,11 +139,14 @@ export function ItemSettingsOverlay({ listId, item }: ItemSettingsProps) {
           </Button>
 
           {/* Usuwanie - uderza w mutację */}
-          <Button
+          <HoldToConfirmButton
             variant="destructive"
+            layout="row"
+            duration="delete"
+            hint="Przytrzymaj, aby usunąć produkt"
             className="justify-start h-14 text-base mt-2"
             disabled={deleteItemMutation.isPending}
-            onClick={() =>
+            onConfirm={() =>
               deleteItemMutation.mutate(item.id, {
                 onSuccess: () => {
                   showSuccessToast(`Pomyślnie usunięto ${item.name}`);
@@ -153,7 +157,7 @@ export function ItemSettingsOverlay({ listId, item }: ItemSettingsProps) {
           >
             <Trash2 className="mr-3 size-5" />
             {deleteItemMutation.isPending ? "Usuwanie..." : "Usuń produkt"}
-          </Button>
+          </HoldToConfirmButton>
         </div>
       </DrawerContent>
     </Drawer>

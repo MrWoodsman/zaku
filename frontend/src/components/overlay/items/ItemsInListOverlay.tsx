@@ -19,6 +19,7 @@ import {
   useDeleteAllMutation,
 } from "@/hooks/useItemMutations";
 import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
+import { HoldToConfirmButton } from "@/components/common/HoldToConfirmButton";
 
 interface ItemsInListOverlayProps {
   listID: string;
@@ -102,10 +103,14 @@ export function ItemsInListOverlay({ listID, items = [] }: ItemsInListOverlayPro
 
         <div className="flex flex-col gap-5">
           <div className="bg-secondary/80 rounded-xl overflow-hidden flex flex-col border border-border/50">
-            <Button
+            {/* Bulk but easy to undo (one undoes the other) -> short hold */}
+            <HoldToConfirmButton
               variant="ghost"
+              layout="row"
+              duration="short"
+              hint="Przytrzymaj, aby zaznaczyć wszystko jako kupione"
               className="justify-start h-13 rounded-none border-b border-border/50 font-medium"
-              onClick={() =>
+              onConfirm={() =>
                 markAllMutation.mutate(undefined, {
                   onSuccess: () => onSuccessAction("Wszystko zaznaczone jako kupione!"),
                 })
@@ -114,12 +119,15 @@ export function ItemsInListOverlay({ listID, items = [] }: ItemsInListOverlayPro
             >
               <CheckCheck className="mr-3 size-5 text-highlight" />
               Zaznacz wszystko jako kupione
-            </Button>
+            </HoldToConfirmButton>
 
-            <Button
+            <HoldToConfirmButton
               variant="ghost"
+              layout="row"
+              duration="short"
+              hint="Przytrzymaj, aby odznaczyć wszystkie produkty"
               className="justify-start h-13 rounded-none border-b border-border/50 font-medium"
-              onClick={() =>
+              onConfirm={() =>
                 resetAllMutation.mutate(undefined, {
                   onSuccess: () => onSuccessAction("Odznaczono wszystkie produkty."),
                 })
@@ -128,7 +136,7 @@ export function ItemsInListOverlay({ listID, items = [] }: ItemsInListOverlayPro
             >
               <RotateCcw className="mr-3 size-5 text-primary" />
               Odznacz wszystko (Reset)
-            </Button>
+            </HoldToConfirmButton>
 
             <Button
               variant="ghost"
@@ -147,10 +155,15 @@ export function ItemsInListOverlay({ listID, items = [] }: ItemsInListOverlayPro
             </h3>
 
             <div className="bg-destructive/10 rounded-xl overflow-hidden flex flex-col border border-destructive/20">
-              <Button
+              {/* Can't be undone in the app -> long, red hold */}
+              <HoldToConfirmButton
                 variant="ghost"
+                tone="destructive"
+                layout="row"
+                duration="delete"
+                hint="Przytrzymaj, aby usunąć kupione produkty"
                 className="justify-start h-13 rounded-none border-b border-destructive/10 text-destructive hover:bg-destructive/20 hover:text-destructive font-medium"
-                onClick={() =>
+                onConfirm={() =>
                   deleteCompletedMutation.mutate(undefined, {
                     onSuccess: () => onSuccessAction("Usunięto kupione produkty."),
                   })
@@ -159,12 +172,16 @@ export function ItemsInListOverlay({ listID, items = [] }: ItemsInListOverlayPro
               >
                 <Trash2 className="mr-3 size-5" />
                 Usuń tylko kupione
-              </Button>
+              </HoldToConfirmButton>
 
-              <Button
+              <HoldToConfirmButton
                 variant="ghost"
+                tone="destructive"
+                layout="row"
+                duration="delete"
+                hint="Przytrzymaj, aby usunąć wszystkie produkty"
                 className="justify-start h-13 rounded-none text-destructive hover:bg-destructive/20 hover:text-destructive font-medium"
-                onClick={() =>
+                onConfirm={() =>
                   deleteAllMutation.mutate(undefined, {
                     onSuccess: () => onSuccessAction("Lista została całkowicie wyczyszczona."),
                   })
@@ -173,7 +190,7 @@ export function ItemsInListOverlay({ listID, items = [] }: ItemsInListOverlayPro
               >
                 <Trash className="mr-3 size-5" />
                 Usuń wszystkie produkty
-              </Button>
+              </HoldToConfirmButton>
             </div>
           </div>
         </div>

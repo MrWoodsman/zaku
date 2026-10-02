@@ -3,7 +3,7 @@ import { Globe, PenBox, Clock, Lock, Search, Trash2, FileEdit } from "lucide-rea
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ConfirmModal } from "@/components/overlay/ConfirmModal";
+import { HoldToConfirmButton } from "@/components/common/HoldToConfirmButton";
 import { ROUTES } from "@/config/routes";
 import type { RecipeItem as RecipeItemType } from "@shared/types";
 import { useDeleteRecipeMutation } from "@/hooks/useRecipeMutations";
@@ -151,7 +151,6 @@ function FilterPill({
 // ---------------------------------------------------------
 function RecipeItem({ recipe }: { recipe: RecipeItemType }) {
   const navigate = useNavigate();
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const { mutate: deleteRecipe, isPending: isDeleting } = useDeleteRecipeMutation();
 
   const handleEdit = () => {
@@ -161,7 +160,6 @@ function RecipeItem({ recipe }: { recipe: RecipeItemType }) {
   const handleDeleteConfirm = () => {
     deleteRecipe(recipe.id, {
       onSuccess: () => {
-        setShowDeleteModal(false);
         showSuccessToast(`Usunięto przepis ${recipe.name}`);
       },
     });
@@ -224,29 +222,22 @@ function RecipeItem({ recipe }: { recipe: RecipeItemType }) {
             {isDraft ? "Dokończ edycję" : "Edytuj przepis"}
           </Button>
 
-          <Button
+          {/* Hold instead of a confirm modal - same gesture as every other delete */}
+          <HoldToConfirmButton
             variant="destructive"
             size="icon"
+            duration="delete"
+            hint="Przytrzymaj, aby usunąć przepis"
+            showCountdown={false}
+            doneLabel=""
             className="h-9 w-9"
-            onClick={() => setShowDeleteModal(true)}
+            onConfirm={handleDeleteConfirm}
             disabled={isDeleting}
           >
             <Trash2 size={16} />
-          </Button>
+          </HoldToConfirmButton>
         </div>
       </div>
-
-      {/* MODAL POTWIERDZENIA USUNIĘCIA */}
-      <ConfirmModal
-        isOpen={showDeleteModal}
-        onOpenChange={setShowDeleteModal}
-        onConfirm={handleDeleteConfirm}
-        title="Usuwanie przepisu"
-        description={`Czy na pewno chcesz trwale usunąć przepis "${recipe.name || "Nienazwany przepis"}"? Tej operacji nie można cofnąć.`}
-        cancelText="Anuluj"
-        confirmText="Tak, usuń"
-        confirmVariant="destructive"
-      />
     </>
   );
 }

@@ -5,7 +5,7 @@ import { Globe, PenBox, Clock, Lock, Search, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ConfirmModal } from "@/components/overlay/ConfirmModal";
+import { HoldToConfirmButton } from "@/components/common/HoldToConfirmButton";
 import { ROUTES } from "@/config/routes"; // Dodaj import swoich ścieżek
 import type { RecipeItem as RecipeItemType } from "@shared/types";
 import { useDeleteRecipeMutation } from "@/hooks/useRecipeMutations";
@@ -96,7 +96,6 @@ export function RecipesDraftsScreen() {
 // ---------------------------------------------------------
 function RecipeItem({ recipe }: { recipe: RecipeItemType }) {
   const navigate = useNavigate();
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   // ODKOMENTUJ TO JAK ZROBISZ MUTACJĘ DO USUWANIA
   const { mutate: deleteRecipe, isPending: isDeleting } = useDeleteRecipeMutation();
@@ -110,12 +109,9 @@ function RecipeItem({ recipe }: { recipe: RecipeItemType }) {
   const handleDeleteConfirm = () => {
     deleteRecipe(recipe.id, {
       onSuccess: () => {
-        setShowDeleteModal(false);
         showSuccessToast(`Usunięto przepis ${recipe.name}`);
       },
     });
-
-    setShowDeleteModal(false); // Tymczasowe zamknięcie modala dla testów UI
   };
 
   return (
@@ -185,28 +181,21 @@ function RecipeItem({ recipe }: { recipe: RecipeItemType }) {
             Dokończ edycję
           </Button>
 
-          <Button
+          {/* Hold instead of a confirm modal - same gesture as every other delete */}
+          <HoldToConfirmButton
             variant="destructive"
             size="icon"
-            onClick={() => setShowDeleteModal(true)}
+            duration="delete"
+            hint="Przytrzymaj, aby usunąć szkic"
+            showCountdown={false}
+            doneLabel=""
+            onConfirm={handleDeleteConfirm}
             disabled={isDeleting} // Blokada podczas usuwania
           >
             <Trash2 size={18} />
-          </Button>
+          </HoldToConfirmButton>
         </div>
       </div>
-
-      {/* MODAL POTWIERDZENIA USUNIĘCIA */}
-      <ConfirmModal
-        isOpen={showDeleteModal}
-        onOpenChange={setShowDeleteModal}
-        onConfirm={handleDeleteConfirm}
-        title="Usuwanie szkicu"
-        description={`Czy na pewno chcesz trwale usunąć przepis "${recipe.name || "Nienazwany przepis"}"? Tej operacji nie można cofnąć.`}
-        cancelText="Anuluj"
-        confirmText="Tak, usuń"
-        confirmVariant="destructive"
-      />
     </>
   );
 }

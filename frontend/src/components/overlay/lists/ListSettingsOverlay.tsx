@@ -10,6 +10,7 @@ import {
 import { EllipsisVertical, Trash2, Pencil, X } from "lucide-react";
 import { useDeleteListMutation, useRenameListMutation } from "@/hooks/useListMutations";
 import { showSuccessToast } from "@/utils/toastHandler";
+import { HoldToConfirmButton } from "@/components/common/HoldToConfirmButton";
 
 interface ListSettingsProps {
   listId: string;
@@ -111,11 +112,14 @@ export function ListSettingsOverlay({ listId, listName }: ListSettingsProps) {
                 Edytuj nazwę
               </Button>
 
-              <Button
+              <HoldToConfirmButton
                 variant="destructive"
+                layout="row"
+                duration="delete"
+                hint="Przytrzymaj, aby usunąć listę"
                 className="justify-start h-14 text-base mt-2"
                 disabled={deleteListMutation.isPending}
-                onClick={() =>
+                onConfirm={() =>
                   deleteListMutation.mutate(listId, {
                     onSuccess: () => {
                       setIsOpen(false);
@@ -126,7 +130,7 @@ export function ListSettingsOverlay({ listId, listName }: ListSettingsProps) {
               >
                 <Trash2 className="mr-3 size-5" />
                 {deleteListMutation.isPending ? "Usuwanie..." : "Usuń listę"}
-              </Button>
+              </HoldToConfirmButton>
             </>
           )}
         </div>
