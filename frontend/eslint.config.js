@@ -19,4 +19,13 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+  {
+    // shadcn-generated components export cva helpers (e.g. buttonVariants) next to
+    // the component. Splitting them would fight the shadcn CLI, and losing Fast
+    // Refresh on these rarely edited files only means a full reload.
+    files: ['src/components/ui/**/*.{ts,tsx}'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
 ])
