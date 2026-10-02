@@ -140,6 +140,7 @@ The backend reads its config from `backend/.env` (see `backend/.env.example`). I
 | `LOG_LEVEL`          | `info`                         | `fatal` / `error` / `warn` / `info` / `debug`                                                  |
 | `LOG_DIR`            | `./data/logs`                  | daily-rotated logs: readable `app.YYYY-MM-DD.N.log` + full JSON in `json/`; `off` = console only  |
 | `LOG_RETENTION_DAYS` | `14`                           | how many days of log files to keep                                                               |
+| `TRUST_PROXY`        | `loopback, linklocal, uniquelocal` | which reverse proxies to trust for the client IP in logs (Express `trust proxy`); `false` = never |
 
 > **Push notifications need HTTPS.** The Push API only works in a [secure context](https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts) — `localhost` is fine for local dev, but on a real server (VPS/Proxmox) you need a valid TLS certificate (e.g. a reverse proxy with Let's Encrypt) in front of the app. Everything else in Zaku works fine over plain HTTP; only push notifications require it.
 

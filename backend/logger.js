@@ -8,11 +8,15 @@ const path = require("path");
 const level = process.env.LOG_LEVEL || "info";
 const isTest = process.env.NODE_ENV === "test" || Boolean(process.env.VITEST);
 
+// Readable lines, e.g.
+// [2026-10-03 12:00:00] INFO: GET /api/v1/lists 200 18ms | iPhone Safari | dev:3f2a... | grupa:dom
+// IP, full user-agent, pid etc. are left to the JSON files.
 const prettyOptions = {
   singleLine: true,
   translateTime: "SYS:yyyy-mm-dd HH:MM:ss",
-  // the request line already says it all in its message (method, url, status, time)
-  ignore: "pid,hostname,req,res,responseTime",
+  messageFormat:
+    "{msg}{if device} | {device}{end}{if deviceId} | dev:{deviceId}{end}{if groupId} | grupa:{groupId}{end}",
+  ignore: "pid,hostname,req,res,responseTime,groupId,deviceId,device,ip,userAgent",
 };
 
 function createLogger() {

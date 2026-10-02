@@ -2,6 +2,7 @@ const express = require("express");
 const path = require("path");
 const pinoHttp = require("pino-http");
 const { logger } = require("./logger");
+const { requestInfo, trustProxySetting } = require("./requestInfo");
 
 // pino-http makes up an Error ("failed with status code 500") for every 5xx response.
 // The route has already logged the real one with its stack, so this one is just noise.
@@ -20,6 +21,8 @@ const depositsRoutes = require("./routes/v1/deposits.routes");
 // bez realnego portu i bez node index.js.
 function createApp(db) {
   const app = express();
+  // req.ip = the phone's IP, not the reverse proxy's (see TRUST_PROXY)
+  app.set("trust proxy", trustProxySetting());
 
   // One log line per API request (method, url, status, time), plus req.log for
   // route code - its lines carry the same request id, so they're easy to match up.
@@ -39,7 +42,8 @@ function createApp(db) {
         isStatusOnlyError(err)
           ? `${req.method} ${req.originalUrl} ${res.statusCode}`
           : `${req.method} ${req.originalUrl} ${res.statusCode} - ${err.message}`,
-      customProps: (req) => ({ groupId: req.headers["x-group-id"] || undefined }),
+      // group, device, IP - on the request line and on every req.log line in the routes
+      customProps: (req) => requestInfo(req),
       serializers: {
         req: (req) => ({ id: req.id, method: req.method, url: req.url }),
         res: (res) => ({ statusCode: res.statusCode }),

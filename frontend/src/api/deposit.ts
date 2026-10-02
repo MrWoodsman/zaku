@@ -12,7 +12,7 @@ export const sendRequestToProcesPhoto = async (image: File) => {
   const formData = new FormData();
   formData.append("barcodeImage", image);
 
-  const response = await fetch(`/api/v1/scan`, {
+  const response = await fetchWithGroup(`/api/v1/scan`, {
     method: "POST",
     body: formData,
   });

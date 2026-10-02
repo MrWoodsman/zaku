@@ -14,7 +14,7 @@ function generateId(): string {
 
 // Generates a random id once and persists it, so this browser/device
 // can be recognized by the backend without any account/login.
-function getOrCreateDeviceId(): string {
+export function getOrCreateDeviceId(): string {
   const existing = localStorage.getItem("deviceId");
   if (existing) return existing;
 
