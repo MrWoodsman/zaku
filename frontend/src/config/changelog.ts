@@ -8,6 +8,13 @@ export interface Release {
 
 export const CHANGELOG: Release[] = [
   {
+    version: "0.59.1",
+    date: "03.10.2026",
+    changes: [
+      "Naprawiono odczyt kodu z kuponów, np. z Lidla - w numerze pojawiały się nawiasy, których nie ma na kuponie, a kod kreskowy w aplikacji mógł nie działać przy kasie. Już dodane kupony poprawią się same",
+    ],
+  },
+  {
     version: "0.59.0",
     date: "03.10.2026",
     changes: [
