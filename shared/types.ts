@@ -74,6 +74,50 @@ export interface AddDepositPayload {
   image: File;
 }
 
+// Deposit voucher from GET /api/v1/deposits
+export interface Deposit {
+  id: number;
+  shop_id: number | null;
+  shop_name: string | null;
+  value: number;
+  code: string | null;
+  expiring_date: string | null; // yyyy-MM-dd
+  image_url: string | null; // light display version
+  image_original_url: string | null; // full-quality original (null for older uploads)
+  added_at: string;
+  used_at: string | null;
+}
+
+// Body of PUT /api/v1/deposits/:id
+export interface UpdateDepositPayload {
+  value: number;
+  expiring_date: string | null; // yyyy-MM-dd
+  shop_id: number | null;
+  code: string | null;
+}
+
+// Sort / filter options for GET /api/v1/deposits
+export type DepositSort = "expiry" | "value" | "shop" | "added";
+
+export interface DepositListParams {
+  sort: DepositSort;
+  order: "asc" | "desc";
+  showUsed: boolean;
+}
+
+// One page of GET /api/v1/deposits (nextOffset = null -> last page)
+export interface DepositPage {
+  items: Deposit[];
+  nextOffset: number | null;
+}
+
+// GET /api/v1/deposits/summary - only vouchers that can still be used
+export interface DepositSummaryData {
+  total: number;
+  count: number;
+  expiringCount: number;
+}
+
 // This group's preference for a shop (null = normal)
 export type ShopStatus = "favorite" | "hidden" | null;
 
