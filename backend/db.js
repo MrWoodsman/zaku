@@ -137,6 +137,62 @@ async function initDB() {
   );
 `);
 
+  // Static, global list of shops for deposits (same for every group)
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS shops (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL UNIQUE COLLATE NOCASE
+    )
+  `);
+
+  // Seeded on every startup - INSERT OR IGNORE skips names that already exist,
+  // so adding a new shop is just appending it to this array.
+  const SHOPS = [
+    "Biedronka", "Lidl", "Kaufland", "Auchan", "Carrefour", "Carrefour Express",
+    "Dino", "Netto", "Aldi", "Żabka", "Stokrotka", "Intermarché", "E.Leclerc",
+    "Polomarket", "Lewiatan", "Delikatesy Centrum", "Groszek", "Spar", "Eurospar",
+    "Topaz", "Mila", "Społem", "Chata Polska", "Top Market", "Prim Market",
+    "Euro Sklep", "ABC", "Odido", "Freshmarket", "Livio", "Gram Market",
+    "Frac", "Arhelan", "Biedronka Express", "Makro", "Selgros", "Rossmann",
+    "Hebe", "Orlen", "Circle K", "BP", "Shell", "MOL", "Amic Energy",
+    "Inny",
+  ];
+  const placeholders = SHOPS.map(() => "(?)").join(", ");
+  await db.run(`INSERT OR IGNORE INTO shops (name) VALUES ${placeholders}`, SHOPS);
+
+  // Per-group shop preference. No row = normal shop; 'favorite' = shown first;
+  // 'hidden' = not shown in the shop picker (still visible on existing deposits).
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS group_shop_preferences (
+      group_id TEXT NOT NULL,
+      shop_id INTEGER NOT NULL,
+      status TEXT NOT NULL CHECK (status IN ('favorite', 'hidden')),
+      PRIMARY KEY (group_id, shop_id),
+      FOREIGN KEY (group_id) REFERENCES groups(id),
+      FOREIGN KEY (shop_id) REFERENCES shops(id)
+    )
+  `);
+
+  // Deposit (bottle return) vouchers
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS deposits (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      group_id TEXT NOT NULL,
+      shop_id INTEGER,
+      value REAL NOT NULL,
+      code TEXT,
+      expiring_date DATETIME,
+      image_url TEXT,
+      added_at DATETIME DEFAULT (datetime('now','localtime')),
+      used_at DATETIME DEFAULT NULL,
+      deleted_at DATETIME DEFAULT NULL,
+      FOREIGN KEY (group_id) REFERENCES groups(id),
+      FOREIGN KEY (shop_id) REFERENCES shops(id)
+    )
+  `);
+
+  await db.exec(`CREATE INDEX IF NOT EXISTS idx_deposits_group ON deposits (group_id)`);
+
   console.log("Baza danych SQLite została załadowana i tabele są gotowe!");
   return db;
 }
