@@ -65,6 +65,15 @@ export interface AddRecipeToListPayload {
   }[];
 }
 
+// INTERRFACE DO addDepositApi
+export interface AddDepositPayload {
+  depositNumber: string;
+  depositValue: number;
+  depositDate: string;
+  depositShop: number;
+  image: File;
+}
+
 // This group's preference for a shop (null = normal)
 export type ShopStatus = "favorite" | "hidden" | null;
 

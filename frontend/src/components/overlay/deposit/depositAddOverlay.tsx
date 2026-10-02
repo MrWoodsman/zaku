@@ -8,12 +8,16 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { showErrorToast } from "@/utils/toastHandler";
+import { showErrorToast, showSuccessToast } from "@/utils/toastHandler";
 import { HashIcon, Loader2Icon, LockIcon, TicketSlashIcon } from "lucide-react";
-import { useScanPhotoMutation } from "@/hooks/useDepositMutations";
+import {
+  useCreateDepositMutation,
+  useScanPhotoMutation,
+} from "@/hooks/useDepositMutations";
 import { DepositDatePicker } from "@/components/deposit/DepositDatePicker";
-import { addDays } from "date-fns";
+import { addDays, format } from "date-fns";
 import { DepositShopSelect } from "@/components/deposit/DepositShopSelect";
+import { useShopsQuery } from "@/hooks/useShops";
 
 interface ListAddOverlayProps {
   children: React.ReactNode;
@@ -26,21 +30,74 @@ export function DepositAddOverlay({ children }: ListAddOverlayProps) {
   const [depositImage, setDepositImage] = useState<File | null>(null);
   const [depositNumber, setDepositNumber] = useState<string>("");
   const [depositValue, setDepositValue] = useState<number | string>("");
-  const [depositShop, setDepositShop] = useState("");
+  const [depositShop, setDepositShop] = useState<number | null>(null);
   const [depositDate, setDepositDate] = useState<Date | undefined>(
     addDays(new Date(), 30),
   );
   // POMOCNICZE
-  const [isProcessing, setIsProcessing] = useState<boolean>(true);
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   // API ODCZYTYWANIA Z KUPONU
   const scanMutation = useScanPhotoMutation();
+  // API DODAWANIA DEPOZYTU
+  const { mutate: createDeposit, isPending: isCreating } =
+    useCreateDepositMutation();
+  // LISTA SKLEPÓW
+  const { data: shops = [], isLoading: isLoadingShops } = useShopsQuery();
 
-  const handleAdd = () => {
-    console.log(`Dodawanie kuponu`);
+  // Swaps the preview, revoking the old object URL so it doesn't leak memory
+  const replacePreview = (url: string | null) => {
+    setPreviewUrl((old) => {
+      if (old) URL.revokeObjectURL(old);
+      return url;
+    });
   };
 
-  const SHOPS = ["Lidl", "Biedronka", "Aldi", "Żabka"];
+  const clearImage = () => {
+    setDepositImage(null);
+    replacePreview(null);
+    setIsProcessing(false);
+  };
+
+  const resetForm = () => {
+    clearImage();
+    setDepositNumber("");
+    setDepositValue("");
+    setDepositShop(null);
+    setDepositDate(addDays(new Date(), 30));
+  };
+
+  const handleAdd = () => {
+    // Zabezpieczenie, żeby TypeScript wiedział, że te wartości istnieją
+    if (!depositDate || !depositImage || depositShop === null) return;
+
+    createDeposit(
+      {
+        depositNumber: depositNumber,
+        depositValue: Number(depositValue),
+        // Local date only - toISOString() would convert to UTC and could shift the day back
+        depositDate: format(depositDate, "yyyy-MM-dd"),
+        depositShop: depositShop,
+        image: depositImage,
+      },
+      {
+        onSuccess() {
+          setIsOpen(false);
+          showSuccessToast(`Utworzono kupon depozytu na ${depositValue} PLN`);
+          resetForm();
+        },
+      },
+    );
+  };
+
+  const canSubmit =
+    !!depositImage &&
+    !!depositDate &&
+    depositNumber.trim() !== "" &&
+    Number(depositValue) > 0 &&
+    depositShop !== null &&
+    !isProcessing &&
+    !isCreating;
 
   return (
     <Drawer open={isOpen} onOpenChange={setIsOpen}>
@@ -59,7 +116,7 @@ export function DepositAddOverlay({ children }: ListAddOverlayProps) {
           {/* ZDJECIE KUPONU */}
           <div className="box-border flex h-11 w-full items-center rounded-lg border border-input bg-background p-1 focus-within:ring-2 focus-within:ring-primary">
             <label className="flex h-full w-full flex-1 cursor-pointer items-center overflow-hidden">
-              <div className="flex h-full shrink-0 items-center justify-center rounded-md bg-highlight px-4 font-semibold text-white">
+              <div className="flex h-full shrink-0 items-center justify-center rounded-md bg-foreground/10 px-4 font-semibold text-foreground">
                 Wybierz zdjęcie
               </div>
 
@@ -72,9 +129,12 @@ export function DepositAddOverlay({ children }: ListAddOverlayProps) {
                 accept="image/*"
                 onChange={(e) => {
                   const file = e.target.files?.[0];
+                  // Clear the input so picking the same file again still fires onChange
+                  e.target.value = "";
                   if (file) {
                     setDepositImage(file);
-                    setPreviewUrl(URL.createObjectURL(file));
+                    replacePreview(URL.createObjectURL(file));
+                    setDepositNumber("");
                     setIsProcessing(true);
                     // sendRequestToProcesPhoto(file);
                     scanMutation.mutate(file, {
@@ -83,14 +143,14 @@ export function DepositAddOverlay({ children }: ListAddOverlayProps) {
                           setDepositNumber(String(data.code));
                           setIsProcessing(false);
                         } else {
-                          setPreviewUrl(null);
-                          setDepositImage(null);
+                          clearImage();
                           showErrorToast(
                             data.message || "Nie odnaleziono kodu na zdjęciu.",
                           );
                         }
                       },
                       onError: (error) => {
+                        clearImage();
                         showErrorToast(error.message);
                       },
                     });
@@ -129,7 +189,7 @@ export function DepositAddOverlay({ children }: ListAddOverlayProps) {
               type="text"
               value={depositNumber}
               onChange={(e) => setDepositNumber(e.target.value)}
-              className="box-border h-11 w-full rounded-lg border bg-background px-10 py-0 text-center text-base text-foreground focus:outline-none focus:ring-2 focus:ring-primary disabled:bg-foreground/5"
+              className="box-border h-11 w-full rounded-lg border bg-background px-10 py-0 text-center text-base text-foreground focus:outline-none focus:ring-2 focus:ring-primary disabled:border-dashed disabled:border-foreground/25 disabled:bg-transparent disabled:text-muted-foreground"
             />
             <LockIcon
               size={14}
@@ -163,22 +223,24 @@ export function DepositAddOverlay({ children }: ListAddOverlayProps) {
             <DepositShopSelect
               value={depositShop}
               onChange={setDepositShop}
-              shops={SHOPS}
+              shops={shops}
+              isLoading={isLoadingShops}
             />
           </div>
           <Button
-            className="w-full h-11 text-white shadow-[inset_0px_2px_4px_0px_rgba(255,255,255,0.25),inset_0px_-2px_4px_0px_rgba(0,0,0,0.25)] bg-highlight disabled:bg-gray-800 transition-colors ease-in-out"
-            disabled={
-              !depositNumber ||
-              depositNumber.trim() === "" ||
-              depositValue == 0 ||
-              depositShop == ""
-            }
+            variant="raised"
+            className="w-full h-11"
+            disabled={!canSubmit}
             onClick={handleAdd}
           >
-            {/* {addListMutation.isPending ? "Dodawnie..." : "Dodaj kupon"} */}
-            Dodaj kupon
-            <TicketSlashIcon size={18} className="ml-1" />
+            {isCreating ? (
+              "Dodawnie..."
+            ) : (
+              <>
+                Dodaj kupon
+                <TicketSlashIcon size={18} className="ml-1" />
+              </>
+            )}
           </Button>
         </div>
       </DrawerContent>
