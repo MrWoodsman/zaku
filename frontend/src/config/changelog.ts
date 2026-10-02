@@ -8,6 +8,23 @@ export interface Release {
 
 export const CHANGELOG: Release[] = [
   {
+    version: "0.59.0",
+    date: "03.10.2026",
+    changes: [
+      "Nowa zakładka Kaucja - trzymaj kupony za butelki w jednym miejscu, a przy kasie pokaż kod kreskowy prosto z telefonu",
+      "Dodawanie kuponu ze zdjęcia - kod odczytuje się sam, wystarczy dopisać kwotę, datę ważności i sklep",
+      "Podsumowanie, ile pieniędzy czeka do odebrania, oraz wyraźne oznaczenie kuponów, które wkrótce wygasną lub są po terminie",
+      "Sortowanie kuponów po dacie ważności, kwocie, sklepie lub dacie dodania i ukrywanie wykorzystanych",
+      "Ulubione i ukryte sklepy wspólne dla całej grupy - ulubione pokazują się na górze listy",
+      "Zdjęcie kuponu na pełnym ekranie z przybliżaniem, edycja i usuwanie kuponu",
+      "Ważne akcje (wykorzystanie kuponu, usuwanie list, produktów i przepisów) wymagają teraz przytrzymania - koniec z przypadkowym usunięciem",
+      "Odświeżony wygląd głównych przycisków",
+      "Zdjęcia ładują się szybciej - najpierw lżejsza wersja, potem pełna jakość",
+      "Okienko „Co nowego?” po każdej aktualizacji aplikacji",
+      "Drobne poprawki: większy kalendarz, wyszukiwanie sklepów, przyciski w nagłówkach nie przeskakują między zakładkami",
+    ],
+  },
+  {
     version: "0.58.0-beta.1",
     date: "09.09.2026",
     changes: [
