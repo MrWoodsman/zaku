@@ -27,10 +27,11 @@ const getUnseenReleases = (): Release[] => {
   if (lastSeen === LATEST_VERSION) return [];
 
   if (!lastSeen) {
-    // Older app versions didn't save this. Someone past onboarding is an existing
-    // user updating -> show what's new. A brand new user shouldn't get a
-    // "what's new" right after onboarding -> just remember the current version.
-    if (readStorage("has-seen-onboarding")) return CHANGELOG.slice(0, 1);
+    // Older app versions didn't save this, so we can't tell what was already seen.
+    // Someone past onboarding is an existing user updating -> show as much as we
+    // allow (the latest MAX_RELEASES). A brand new user shouldn't get a "what's new"
+    // right after onboarding -> just remember the current version.
+    if (readStorage("has-seen-onboarding")) return CHANGELOG.slice(0, MAX_RELEASES);
     writeStorage(STORAGE_KEY, LATEST_VERSION);
     return [];
   }
