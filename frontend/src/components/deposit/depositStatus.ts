@@ -1,4 +1,4 @@
-import { differenceInCalendarDays, format, parseISO } from "date-fns";
+import { addDays, differenceInCalendarDays, format, parseISO } from "date-fns";
 import { pl } from "date-fns/locale";
 import type { Deposit } from "@shared/types";
 
@@ -46,3 +46,27 @@ export const getExpiryLabel = (deposit: Deposit) => {
 
   return `do ${format(parseISO(deposit.expiring_date), "d MMM", { locale: pl })} · za ${daysLeft} dni`;
 };
+
+// Amount typed with the decimal keypad: keep digits and a single separator,
+// so "0,50" / "0.50" both work and nothing else can be typed in
+export const sanitizeAmountInput = (value: string) => {
+  const cleaned = value.replace(/[^\d.,]/g, "");
+  const separatorIndex = cleaned.search(/[.,]/);
+  if (separatorIndex === -1) return cleaned;
+  return (
+    cleaned.slice(0, separatorIndex + 1) + cleaned.slice(separatorIndex + 1).replace(/[.,]/g, "")
+  );
+};
+
+// "0,50" -> 0.5 (Polish keyboards type a comma); empty / invalid -> NaN
+export const parseAmount = (value: string | number) => Number(String(value).replace(",", "."));
+
+// Pre-filled "valid for" days when adding a voucher - change it here if most vouchers
+// use a different period
+export const DEFAULT_VALID_DAYS = 30;
+
+// Expiry = received date + valid days, or undefined while the input is incomplete
+export const computeExpiryDate = (receivedDate: Date | undefined, validDays: number | string) =>
+  receivedDate && Number.isInteger(Number(validDays)) && Number(validDays) > 0
+    ? addDays(receivedDate, Number(validDays))
+    : undefined;

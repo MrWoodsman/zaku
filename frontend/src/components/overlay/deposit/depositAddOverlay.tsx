@@ -14,11 +14,18 @@ import {
   useCreateDepositMutation,
   useScanPhotoMutation,
 } from "@/hooks/useDepositMutations";
-import { DepositDatePicker } from "@/components/deposit/DepositDatePicker";
-import { addDays, format } from "date-fns";
+import { DepositValidityFields } from "@/components/deposit/DepositValidityFields";
+import {
+  DEFAULT_VALID_DAYS,
+  computeExpiryDate,
+  parseAmount,
+  sanitizeAmountInput,
+} from "@/components/deposit/depositStatus";
+import { format } from "date-fns";
 import { DepositShopSelect } from "@/components/deposit/DepositShopSelect";
 import { useShopsQuery } from "@/hooks/useShops";
 import type { DepositCodeFormat } from "@shared/types";
+
 
 interface ListAddOverlayProps {
   children: React.ReactNode;
@@ -32,11 +39,13 @@ export function DepositAddOverlay({ children }: ListAddOverlayProps) {
   const [depositNumber, setDepositNumber] = useState<string>("");
   // "gs1" when the scanned barcode is GS1-128 - needed to regenerate it correctly
   const [depositCodeFormat, setDepositCodeFormat] = useState<DepositCodeFormat>(null);
-  const [depositValue, setDepositValue] = useState<number | string>("");
+  const [depositValue, setDepositValue] = useState<string>("");
   const [depositShop, setDepositShop] = useState<number | null>(null);
-  const [depositDate, setDepositDate] = useState<Date | undefined>(
-    addDays(new Date(), 30),
-  );
+  // The voucher shows the day it was printed and how long it's valid - so the form asks
+  // for those two and works out the expiry date (only that is saved)
+  const [receivedDate, setReceivedDate] = useState<Date | undefined>(() => new Date());
+  const [validDays, setValidDays] = useState<number | string>(DEFAULT_VALID_DAYS);
+  const depositDate = computeExpiryDate(receivedDate, validDays);
   // POMOCNICZE
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -68,7 +77,8 @@ export function DepositAddOverlay({ children }: ListAddOverlayProps) {
     setDepositCodeFormat(null);
     setDepositValue("");
     setDepositShop(null);
-    setDepositDate(addDays(new Date(), 30));
+    setReceivedDate(new Date());
+    setValidDays(DEFAULT_VALID_DAYS);
   };
 
   const handleAdd = () => {
@@ -79,7 +89,7 @@ export function DepositAddOverlay({ children }: ListAddOverlayProps) {
       {
         depositNumber: depositNumber,
         depositCodeFormat: depositCodeFormat,
-        depositValue: Number(depositValue),
+        depositValue: parseAmount(depositValue),
         // Local date only - toISOString() would convert to UTC and could shift the day back
         depositDate: format(depositDate, "yyyy-MM-dd"),
         depositShop: depositShop,
@@ -99,7 +109,7 @@ export function DepositAddOverlay({ children }: ListAddOverlayProps) {
     !!depositImage &&
     !!depositDate &&
     depositNumber.trim() !== "" &&
-    Number(depositValue) > 0 &&
+    parseAmount(depositValue) > 0 &&
     depositShop !== null &&
     !isProcessing &&
     !isCreating;
@@ -204,20 +214,25 @@ export function DepositAddOverlay({ children }: ListAddOverlayProps) {
             />
           </div>
 
-          <DepositDatePicker value={depositDate} onChange={setDepositDate} />
+          {/* DATA OTRZYMANIA + DNI WAŻNOŚCI -> obliczona data ważności */}
+          <DepositValidityFields
+            receivedDate={receivedDate}
+            onReceivedDateChange={setReceivedDate}
+            validDays={validDays}
+            onValidDaysChange={setValidDays}
+          />
 
           <div className="grid grid-cols-2 gap-2 items-stretch">
             {/* WARTOSC */}
             <div className="box-border flex h-11 w-full items-center overflow-hidden rounded-lg border border-input bg-background focus-within:ring-2 focus-within:ring-primary">
               <input
-                type="number"
-                min="0.1"
-                step="any"
+                // text + inputMode="decimal": iPhone shows digits WITH a comma
+                // (type="number" gives a keypad without one)
+                type="text"
+                inputMode="decimal"
+                placeholder="0,50"
                 value={depositValue}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setDepositValue(val === "" ? "" : Number(val));
-                }}
+                onChange={(e) => setDepositValue(sanitizeAmountInput(e.target.value))}
                 className="h-full w-full flex-1 border-none bg-transparent px-3 py-0 text-center text-base text-foreground outline-none shadow-none focus:ring-0"
               />
 
