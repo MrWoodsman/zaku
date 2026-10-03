@@ -61,3 +61,4 @@ lerna-debug.log*
 .agents/*
 # Personal task list - kept local only
 TODO.md
+CLAUDE.md
