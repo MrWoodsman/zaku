@@ -12,6 +12,8 @@ export const CHANGELOG: Release[] = [
     date: "03.10.2026",
     changes: [
       "Naprawiono odczyt kodu z kuponów, np. z Lidla - w numerze pojawiały się nawiasy, których nie ma na kuponie, a kod kreskowy w aplikacji mógł nie działać przy kasie. Już dodane kupony poprawią się same",
+      "Przy dodawaniu i edycji kuponu podajesz datę otrzymania i liczbę dni ważności - data ważności liczy się sama i jest zaznaczona w kalendarzu",
+      "Kwotę kuponu wpiszesz z przecinkiem - na iPhonie pokazuje się klawiatura numeryczna z przecinkiem",
     ],
   },
   {
