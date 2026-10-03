@@ -168,11 +168,15 @@ export function ImageLightbox({ src, fullSrc, alt, open, onOpenChange }: ImageLi
               src={shownSrc}
               alt={alt}
               draggable={false}
-              className="max-h-full max-w-full object-contain will-change-transform"
+              className="max-h-full max-w-full object-contain"
               style={{
                 transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
                 // Smooth for buttons / double tap, instant while a finger is moving
                 transition: isGesturing ? "none" : "transform 200ms ease-out",
+                // Only while a finger is moving: a permanent will-change makes the browser
+                // rasterize once at scale 1 and just enlarge that, so a zoomed photo stays soft
+                // even when the full-quality original is loaded
+                willChange: isGesturing ? "transform" : "auto",
               }}
             />
           </div>
