@@ -8,10 +8,10 @@ export interface Release {
 
 export const CHANGELOG: Release[] = [
   {
-    // NIEWYDANA - zbieramy zmiany, wydanie dopiero jak będzie ich więcej (zaktualizować datę przy wydaniu)
     version: "0.59.3",
-    date: "03.10.2026",
+    date: "24.10.2026",
     changes: [
+      "Dodawanie wielu produktów z rzędu: okienko nie chowa się już pod klawiaturą i nie skacze w dół i w górę po kliknięciu „Zapisz produkt”",
       "Zdjęcie kuponu po przybliżeniu jest ostre - wcześniej przybliżone zdjęcie zostawało rozmyte, nawet po wczytaniu pełnej jakości",
     ],
   },

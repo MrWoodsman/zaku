@@ -131,6 +131,10 @@ export function ItemAddOverlay({ listId }: ItemAddOverlayProps) {
 
           <Button
             type="submit" // ZMIANA: Dodano typ submit
+            // Keep focus in the name input so the keyboard doesn't close and reopen on tap
+            onMouseDown={(e) => {
+              if (keepOpen) e.preventDefault();
+            }}
             variant="raised"
             className="w-full h-11 mt-2"
             disabled={(addItemMutation.isPending && !keepOpen) || newItemName.length == 0} // Wyłączamy przycisk tylko, jeśli okienko ma się zamknąć
