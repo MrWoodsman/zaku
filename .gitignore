@@ -63,3 +63,4 @@ lerna-debug.log*
 TODO.md
 CLAUDE.md
 AGENTS.md
+.claude/
