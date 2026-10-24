@@ -26,8 +26,6 @@ const uploadDisk = multer({ storage: diskStorage });
 
 // POST /api/v1/scan -> Tylko skanowanie (zdjęcie w RAM)
 router.post("/", uploadMemory.single("barcodeImage"), async (req, res) => {
-  // if (!req.headers['x-group-id']) return res.status(401).json({ message: 'Brak ID grupy' });
-
   if (!req.file) {
     return res.status(400).json({ message: "Nie przesłano zdjecia" });
   }
@@ -69,7 +67,7 @@ router.post("/deposit", uploadDisk.single("image"), async (req, res) => {
 
   // Uploaded file is already on disk at this point, so remove it whenever we bail out
   const removeUploadedFile = () => {
-    if (req.file) fs.unlink(req.file.path, () => {});
+    if (req.file) fs.unlink(req.file.path, () => { });
   };
 
   try {

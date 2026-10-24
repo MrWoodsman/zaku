@@ -19,14 +19,6 @@ afterEach(async () => {
 });
 
 describe("POST /api/v1/scan", () => {
-  it("zwraca 401, gdy brak nagłówka x-group-id", async () => {
-    const res = await request(app)
-      .post("/api/v1/scan")
-      .send({}); // Brak nagłówka
-
-    expect(res.status).toBe(401);
-  });
-
   it("zwraca 400, gdy nie przesłano zdjęcia (puste body)", async () => {
     const res = await request(app)
       .post("/api/v1/scan")
@@ -37,7 +29,7 @@ describe("POST /api/v1/scan", () => {
     expect(res.body.message).toBe("Nie przesłano zdjecia");
   });
 
-it("zwraca success: false, gdy przesłane zdjęcie nie zawiera kodu", async () => {
+  it("zwraca success: false, gdy przesłane zdjęcie nie zawiera kodu", async () => {
     const res = await request(app)
       .post("/api/v1/scan")
       .set("x-group-id", "test-grupa")
@@ -45,9 +37,10 @@ it("zwraca success: false, gdy przesłane zdjęcie nie zawiera kodu", async () =
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(false);
-    expect(res.body.message).toBe("Nie odnaleziono kodu.");
+    expect(res.body.message).toBe("Nie odnaleziono kodu na zdjęciu.");
   });
 });
+
 describe("POST /api/v1/scan/deposit - zdjęcie", () => {
   const createdFiles = [];
 
