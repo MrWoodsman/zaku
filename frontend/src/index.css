@@ -90,6 +90,17 @@
     --safe-left: env(safe-area-inset-left);
     --safe-right: env(safe-area-inset-right);
   }
+
+  /* iOS 27 draws a blurred scroll-edge effect over the top of an installed PWA and
+     the page can't turn it off, so headers are pushed below it. WebKit-only, so
+     Android/desktop are unaffected. Tune --edge-clearance: larger moves content
+     further from the top, 0px disables it. */
+  @supports (-webkit-touch-callout: none) {
+    :root {
+      --edge-clearance: 28px;
+      --safe-top: calc(env(safe-area-inset-top) + var(--edge-clearance));
+    }
+  }
 }
 
 html,
@@ -115,6 +126,15 @@ body {
   /* Blokujemy niechciane "sprężynowanie" i przewijanie całego ekranu */
   overflow: hidden;
   overscroll-behavior-y: contain;
+}
+
+/* iOS 27 (WebKit bug 301108): a freshly installed PWA with black-translucent gets
+   a layout viewport one status bar short, so 100vh leaves a band at the bottom.
+   Older installs still report the full height, hence the min() with 100lvh. */
+@media (display-mode: standalone) {
+  #root {
+    height: min(100lvh, calc(100vh + env(safe-area-inset-top)));
+  }
 }
 
 @theme inline {

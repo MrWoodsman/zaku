@@ -8,6 +8,14 @@ export interface Release {
 
 export const CHANGELOG: Release[] = [
   {
+    version: "0.59.4",
+    date: "25.10.2026",
+    changes: [
+      "Poprawka dla iOS 27: system rozmywał górną krawędź ekranu, przez co wyszukiwarka i przyciski wyglądały na nieostre - treść jest teraz odsunięta od góry i pozostaje wyraźna",
+      "Na iOS 27 dolne menu nie zostawia już pustego pasa pod spodem i przylega do krawędzi ekranu",
+    ],
+  },
+  {
     version: "0.59.3",
     date: "24.10.2026",
     changes: [

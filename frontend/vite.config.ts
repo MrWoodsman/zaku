@@ -22,28 +22,10 @@ export default defineConfig({
         enabled: false,
       },
       registerType: "autoUpdate", // automatycznie odświeża apkę, jak zmienisz kod
-      manifest: {
-        name: "Zaku",
-        short_name: "Zaku",
-        description: "Domowa lista zakupów",
-        theme_color: "#09090b",
-        background_color: "#09090b",
-        display: "standalone", // wymusza tryb pełnoekranowy (bez przeglądarki)
-        icons: [
-          {
-            src: "/192x192.png",
-            sizes: "192x192",
-            type: "image/png",
-            purpose: "any maskable", // pozwala systemom na ładne przycinanie/zaokrąglanie ikony
-          },
-          {
-            src: "/512x512.png",
-            sizes: "512x512",
-            type: "image/png",
-            purpose: "any maskable",
-          },
-        ],
-      },
+      // Manifest leży w public/manifest.webmanifest i jest podlinkowany w index.html,
+      // dzięki temu jest też dostępny w dev (plugin przy devOptions.enabled: false
+      // nie serwuje wygenerowanego manifestu, a bez niego iOS nie widzi display: standalone).
+      manifest: false,
     }),
   ],
   resolve: {
