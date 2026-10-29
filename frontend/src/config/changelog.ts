@@ -21,6 +21,8 @@ export const CHANGELOG: Release[] = [
       "Więcej posiłków w ciągu dnia: drugie śniadanie i przekąska. Każda osoba wybiera, które posiłki chce widzieć",
       "Lista zakupów i ustawienia posiłków są w menu „⋯” w nagłówku planera",
       "Dolne menu ma przycisk „Więcej”, pod którym chowają się pozostałe zakładki. W „Dostosuj pasek” wybierasz, które zakładki (do 4) mają być zawsze na wierzchu - ustawienie jest osobne na każdym telefonie",
+      "Własne wpisy w planerze mają ikonę ołówka i podpis „bez składników”, a przy tworzeniu listy zakupów aplikacja ostrzega, ile posiłków nie doda żadnych składników",
+      "Ekrany ładowania wyglądają wszędzie tak samo i pokazują się dopiero, gdy wczytywanie trwa dłużej - koniec z migającym kółkiem przy szybkim wczytaniu",
     ],
   },
   */
