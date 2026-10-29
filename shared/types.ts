@@ -133,3 +133,48 @@ export interface Shop {
   name: string;
   status: ShopStatus;
 }
+
+// MEAL PLANNER
+export type MealSlot = "breakfast" | "second_breakfast" | "lunch" | "snack" | "dinner";
+
+// Someone the group plans meals for (no accounts - just a name and a color)
+export interface PlannerPerson {
+  id: string;
+  name: string;
+  color: string; // #rrggbb
+  slots: MealSlot[]; // the meals of the day this person wants to see, in day order
+}
+
+// slots not sent on update = unchanged; on create = the default three
+export interface PlannerPersonPayload {
+  name: string;
+  color: string;
+  slots?: MealSlot[];
+}
+
+// Meal from GET /api/v1/planner/meals
+export interface PlannerMeal {
+  id: string;
+  date: string; // yyyy-MM-dd
+  slot: MealSlot;
+  title: string;
+  person_id: string | null; // null = shared (for everyone)
+  recipe_id: string | null; // null = a plain note, not a recipe
+  image_url: string | null;
+}
+
+// Body of POST /api/v1/planner/meals - needs a recipe_id or a title
+export interface AddMealPayload {
+  date: string; // yyyy-MM-dd
+  slot: MealSlot;
+  person_id?: string | null;
+  recipe_id?: string;
+  title?: string;
+}
+
+// GET /api/v1/planner/ingredients - summed over the planned recipes in a date range
+export interface PlannerIngredient {
+  name: string;
+  unit: string | null;
+  quantity: number | null;
+}
