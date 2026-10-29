@@ -145,15 +145,18 @@ router.get("/meals", async (req, res) => {
   if (!range) return res.status(400).json({ message: "Nieprawidłowy zakres dat" });
 
   try {
+    // has_ingredients: false for a plain note and for a recipe with no ingredients - neither
+    // adds anything to the shopping list, and the app tells the user so
     const meals = await req.db.all(
-      `SELECT m.id, m.date, m.slot, m.title, m.person_id, m.recipe_id, r.image_url
+      `SELECT m.id, m.date, m.slot, m.title, m.person_id, m.recipe_id, r.image_url,
+              EXISTS (SELECT 1 FROM ingredients i WHERE i.recipe_id = m.recipe_id) AS has_ingredients
        FROM planner_meals m
        LEFT JOIN recipes r ON r.id = m.recipe_id
        WHERE m.group_id = ? AND m.date BETWEEN ? AND ?
        ORDER BY m.date ASC, m.created_at ASC, m.rowid ASC`,
       [groupId, range.from, range.to],
     );
-    res.json(meals);
+    res.json(meals.map((meal) => ({ ...meal, has_ingredients: Boolean(meal.has_ingredients) })));
   } catch (error) {
     req.log.error({ err: error }, "Failed: GET /api/v1/planner/meals");
     res.status(500).json({ message: "Błąd", error: error.message });

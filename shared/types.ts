@@ -161,6 +161,7 @@ export interface PlannerMeal {
   person_id: string | null; // null = shared (for everyone)
   recipe_id: string | null; // null = a plain note, not a recipe
   image_url: string | null;
+  has_ingredients: boolean; // false = adds nothing to the shopping list (a note, or an empty recipe)
 }
 
 // Body of POST /api/v1/planner/meals - needs a recipe_id or a title

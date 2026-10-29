@@ -153,6 +153,24 @@ describe("meals", () => {
     expect(meals.body.find((m) => m.title === "Naleśniki").recipe_id).toBe("r1");
   });
 
+  it("marks meals that add nothing to the shopping list (notes, recipes without ingredients)", async () => {
+    await api("get", "/people"); // creates the group
+    await addRecipe("r1", "Naleśniki", [["Mąka", 200, "g"]]);
+    await addRecipe("r2", "Pusty przepis", []);
+
+    const day = { date: "2026-10-26", slot: "lunch" };
+    await api("post", "/meals").send({ ...day, recipe_id: "r1" });
+    await api("post", "/meals").send({ ...day, recipe_id: "r2" });
+    await api("post", "/meals").send({ ...day, title: "Pizza na mieście" });
+
+    const res = await api("get", "/meals?from=2026-10-26&to=2026-10-26");
+    const flag = (title) => res.body.find((m) => m.title === title).has_ingredients;
+
+    expect(flag("Naleśniki")).toBe(true);
+    expect(flag("Pusty przepis")).toBe(false);
+    expect(flag("Pizza na mieście")).toBe(false);
+  });
+
   it("returns only meals from the requested range and group", async () => {
     await api("post", "/meals").send({ date: "2026-10-25", slot: "lunch", title: "Przed" });
     await api("post", "/meals").send({ date: "2026-10-27", slot: "lunch", title: "W środku" });

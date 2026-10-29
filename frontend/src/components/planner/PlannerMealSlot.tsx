@@ -1,4 +1,4 @@
-import { PlusIcon, XIcon } from "lucide-react";
+import { ChefHatIcon, PencilLineIcon, PlusIcon, XIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { MealSlot, PlannerMeal, PlannerPerson } from "@shared/types";
 import { MealAddOverlay } from "@/components/overlay/planner/MealAddOverlay";
@@ -40,6 +40,13 @@ export function PlannerMealSlot({
       {meals.map((meal) => {
         const owner = people.find((p) => p.id === meal.person_id);
         const isRecipe = Boolean(meal.recipe_id);
+        // Who it's for (only when it's not obvious) and whether it feeds the shopping list
+        const subtitle = [
+          !person ? (owner ? owner.name : "Wspólne") : null,
+          meal.has_ingredients ? null : "bez składników",
+        ]
+          .filter(Boolean)
+          .join(" · ");
 
         return (
           <div key={meal.id} className="flex items-stretch gap-1 rounded-xl border border-border bg-card">
@@ -55,16 +62,27 @@ export function PlannerMealSlot({
               onClick={() => meal.recipe_id && navigate(ROUTES.RECIPES_VIEW(meal.recipe_id))}
               className="flex min-w-0 flex-1 items-center gap-3 py-2 pl-1 text-left"
             >
-              {meal.image_url && (
+              {meal.image_url ? (
                 <img src={meal.image_url} alt="" className="size-10 shrink-0 rounded-lg object-cover" />
+              ) : isRecipe ? (
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-highlight/10 text-highlight">
+                  <ChefHatIcon className="size-5" />
+                </span>
+              ) : (
+                // A note, not a recipe: a dashed pencil tile says "just a reminder, no ingredients"
+                <span
+                  role="img"
+                  aria-label="Własny wpis"
+                  className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-dashed border-border text-muted-foreground"
+                >
+                  <PencilLineIcon className="size-5" />
+                </span>
               )}
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-sm font-medium">{meal.title}</span>
                 {/* With one person selected every row is theirs or shared - a name would be noise */}
-                {!person && (
-                  <span className="block truncate text-xs text-muted-foreground">
-                    {owner ? owner.name : "Wspólne"}
-                  </span>
+                {subtitle && (
+                  <span className="block truncate text-xs text-muted-foreground">{subtitle}</span>
                 )}
               </span>
             </button>

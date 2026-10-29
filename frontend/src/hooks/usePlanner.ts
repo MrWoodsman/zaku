@@ -60,10 +60,11 @@ export const useDeletePlannerPersonMutation = () => {
 };
 
 // MEALS
-export const usePlannerMealsQuery = (from: string, to: string) =>
+export const usePlannerMealsQuery = (from: string, to: string, enabled = true) =>
   useQuery({
     queryKey: [...mealsKey(), from, to],
     queryFn: () => fetchPlannerMealsApi(from, to),
+    enabled,
     refetchInterval: 10000,
     // Scrolling / switching days: keep showing the old data instead of flashing a loader
     placeholderData: keepPreviousData,

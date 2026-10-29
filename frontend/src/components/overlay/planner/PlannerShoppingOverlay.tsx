@@ -9,7 +9,7 @@ import {
   startOfMonth,
   startOfWeek,
 } from "date-fns";
-import { Loader2, ShoppingCart } from "lucide-react";
+import { Loader2, ShoppingCart, TriangleAlert } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { DateRange } from "react-day-picker";
 import { PlannerRangePicker } from "@/components/planner/PlannerRangePicker";
@@ -32,7 +32,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ROUTES } from "@/config/routes";
-import { usePlannerIngredientsQuery } from "@/hooks/usePlanner";
+import { usePlannerIngredientsQuery, usePlannerMealsQuery } from "@/hooks/usePlanner";
 import { useAddRecipeToListMutation } from "@/hooks/useListMutations";
 import { useAllShoppingListsQuery } from "@/hooks/useLists";
 import { showSuccessToast } from "@/utils/toastHandler";
@@ -48,6 +48,10 @@ interface PlannerShoppingOverlayProps {
   personId: string | null;
   personName: string | null;
 }
+
+// "2 posiłki", "5 posiłków" (1 is written out separately)
+const pluralMeals = (count: number) =>
+  count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 10 || count % 100 >= 20) ? "posiłki" : "posiłków";
 
 // A row's identity: the backend sums by name + unit, so that pair is unique
 const ingredientKey = (ing: PlannerIngredient) => `${ing.name}|${ing.unit ?? ""}`;
@@ -165,6 +169,18 @@ function ShoppingForm({ anchor, personId, onDone }: ShoppingFormProps) {
     personId,
     isRangeValid,
   );
+  // Meals in this period that add nothing to the list (notes, recipes without ingredients) -
+  // for the person's view that's theirs plus the shared ones, same as the ingredients
+  const { data: rangeMeals } = usePlannerMealsQuery(from, to, isRangeValid);
+  const skippedMeals = (rangeMeals ?? []).filter(
+    (meal) =>
+      !meal.has_ingredients && (!personId || meal.person_id === null || meal.person_id === personId),
+  );
+  const skippedTitles = [...new Set(skippedMeals.map((meal) => meal.title))];
+  const skippedNames =
+    skippedTitles.slice(0, 3).join(", ") +
+    (skippedTitles.length > 3 ? ` i jeszcze ${skippedTitles.length - 3}` : "");
+
   const { data: lists } = useAllShoppingListsQuery();
   const { mutate: addToList, isPending } = useAddRecipeToListMutation();
 
@@ -241,6 +257,21 @@ function ShoppingForm({ anchor, personId, onDone }: ShoppingFormProps) {
             <PlannerRangePicker value={customRange} onChange={setCustomRange} />
           ) : (
             <p className="text-xs text-muted-foreground">{rangeLabel}</p>
+          )}
+
+          {skippedMeals.length > 0 && (
+            <div
+              role="status"
+              className="flex items-start gap-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-800 dark:text-amber-300"
+            >
+              <TriangleAlert className="mt-0.5 size-4 shrink-0" />
+              <p>
+                {skippedMeals.length === 1
+                  ? "1 posiłek nie ma składników i nie trafi na listę"
+                  : `${skippedMeals.length} ${pluralMeals(skippedMeals.length)} nie mają składników i nie trafią na listę`}
+                : {skippedNames}. To własne wpisy albo przepisy bez składników.
+              </p>
+            </div>
           )}
         </div>
 
