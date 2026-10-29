@@ -23,6 +23,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { showSuccessToast } from "@/utils/toastHandler";
+import { Loading } from "@/components/common/Loading";
 
 export function RecipeEditorScreen() {
   const navigate = useNavigate();
@@ -240,8 +241,11 @@ export function RecipeEditorScreen() {
 
   if (isEditing && isLoadingRecipe) {
     return (
-      <div className="w-full h-dvh flex items-center justify-center text-muted-foreground">
-        Pobieranie przepisu...
+      <div className="w-full h-dvh">
+        <Loading
+          title="Ładowanie przepisu!"
+          description="Jeśli to trwa zbyt długo, sprawdź swoje połączenie internetowe."
+        />
       </div>
     );
   }

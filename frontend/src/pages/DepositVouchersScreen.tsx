@@ -36,23 +36,26 @@ export function DepositVouchersScreen() {
     return () => observer.disconnect();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const deposits = data?.pages.flatMap((page) => page.items) ?? [];
+  // Same as every other screen: the loader / error fill the whole area (header included).
+  // Only the first load gets here - a new sort keeps the old list on screen meanwhile.
+  if (isLoading)
+    return (
+      <Loading
+        title="Ładowanie listy kuponów kaucyjnych!"
+        description="Jeśli to trwa zbyt długo, sprawdź swoje połączenie internetowe."
+      />
+    );
+  if (error || !data)
+    return (
+      <NotFound
+        title="Nie udało się załadować listy kuponów kaucyjnych!"
+        description="Ta lista nie istnieje lub wystąpił problem z połączeniem z serwerem."
+      />
+    );
+
+  const deposits = data.pages.flatMap((page) => page.items);
 
   const renderContent = () => {
-    if (isLoading)
-      return (
-        <Loading
-          title="Ładowanie listy kuponów kaucyjnych!"
-          description="Jeśli to trwa zbyt długo, sprawdź swoje połączenie internetowe."
-        />
-      );
-    if (error || !data)
-      return (
-        <NotFound
-          title="Nie udało się załadować listy kuponów kaucyjnych!"
-          description="Ta lista nie istnieje lub wystąpił problem z połączeniem z serwerem."
-        />
-      );
     // Nothing at all (not just filtered out) -> the regular empty state
     if (deposits.length === 0 && params.showUsed) return <EmptyDepositPrompt />;
 

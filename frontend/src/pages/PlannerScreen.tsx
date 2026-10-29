@@ -99,26 +99,25 @@ export function PlannerScreen() {
     setViewDate(date);
   }, []);
 
-  const renderDay = () => {
-    if (dayQuery.isLoading)
-      return (
-        <div className="h-64">
-          <Loading
-            title="Ładowanie planera posiłków!"
-            description="Jeśli to trwa zbyt długo, sprawdź swoje połączenie internetowe."
-          />
-        </div>
-      );
-    if (dayQuery.error || !dayQuery.data)
-      return (
-        <div className="h-64">
-          <NotFound
-            title="Nie udało się załadować planera!"
-            description="Wystąpił problem z połączeniem z serwerem."
-          />
-        </div>
-      );
+  // Same as every other screen: the loader / error fill the whole area (header included).
+  // Only the very first load gets here - switching days keeps the previous one on screen.
+  if (dayQuery.isLoading)
+    return (
+      <Loading
+        title="Ładowanie planera posiłków!"
+        description="Jeśli to trwa zbyt długo, sprawdź swoje połączenie internetowe."
+      />
+    );
+  // No data at all; a failed refresh behind data that is already there is not worth a full screen
+  if (!dayQuery.data)
+    return (
+      <NotFound
+        title="Nie udało się załadować planera!"
+        description="Wystąpił problem z połączeniem z serwerem."
+      />
+    );
 
+  const renderDay = () => {
     return (
       // Dimmed while the next day is still on its way
       <div
