@@ -7,6 +7,23 @@ export interface Release {
 }
 
 export const CHANGELOG: Release[] = [
+  /* Not released yet - uncomment this entry (and check the date) when v0.60.0 ships.
+  {
+    version: "0.60.0",
+    date: "29.10.2026",
+    changes: [
+      "Nowa zakładka Planer - zaplanuj śniadanie, obiad i kolację na każdy dzień tygodnia",
+      "Do planu dodasz przepis z aplikacji albo wpiszesz własny posiłek, np. „pizza na mieście”",
+      "Osoby z własnym kolorem - dodaj domowników, przełączaj się między nimi i zobacz, kto co je. Wspólne posiłki widać u wszystkich",
+      "Lista zakupów z planu jednym kliknięciem - na ten lub następny tydzień (od piątku aplikacja podpowiada następny), 7 dni, miesiąc albo własny zakres wybrany w kalendarzu. Składniki z zaplanowanych przepisów sumują się, a to, co już masz, możesz odznaczyć",
+      "Kolor osoby wybierzesz z gotowych albo ustawisz własny",
+      "Dni przewijasz palcem jak rolkę - wybrany dzień jest większy i ustawia się na środku, a pod paskiem treść łagodnie znika w tle",
+      "Więcej posiłków w ciągu dnia: drugie śniadanie i przekąska. Każda osoba wybiera, które posiłki chce widzieć",
+      "Lista zakupów i ustawienia posiłków są w menu „⋯” w nagłówku planera",
+      "Dolne menu ma przycisk „Więcej”, pod którym chowają się pozostałe zakładki. W „Dostosuj pasek” wybierasz, które zakładki (do 4) mają być zawsze na wierzchu - ustawienie jest osobne na każdym telefonie",
+    ],
+  },
+  */
   {
     version: "0.59.4",
     date: "25.10.2026",
