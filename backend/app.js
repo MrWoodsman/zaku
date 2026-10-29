@@ -15,6 +15,7 @@ const scanRoutes = require("./routes/v1/scan.routes");
 const pushRoutes = require("./routes/v1/push.routes");
 const shopsRoutes = require("./routes/v1/shops.routes");
 const depositsRoutes = require("./routes/v1/deposits.routes");
+const plannerRoutes = require("./routes/v1/planner.routes");
 
 // Buduje gotową aplikację Express, ale NIE odpala serwera (brak .listen).
 // Dzięki temu można ją "wziąć" w testach i strzelać w nią requestami przez supertest,
@@ -84,6 +85,7 @@ function createApp(db) {
   app.use("/api/v1/scan", scanRoutes);
   app.use("/api/v1/shops", shopsRoutes);
   app.use("/api/v1/deposits", depositsRoutes);
+  app.use("/api/v1/planner", plannerRoutes);
 
   app.get("/api/test", (req, res) => {
     res.json({ message: "Działa V1!" });

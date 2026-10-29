@@ -214,6 +214,70 @@ async function initDB() {
     WHERE code LIKE '(%'
   `);
 
+  // Meal planner: people the group plans meals for (no accounts - just a name and a color)
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS planner_people (
+      id TEXT PRIMARY KEY,
+      group_id TEXT NOT NULL,
+      name TEXT NOT NULL,
+      color TEXT NOT NULL,
+      created_at DATETIME DEFAULT (datetime('now','localtime')),
+      FOREIGN KEY (group_id) REFERENCES groups(id)
+    )
+  `);
+
+  // Planned meals. person_id NULL = shared (for everyone). recipe_id NULL = a plain note
+  // ("pizza na mieście") - title always holds the text, so a meal survives its recipe
+  // being deleted.
+  // The allowed slots are validated by the route, not by a CHECK - a CHECK can't be
+  // changed in SQLite without rebuilding the table, and new slots keep coming.
+  const createMealsTable = (name) => `
+    CREATE TABLE IF NOT EXISTS ${name} (
+      id TEXT PRIMARY KEY,
+      group_id TEXT NOT NULL,
+      person_id TEXT,
+      date TEXT NOT NULL,
+      slot TEXT NOT NULL,
+      recipe_id TEXT,
+      title TEXT NOT NULL,
+      created_at DATETIME DEFAULT (datetime('now','localtime')),
+      FOREIGN KEY (group_id) REFERENCES groups(id),
+      FOREIGN KEY (person_id) REFERENCES planner_people(id) ON DELETE SET NULL,
+      FOREIGN KEY (recipe_id) REFERENCES recipes(id) ON DELETE SET NULL
+    )
+  `;
+  await db.exec(createMealsTable("planner_meals"));
+
+  // The first version had CHECK (slot IN ('breakfast', 'lunch', 'dinner')) - rebuild without it
+  const mealsTable = await db.get(`SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'planner_meals'`);
+  if (/CHECK\s*\(\s*slot/i.test(mealsTable.sql)) {
+    await db.exec("BEGIN");
+    try {
+      await db.exec(`DROP INDEX IF EXISTS idx_planner_meals_group_date`);
+      await db.exec(`ALTER TABLE planner_meals RENAME TO planner_meals_old`);
+      await db.exec(createMealsTable("planner_meals"));
+      await db.exec(`
+        INSERT INTO planner_meals (id, group_id, person_id, date, slot, recipe_id, title, created_at)
+        SELECT id, group_id, person_id, date, slot, recipe_id, title, created_at FROM planner_meals_old
+        ORDER BY rowid
+      `);
+      await db.exec(`DROP TABLE planner_meals_old`);
+      await db.exec("COMMIT");
+    } catch (error) {
+      await db.exec("ROLLBACK");
+      throw error;
+    }
+  }
+
+  await db.exec(`CREATE INDEX IF NOT EXISTS idx_planner_meals_group_date ON planner_meals (group_id, date)`);
+
+  // Which meals of the day a person wants to see (comma-separated slots, NULL = the default three).
+  // Added after the table existed.
+  const peopleColumns = await db.all(`PRAGMA table_info(planner_people)`);
+  if (!peopleColumns.some((column) => column.name === "slots")) {
+    await db.exec(`ALTER TABLE planner_people ADD COLUMN slots TEXT DEFAULT NULL`);
+  }
+
   logger.info("Baza danych SQLite została załadowana i tabele są gotowe!");
   return db;
 }
