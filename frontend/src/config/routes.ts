@@ -10,6 +10,7 @@ export const ROUTES = {
   RECIPES_EDITOR: "/recipes/editor",
   RECIPES_DRAFTS: "/recipes/drafts",
   DEPOSIT_SCREEN: "/deposit",
+  PLANNER: "/planner",
   SETTINGS: "/settings",
 
   // SCIEZKI DYNAMICZNE
