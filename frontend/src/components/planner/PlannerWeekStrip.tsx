@@ -79,7 +79,7 @@ const DayCard = memo(function DayCard({
       {/* The 1st of a month says which month it is, so a long scroll doesn't get lost.
           Absolute, so it adds no height to the card. */}
       {day.getDate() === 1 && (
-        <span className="absolute top-0.5 right-1 text-[8px] leading-none font-bold uppercase opacity-60">
+        <span className="absolute top-0.5 right-1/2 translate-x-1/2 text-[8px] leading-none font-bold uppercase opacity-60">
           {format(day, "LLL", { locale: pl })}
         </span>
       )}
