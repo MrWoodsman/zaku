@@ -10,7 +10,7 @@ import { ROUTES } from "@/config/routes"; // Dodaj import swoich ścieżek
 import type { RecipeItem as RecipeItemType } from "@shared/types";
 import { useDeleteRecipeMutation } from "@/hooks/useRecipeMutations";
 import { showSuccessToast } from "@/utils/toastHandler";
-import { Loading } from "@/components/common/Loading";
+import { ScreenSkeleton } from "@/components/common/ScreenSkeleton";
 import { NotFound } from "@/components/common/NotFound";
 
 export function RecipesDraftsScreen() {
@@ -19,10 +19,7 @@ export function RecipesDraftsScreen() {
 
   if (isLoading)
     return (
-      <Loading
-        title="Ładowanie listy przepisów!"
-        description="Jeśli to trwa zbyt długo, sprawdź swoje połączenie internetowe."
-      />
+      <ScreenSkeleton header="title" shape="recipe" />
     );
   if (error || !data)
     return (

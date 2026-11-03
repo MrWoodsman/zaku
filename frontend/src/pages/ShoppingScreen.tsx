@@ -23,7 +23,7 @@ import { ItemCard } from "@/components/shopping-lists/ItemCard";
 import { ItemsInListOverlay } from "@/components/overlay/items/ItemsInListOverlay";
 import { useToggleItemMutation } from "@/hooks/useItemMutations";
 import { useShoppingListQuery } from "@/hooks/useLists";
-import { Loading } from "@/components/common/Loading";
+import { ScreenSkeleton } from "@/components/common/ScreenSkeleton";
 import { NotFound } from "@/components/common/NotFound";
 import { useDeviceId } from "@/hooks/useDeviceId";
 import { markListAsSeenApi } from "@/api/lists";
@@ -45,10 +45,7 @@ export function ShoppingScreen() {
 
   if (isLoading)
     return (
-      <Loading
-        title="Ładowanie zawartości listy"
-        description="Jeśli to trwa zbyt długo, sprawdź swoje połączenie internetowe."
-      />
+      <ScreenSkeleton header="title" shape="row" rows={7} />
     );
   if (error || !data)
     return (

@@ -26,7 +26,7 @@ import { ConfirmModal } from "@/components/overlay/ConfirmModal"; // Dopasuj śc
 import { RecipeToShoppingListOverlay } from "@/components/overlay/recipes/RecipeToShoppingListOverlay";
 import { showSuccessToast } from "@/utils/toastHandler";
 import { NotFound } from "@/components/common/NotFound";
-import { Loading } from "@/components/common/Loading";
+import { ScreenSkeleton } from "@/components/common/ScreenSkeleton";
 
 export function RecipeViewScreen() {
   const { groupId } = useGroup();
@@ -43,10 +43,7 @@ export function RecipeViewScreen() {
 
   if (isLoading)
     return (
-      <Loading
-        title="Ładowanie przepisu"
-        description="Jeśli to trwa zbyt długo, sprawdź swoje połączenie internetowe."
-      />
+      <ScreenSkeleton header="none" shape="detail" />
     );
   if (error || !data)
     return (

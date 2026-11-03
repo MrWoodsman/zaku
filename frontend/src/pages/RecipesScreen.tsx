@@ -20,7 +20,7 @@ import { ConfirmModal } from "@/components/overlay/ConfirmModal";
 import { useDeleteRecipeMutation } from "@/hooks/useRecipeMutations";
 import { showSuccessToast } from "@/utils/toastHandler";
 import { NotFound } from "@/components/common/NotFound";
-import { Loading } from "@/components/common/Loading";
+import { ScreenSkeleton } from "@/components/common/ScreenSkeleton";
 
 export function RecipesScreen() {
   // STAN MODALA
@@ -39,10 +39,7 @@ export function RecipesScreen() {
 
   if (isLoading)
     return (
-      <Loading
-        title="Ładowanie listy przepisów!"
-        description="Jeśli to trwa zbyt długo, sprawdź swoje połączenie internetowe."
-      />
+      <ScreenSkeleton header="search" shape="recipe" />
     );
   if (error || !data)
     return (

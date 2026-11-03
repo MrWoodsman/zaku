@@ -20,7 +20,7 @@ import {
 import { ItemCard } from "@/components/shopping-lists/ItemCard";
 import { useUniversalToggleItemMutation } from "@/hooks/useItemMutations";
 import { useAllShoppingItemsQuery } from "@/hooks/useItems";
-import { Loading } from "@/components/common/Loading";
+import { ScreenSkeleton } from "@/components/common/ScreenSkeleton";
 import { NotFound } from "@/components/common/NotFound";
 
 export function ShoppingAllScreen() {
@@ -29,10 +29,7 @@ export function ShoppingAllScreen() {
 
   if (isLoading)
     return (
-      <Loading
-        title="Ładowanie listy przedmiotów do kupienia!"
-        description="Jeśli to trwa zbyt długo, sprawdź swoje połączenie internetowe."
-      />
+      <ScreenSkeleton header="title" shape="row" rows={7} />
     );
   if (error)
     return (

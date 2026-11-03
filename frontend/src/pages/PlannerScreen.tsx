@@ -19,7 +19,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Loading } from "@/components/common/Loading";
+import { PlannerSkeleton } from "@/components/planner/PlannerSkeleton";
 import { NotFound } from "@/components/common/NotFound";
 import { PlannerWeekStrip } from "@/components/planner/PlannerWeekStrip";
 import { PlannerMealSlot } from "@/components/planner/PlannerMealSlot";
@@ -103,10 +103,7 @@ export function PlannerScreen() {
   // Only the very first load gets here - switching days keeps the previous one on screen.
   if (dayQuery.isLoading)
     return (
-      <Loading
-        title="Ładowanie planera posiłków!"
-        description="Jeśli to trwa zbyt długo, sprawdź swoje połączenie internetowe."
-      />
+      <PlannerSkeleton />
     );
   // No data at all; a failed refresh behind data that is already there is not worth a full screen
   if (!dayQuery.data)

@@ -9,7 +9,7 @@ import type { RecipeItem as RecipeItemType } from "@shared/types";
 import { useDeleteRecipeMutation } from "@/hooks/useRecipeMutations";
 import { useGroup } from "@/hooks/useGroup";
 import { showSuccessToast } from "@/utils/toastHandler";
-import { Loading } from "@/components/common/Loading";
+import { ScreenSkeleton } from "@/components/common/ScreenSkeleton";
 import { NotFound } from "@/components/common/NotFound";
 
 type FilterType = "all" | "draft" | "private" | "global";
@@ -24,10 +24,7 @@ export function RecipesAllScreen() {
 
   if (isLoading)
     return (
-      <Loading
-        title="Ładowanie listy przepisów!"
-        description="Jeśli to trwa zbyt długo, sprawdź swoje połączenie internetowe."
-      />
+      <ScreenSkeleton header="search" shape="recipe" />
     );
   if (error || !data)
     return (

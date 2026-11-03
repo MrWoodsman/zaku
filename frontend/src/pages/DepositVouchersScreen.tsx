@@ -1,6 +1,6 @@
 // TYPES
 import { useEffect, useRef } from "react";
-import { Loading } from "@/components/common/Loading";
+import { ScreenSkeleton } from "@/components/common/ScreenSkeleton";
 import { NotFound } from "@/components/common/NotFound";
 import { Loader2Icon, Plus, StarIcon, TicketSlash } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -40,10 +40,7 @@ export function DepositVouchersScreen() {
   // Only the first load gets here - a new sort keeps the old list on screen meanwhile.
   if (isLoading)
     return (
-      <Loading
-        title="Ładowanie listy kuponów kaucyjnych!"
-        description="Jeśli to trwa zbyt długo, sprawdź swoje połączenie internetowe."
-      />
+      <ScreenSkeleton header="title" shape="card" />
     );
   if (error || !data)
     return (

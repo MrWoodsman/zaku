@@ -6,7 +6,7 @@ import { ShoppingListsNavbar } from "@/components/shopping-lists/ShoppingListsNa
 import { AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAllShoppingListsQuery } from "@/hooks/useLists";
-import { Loading } from "@/components/common/Loading";
+import { ScreenSkeleton } from "@/components/common/ScreenSkeleton";
 import { NotFound } from "@/components/common/NotFound";
 
 export function ShoppingListsScreen() {
@@ -15,10 +15,7 @@ export function ShoppingListsScreen() {
 
   if (isLoading)
     return (
-      <Loading
-        title="Ładowanie list zakupów"
-        description="Jeśli to trwa zbyt długo, sprawdź swoje połączenie internetowe."
-      />
+      <ScreenSkeleton header="search" shape="card" />
     );
   if (error || !data)
     return (

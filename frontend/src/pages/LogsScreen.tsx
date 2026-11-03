@@ -1,7 +1,7 @@
 // TYPES
 import { useEffect, useRef } from "react";
 import { useItemsCompletedQuery } from "@/hooks/useItems";
-import { Loading } from "@/components/common/Loading";
+import { ScreenSkeleton } from "@/components/common/ScreenSkeleton";
 import { NotFound } from "@/components/common/NotFound";
 import { ClockCheckIcon, Loader2Icon, Check } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -32,10 +32,7 @@ export function LogsScreen() {
 
   if (isLoading)
     return (
-      <Loading
-        title="Ładowanie listy przedmiotów do kupienia!"
-        description="Jeśli to trwa zbyt długo, sprawdź swoje połączenie internetowe."
-      />
+      <ScreenSkeleton header="title" shape="row" rows={8} />
     );
   if (error || !data)
     return (
