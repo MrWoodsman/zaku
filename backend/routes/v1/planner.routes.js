@@ -1,6 +1,7 @@
 const express = require("express");
 const { randomUUID } = require("crypto");
 const router = express.Router();
+const { readServings } = require("../../services/servings");
 
 // In the order they happen during the day
 const SLOTS = ["breakfast", "second_breakfast", "lunch", "snack", "dinner"];
@@ -148,7 +149,7 @@ router.get("/meals", async (req, res) => {
     // has_ingredients: false for a plain note and for a recipe with no ingredients - neither
     // adds anything to the shopping list, and the app tells the user so
     const meals = await req.db.all(
-      `SELECT m.id, m.date, m.slot, m.title, m.person_id, m.recipe_id, r.image_url,
+      `SELECT m.id, m.date, m.slot, m.title, m.person_id, m.recipe_id, m.servings, r.image_url,
               EXISTS (SELECT 1 FROM ingredients i WHERE i.recipe_id = m.recipe_id) AS has_ingredients
        FROM planner_meals m
        LEFT JOIN recipes r ON r.id = m.recipe_id
@@ -170,11 +171,13 @@ router.post("/meals", async (req, res) => {
   if (!groupId) return res.status(401).json({ message: "Brak ID grupy" });
 
   const { date, slot, recipe_id: recipeId, person_id: personId } = req.body || {};
+  const { value: servings, error: servingsError } = readServings(req.body?.servings);
   let title = typeof req.body?.title === "string" ? req.body.title.trim() : "";
 
   if (!DATE_RE.test(date || "")) return res.status(400).json({ message: "Nieprawidłowa data" });
   if (!SLOTS.includes(slot)) return res.status(400).json({ message: "Nieprawidłowy posiłek" });
   if (title.length > MAX_TITLE) return res.status(400).json({ message: "Zbyt długa nazwa" });
+  if (servingsError) return res.status(400).json({ message: servingsError });
 
   try {
     if (personId) {
@@ -198,9 +201,10 @@ router.post("/meals", async (req, res) => {
 
     const id = randomUUID();
     await req.db.run(
-      `INSERT INTO planner_meals (id, group_id, person_id, date, slot, recipe_id, title)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [id, groupId, personId || null, date, slot, recipeId || null, title],
+      `INSERT INTO planner_meals (id, group_id, person_id, date, slot, recipe_id, title, servings)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      // servings only mean something for a recipe - a plain note has nothing to scale
+      [id, groupId, personId || null, date, slot, recipeId || null, title, recipeId ? servings : null],
     );
     res.status(201).json({ id });
   } catch (error) {
@@ -251,8 +255,15 @@ router.get("/ingredients", async (req, res) => {
     }
 
     const ingredients = await req.db.all(
-      `SELECT MIN(i.name) AS name, i.unit AS unit, SUM(i.quantity) AS quantity
+      // A meal planned for other servings than the recipe is written for scales its amounts;
+      // without either number the amounts are taken as they are. An ingredient with no amount
+      // ("do smaku", stored as an empty string) stays without one instead of summing to 0.
+      `SELECT MIN(i.name) AS name, i.unit AS unit,
+              ROUND(SUM(NULLIF(i.quantity, '') * CASE
+                WHEN m.servings IS NOT NULL AND r.servings IS NOT NULL THEN m.servings * 1.0 / r.servings
+                ELSE 1 END), 2) AS quantity
        FROM planner_meals m
+       JOIN recipes r ON r.id = m.recipe_id
        JOIN ingredients i ON i.recipe_id = m.recipe_id
        WHERE m.group_id = ? AND m.date BETWEEN ? AND ? ${personFilter}
        GROUP BY LOWER(i.name), i.unit

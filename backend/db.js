@@ -285,6 +285,13 @@ async function initDB() {
     await db.exec(`ALTER TABLE recipes ADD COLUMN servings INTEGER DEFAULT NULL`);
   }
 
+  // How many servings a planned recipe is cooked for (NULL = as the recipe says). Added after
+  // the table existed.
+  const mealColumns = await db.all(`PRAGMA table_info(planner_meals)`);
+  if (!mealColumns.some((column) => column.name === "servings")) {
+    await db.exec(`ALTER TABLE planner_meals ADD COLUMN servings INTEGER DEFAULT NULL`);
+  }
+
   logger.info("Baza danych SQLite została załadowana i tabele są gotowe!");
   return db;
 }

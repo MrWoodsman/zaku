@@ -22,9 +22,14 @@ const addPerson = async (name = "Mikołaj", color = "#f97316", group = "g1") =>
   (await api("post", "/people", group).send({ name, color })).body;
 
 // The group row is created by the app on the first request, so make sure it exists first
-const addRecipe = async (id, name, ingredients, group = "g1") => {
+const addRecipe = async (id, name, ingredients, group = "g1", servings = null) => {
   await db.run(`INSERT OR IGNORE INTO groups (id, name) VALUES (?, ?)`, [group, group]);
-  await db.run(`INSERT INTO recipes (id, group_id, name, status) VALUES (?, ?, ?, 'published')`, [id, group, name]);
+  await db.run(`INSERT INTO recipes (id, group_id, name, status, servings) VALUES (?, ?, ?, 'published', ?)`, [
+    id,
+    group,
+    name,
+    servings,
+  ]);
   for (const [ingName, quantity, unit] of ingredients) {
     await db.run(`INSERT INTO ingredients (recipe_id, name, quantity, unit) VALUES (?, ?, ?, ?)`, [
       id,
@@ -215,7 +220,83 @@ describe("meals", () => {
   });
 });
 
+describe("servings of a planned meal", () => {
+  const day = { date: "2026-10-26", slot: "lunch" };
+
+  it("stores the servings of a recipe meal and returns them", async () => {
+    await api("get", "/people"); // creates the group
+    await addRecipe("r1", "Naleśniki", [["Mąka", 200, "g"]], "g1", 2);
+
+    await api("post", "/meals").send({ ...day, recipe_id: "r1", servings: 6 });
+
+    const meals = await api("get", "/meals?from=2026-10-26&to=2026-10-26");
+    expect(meals.body[0].servings).toBe(6);
+  });
+
+  it("servings are optional, and a plain note never keeps them", async () => {
+    await api("get", "/people");
+    await addRecipe("r1", "Naleśniki", [], "g1", 2);
+
+    await api("post", "/meals").send({ ...day, recipe_id: "r1" });
+    await api("post", "/meals").send({ ...day, title: "Pizza", servings: 4 });
+
+    const meals = await api("get", "/meals?from=2026-10-26&to=2026-10-26");
+    expect(meals.body.map((m) => m.servings)).toEqual([null, null]);
+  });
+
+  it.each([0, -1, 2.5, "abc", 101])("returns 400 for invalid servings: %s", async (servings) => {
+    await api("get", "/people");
+    await addRecipe("r1", "Naleśniki", [], "g1", 2);
+
+    const res = await api("post", "/meals").send({ ...day, recipe_id: "r1", servings });
+
+    expect(res.status).toBe(400);
+  });
+});
+
 describe("GET /ingredients", () => {
+  it("scales a recipe to the servings it was planned for", async () => {
+    await api("get", "/people");
+    await addRecipe("r1", "Naleśniki", [["Mąka", 200, "g"], ["Jajka", 2, "szt"]], "g1", 2);
+
+    // written for 2, planned for 6 -> three times as much
+    await api("post", "/meals").send({ date: "2026-10-26", slot: "lunch", recipe_id: "r1", servings: 6 });
+    // planned without servings -> as written
+    await api("post", "/meals").send({ date: "2026-10-27", slot: "lunch", recipe_id: "r1" });
+
+    const res = await api("get", "/ingredients?from=2026-10-26&to=2026-11-01");
+
+    expect(res.body).toEqual([
+      { name: "Jajka", unit: "szt", quantity: 8 }, // 6 + 2
+      { name: "Mąka", unit: "g", quantity: 800 }, // 600 + 200
+    ]);
+  });
+
+  it("an ingredient without an amount comes back with null, not 0", async () => {
+    await api("get", "/people");
+    await addRecipe("r1", "Zupa", [["Sól", "", ""], ["Woda", 1, "l"]], "g1", 2);
+
+    await api("post", "/meals").send({ date: "2026-10-26", slot: "lunch", recipe_id: "r1", servings: 4 });
+
+    const res = await api("get", "/ingredients?from=2026-10-26&to=2026-11-01");
+
+    expect(res.body).toEqual([
+      { name: "Sól", unit: "", quantity: null },
+      { name: "Woda", unit: "l", quantity: 2 },
+    ]);
+  });
+
+  it("doesn't scale when the recipe itself has no servings", async () => {
+    await api("get", "/people");
+    await addRecipe("r1", "Placki", [["Mleko", 1, "l"]]); // servings NULL
+
+    await api("post", "/meals").send({ date: "2026-10-26", slot: "lunch", recipe_id: "r1", servings: 4 });
+
+    const res = await api("get", "/ingredients?from=2026-10-26&to=2026-11-01");
+
+    expect(res.body).toEqual([{ name: "Mleko", unit: "l", quantity: 1 }]);
+  });
+
   it("sums ingredients of planned recipes by name + unit", async () => {
     await api("get", "/people");
     await addRecipe("r1", "Naleśniki", [["Mąka", 200, "g"], ["Jajka", 2, "szt"]]);
