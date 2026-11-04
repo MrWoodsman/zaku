@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useRef, useState } from "react";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useRecipeDetailsQuery } from "@/hooks/useRecipes";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +12,7 @@ import {
   ChefHat,
   Trash2,
   Crown,
+  UtensilsCrossedIcon,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -25,6 +26,10 @@ import { useDeleteRecipeMutation } from "@/hooks/useRecipeMutations";
 import { ConfirmModal } from "@/components/overlay/ConfirmModal"; // Dopasuj ścieżkę do swojego pliku!
 import { RecipeToShoppingListOverlay } from "@/components/overlay/recipes/RecipeToShoppingListOverlay";
 import { showSuccessToast } from "@/utils/toastHandler";
+import { formatPortions } from "@/utils/plural";
+import { formatAmount, scaleAmount } from "@/utils/scaleIngredients";
+import { ServingsStepper } from "@/components/common/ServingsStepper";
+import { ScaledServingsInfo } from "@/components/common/ScaledServingsInfo";
 import { NotFound } from "@/components/common/NotFound";
 import { ScreenSkeleton } from "@/components/common/ScreenSkeleton";
 
@@ -37,14 +42,27 @@ export function RecipeViewScreen() {
 
   // STAN MODALA
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const { mutate: deleteRecipe, isPending: isDeleting } = useDeleteRecipeMutation();
+  // The shopping drawer opens only once the "more" menu has closed (see onCloseAutoFocus below):
+  // a drawer opened over a still-open menu hides it while focus is inside, which the browser warns about
+  const [isShoppingOpen, setIsShoppingOpen] = useState(false);
+  const openShoppingAfterMenu = useRef(false);
+  const { mutate: deleteRecipe, isPending: isDeleting } =
+    useDeleteRecipeMutation();
 
   const { data, isLoading, error } = useRecipeDetailsQuery(recipeId);
+  // A link from the planner carries the servings the meal was planned for (?servings=8).
+  // A hook, so it has to stay above the early returns below.
+  const [searchParams] = useSearchParams();
+  const linkedServings = Number(searchParams.get("servings"));
+  const fromLink =
+    Number.isInteger(linkedServings) && linkedServings >= 1 && linkedServings <= 100
+      ? linkedServings
+      : null;
 
-  if (isLoading)
-    return (
-      <ScreenSkeleton header="none" shape="detail" />
-    );
+  // What somebody picked with the stepper (remembered per recipe, so another recipe starts fresh)
+  const [chosen, setChosen] = useState<{ recipeId: string; value: number } | null>(null);
+
+  if (isLoading) return <ScreenSkeleton header="none" shape="detail" />;
   if (error || !data)
     return (
       <NotFound
@@ -53,8 +71,16 @@ export function RecipeViewScreen() {
       />
     );
 
+  const baseServings = data.servings ?? null;
+  const servings =
+    (chosen?.recipeId === recipeId ? chosen.value : null) ??
+    (baseServings ? fromLink : null) ??
+    baseServings;
+
   // Przygotowanie posortowanych kroków
-  const sortedSteps = data?.steps ? [...data.steps].sort((a, b) => a.order - b.order) : [];
+  const sortedSteps = data?.steps
+    ? [...data.steps].sort((a, b) => a.order - b.order)
+    : [];
 
   return (
     <>
@@ -91,12 +117,24 @@ export function RecipeViewScreen() {
                     <MoreVertical size={18} />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuContent
+                  align="end"
+                  className="w-48"
+                  onCloseAutoFocus={(event) => {
+                    if (!openShoppingAfterMenu.current) return;
+                    // The drawer takes the focus, not the menu's button
+                    event.preventDefault();
+                    openShoppingAfterMenu.current = false;
+                    setIsShoppingOpen(true);
+                  }}
+                >
                   {/* Opcja edycji i usuwania */}
                   {data.group_id == groupId && (
                     <>
                       <DropdownMenuItem
-                        onClick={() => navigate(`${ROUTES.RECIPES_EDITOR}?id=${data.id}`)}
+                        onClick={() =>
+                          navigate(`${ROUTES.RECIPES_EDITOR}?id=${data.id}`)
+                        }
                         className="gap-2 cursor-pointer"
                       >
                         <Edit size={16} />
@@ -116,24 +154,15 @@ export function RecipeViewScreen() {
                   )}
 
                   {/* Opcja dodania składników do listy zakupów */}
-                  <RecipeToShoppingListOverlay
-                    recipeName={data.name}
-                    ingredients={(data.ingredients || []).map((ing) => ({
-                      ...ing,
-                      id: ing.id || crypto.randomUUID(), // Zabezpieczenie: upewnia TS, że id zawsze tu będzie
-                    }))}
+                  <DropdownMenuItem
+                    onSelect={() => {
+                      openShoppingAfterMenu.current = true;
+                    }}
+                    className="cursor-pointer"
                   >
-                    <DropdownMenuItem
-                      onSelect={(e) => {
-                        // Blokujemy domyślne zamknięcie menu, żeby Drawer mógł się spokojnie otworzyć!
-                        e.preventDefault();
-                      }}
-                      className="cursor-pointer"
-                    >
-                      <ShoppingCart size={16} className="mr-2" />
-                      Dodaj składniki do listy
-                    </DropdownMenuItem>
-                  </RecipeToShoppingListOverlay>
+                    <ShoppingCart size={16} className="mr-2" />
+                    Dodaj składniki do listy
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
@@ -148,17 +177,26 @@ export function RecipeViewScreen() {
             </div>
 
             {/* Dodatkowe metadane (czas przygotowania, widoczność) */}
-            <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
+            {/* flex-wrap + nowrap items: a whole item drops to the next row instead of breaking in the middle */}
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-muted-foreground mt-1">
               {/* CZAS PRZYGOTOWANIA */}
               {data?.time_to_make ? (
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5 whitespace-nowrap">
                   <Clock size={15} />
                   <span>{data.time_to_make} min</span>
                 </div>
               ) : null}
 
+              {/* ILOSC PORCJI */}
+              {data?.servings ? (
+                <div className="flex items-center gap-1.5 whitespace-nowrap">
+                  <UtensilsCrossedIcon size={15} />
+                  <span>{formatPortions(data.servings)}</span>
+                </div>
+              ) : null}
+
               {/* PRYWTNY / PUBLICZNY */}
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 whitespace-nowrap">
                 {data?.is_global ? (
                   <>
                     <Globe size={15} className="text-blue-500" />
@@ -174,9 +212,12 @@ export function RecipeViewScreen() {
 
               {/* WŁAŚCICIEL */}
               {data.group_id == groupId && (
-                <div className="flex items-center gap-1.5">
+                <div
+                  className="flex items-center gap-1.5 whitespace-nowrap"
+                  title="Jesteś właścicielem tego przepisu"
+                >
                   <Crown size={15} className="text-yellow-500" />
-                  <span>Jesteś właścicielem</span>
+                  <span>Twój</span>
                 </div>
               )}
             </div>
@@ -192,9 +233,26 @@ export function RecipeViewScreen() {
 
           {/* SEKCJA: SKŁADNIKI */}
           <div className="flex flex-col gap-3">
-            <h2 className="text-lg font-bold uppercase tracking-wider text-foreground/90">
-              Składniki
-            </h2>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 className="text-lg font-bold uppercase tracking-wider text-foreground/90">
+                Składniki
+              </h2>
+
+              {/* Only when the recipe says how many servings it is for - otherwise nothing to scale */}
+              {baseServings && servings ? (
+                <div className="flex items-center gap-1">
+                  <ScaledServingsInfo
+                    baseServings={baseServings}
+                    servings={servings}
+                    onReset={() => setChosen({ recipeId, value: baseServings })}
+                  />
+                  <ServingsStepper
+                    value={servings}
+                    onChange={(value) => setChosen({ recipeId, value })}
+                  />
+                </div>
+              ) : null}
+            </div>
             <div className="grid grid-cols-1 gap-2">
               {data?.ingredients?.map((item, index) => (
                 <div
@@ -205,10 +263,13 @@ export function RecipeViewScreen() {
                     <span className="text-xs font-semibold text-highlight bg-highlight/10 border border-highlight/20 px-2 py-1 min-h-6 min-w-6 flex items-center justify-center rounded-md">
                       {index + 1}
                     </span>
-                    <span className="font-medium text-foreground">{item.name}</span>
+                    <span className="font-medium text-foreground">
+                      {item.name}
+                    </span>
                   </div>
                   <span className="font-mono text-sm font-semibold text-foreground">
-                    {item.quantity} {item.unit}
+                    {formatAmount(scaleAmount(item.quantity, baseServings, servings))}{" "}
+                    {item.unit}
                   </span>
                 </div>
               ))}
@@ -234,7 +295,9 @@ export function RecipeViewScreen() {
 
                   <div className="flex flex-col gap-1.5 flex-1">
                     {item.title && (
-                      <h3 className="text-base font-semibold text-foreground">{item.title}</h3>
+                      <h3 className="text-base font-semibold text-foreground">
+                        {item.title}
+                      </h3>
                     )}
                     <p className="text-muted-foreground text-sm leading-relaxed">
                       {item.description}
@@ -246,6 +309,19 @@ export function RecipeViewScreen() {
           </div>
         </div>
       </div>
+
+      {/* Składniki do listy zakupów (otwierane z menu, po jego zamknięciu) */}
+      <RecipeToShoppingListOverlay
+        open={isShoppingOpen}
+        onOpenChange={setIsShoppingOpen}
+        recipeName={data.name}
+        baseServings={baseServings}
+        initialServings={servings}
+        ingredients={(data.ingredients || []).map((ing) => ({
+          ...ing,
+          id: ing.id || crypto.randomUUID(), // Zabezpieczenie: upewnia TS, że id zawsze tu będzie
+        }))}
+      />
 
       {/* MODAL POTWIERDZENIA USUNIĘCIA */}
       <ConfirmModal

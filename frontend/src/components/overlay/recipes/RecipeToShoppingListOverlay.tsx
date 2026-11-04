@@ -6,7 +6,6 @@ import {
   DrawerDescription,
   DrawerHeader,
   DrawerTitle,
-  DrawerTrigger,
 } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
 import {
@@ -24,6 +23,9 @@ import { useAllShoppingListsQuery } from "@/hooks/useLists";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@/config/routes";
 import { showSuccessToast } from "@/utils/toastHandler";
+import { formatAmount, scaleAmount } from "@/utils/scaleIngredients";
+import { ServingsStepper } from "@/components/common/ServingsStepper";
+import { ScaledServingsInfo } from "@/components/common/ScaledServingsInfo";
 
 interface Ingredient {
   id: string;
@@ -33,18 +35,26 @@ interface Ingredient {
 }
 
 interface RecipeToShoppingListOverlayProps {
-  children: React.ReactNode;
+  // Controlled: it is opened from the recipe's "more" menu, which must be gone first
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   recipeName: string;
   ingredients: Ingredient[];
+  // Servings the ingredient amounts are written for (null = the recipe doesn't say, nothing to scale)
+  baseServings?: number | null;
+  // Servings to start with in this window (the ones picked on the recipe screen)
+  initialServings?: number | null;
 }
 
 export function RecipeToShoppingListOverlay({
-  children,
+  open: isOpen,
+  onOpenChange: setIsOpen,
   recipeName,
   ingredients,
+  baseServings = null,
+  initialServings = null,
 }: RecipeToShoppingListOverlayProps) {
   const navigate = useNavigate();
-  const [isOpen, setIsOpen] = useState(false);
 
   // 1. ZAPYTANIA API
   const { data: lists } = useAllShoppingListsQuery(); // Pobieranie Twoich list
@@ -54,6 +64,7 @@ export function RecipeToShoppingListOverlay({
   const [mode, setMode] = useState<"existing" | "new">("existing");
   const [selectedListId, setSelectedListId] = useState<string>("");
   const [newListName, setNewListName] = useState(`Zakupy: ${recipeName}`);
+  const [servings, setServings] = useState<number | null>(initialServings ?? baseServings);
   const [selectedIngIds, setSelectedIngIds] = useState<string[]>([]);
 
   // Resetujemy zaznaczenia na wszystkie składniki przy każdym otwarciu drawera
@@ -62,9 +73,16 @@ export function RecipeToShoppingListOverlay({
       setTimeout(() => {
         setSelectedIngIds(ingredients.map((i) => i.id));
         setNewListName(`Zakupy: ${recipeName}`);
+        setServings(initialServings ?? baseServings);
       }, 0);
     }
-  }, [isOpen, ingredients, recipeName]);
+  }, [isOpen, ingredients, recipeName, initialServings, baseServings]);
+
+  // The amounts for the servings picked here - what is shown and what lands on the list
+  const scaledIngredients = ingredients.map((ing) => ({
+    ...ing,
+    quantity: scaleAmount(ing.quantity, baseServings, servings) ?? "",
+  }));
 
   // 3. LOGIKA CHECKBOXÓW
   const toggleIngredient = (id: string) => {
@@ -73,7 +91,7 @@ export function RecipeToShoppingListOverlay({
 
   // 4. WYSYŁANIE
   const handleSubmit = () => {
-    const finalIngredients = ingredients.filter((ing) => selectedIngIds.includes(ing.id));
+    const finalIngredients = scaledIngredients.filter((ing) => selectedIngIds.includes(ing.id));
 
     if (finalIngredients.length === 0) {
       alert("Wybierz przynajmniej jeden składnik!");
@@ -111,8 +129,6 @@ export function RecipeToShoppingListOverlay({
 
   return (
     <Drawer open={isOpen} onOpenChange={setIsOpen}>
-      <DrawerTrigger asChild>{children}</DrawerTrigger>
-
       {/* Drawer na wysokość max 90% ekranu, układ Flex, by guzik zawsze był na dole */}
       <DrawerContent
         onPointerDownOutside={(e) => {
@@ -135,6 +151,21 @@ export function RecipeToShoppingListOverlay({
 
         {/* Zawartość przewijana (Flex-1 + overflow-y-auto) */}
         <div className="flex-1 overflow-y-auto px-4 space-y-6">
+          {/* SEKCJA 0: Ile porcji - only when the recipe says how many it is for */}
+          {baseServings && servings ? (
+            <div className="space-y-3">
+              <h3 className="font-medium text-sm text-foreground">Na ile porcji?</h3>
+              <div className="flex items-center gap-1">
+                <ServingsStepper value={servings} onChange={setServings} />
+                <ScaledServingsInfo
+                  baseServings={baseServings}
+                  servings={servings}
+                  onReset={() => setServings(baseServings)}
+                />
+              </div>
+            </div>
+          ) : null}
+
           {/* SEKCJA 1: Wybór listy */}
           <div className="space-y-3">
             <h3 className="font-medium text-sm text-foreground">Gdzie dodać składniki?</h3>
@@ -187,7 +218,7 @@ export function RecipeToShoppingListOverlay({
             </div>
 
             <div className="border border-border/50 rounded-xl divide-y divide-border/50 bg-secondary/10 overflow-hidden">
-              {ingredients.map((ing) => {
+              {scaledIngredients.map((ing) => {
                 const isSelected = selectedIngIds.includes(ing.id);
                 return (
                   <label
@@ -212,7 +243,7 @@ export function RecipeToShoppingListOverlay({
                       <span
                         className={`font-semibold ${isSelected ? "text-primary" : "text-muted-foreground/50"}`}
                       >
-                        {ing.quantity} {ing.unit}
+                        {formatAmount(ing.quantity)} {ing.unit}
                       </span>
                     </div>
                   </label>
