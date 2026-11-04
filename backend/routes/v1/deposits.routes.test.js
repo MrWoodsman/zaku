@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import request from "supertest";
 import { createApp } from "../../app.js";
 import { initDB } from "../../db.js";
+import { seedGroups } from "../../testHelpers.js";
 
 let app;
 let db;
@@ -10,7 +11,7 @@ beforeEach(async () => {
   process.env.DB_PATH = ":memory:";
   db = await initDB();
   app = createApp(db);
-  await db.run(`INSERT INTO groups (id, name) VALUES ('g1', 'g1'), ('g2', 'g2')`);
+  await seedGroups(db);
 });
 
 afterEach(async () => {

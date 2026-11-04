@@ -8,6 +8,7 @@ const { requestInfo, trustProxySetting } = require("./requestInfo");
 // The route has already logged the real one with its stack, so this one is just noise.
 const isStatusOnlyError = (err) => /^failed with status code \d+$/.test(err?.message ?? "");
 
+const groupsRoutes = require("./routes/v1/groups.routes");
 const listsRoutes = require("./routes/v1/lists.routes");
 const itemsRoutes = require("./routes/v1/items.routes");
 const recipesRoutes = require("./routes/v1/recipes.routes");
@@ -61,23 +62,26 @@ function createApp(db) {
     next();
   });
 
+  // Groups are never created here - only POST /api/v1/groups does that.
+  // A request naming a group that doesn't exist is rejected.
   app.use(async (req, res, next) => {
     const groupId = req.headers["x-group-id"];
     if (!groupId) return next();
+    // Group endpoints and the health check work without an existing group
+    if (req.path === "/api/test" || req.path.startsWith("/api/v1/groups")) return next();
     try {
       const existing = await req.db.get(`SELECT id FROM groups WHERE id = ?`, [groupId]);
-      if (!existing) {
-        await req.db.run(`INSERT INTO groups (id, name) VALUES (?, ?)`, [groupId, groupId]);
-      }
+      if (!existing) return res.status(401).json({ message: "Nieznana grupa" });
       return next();
     } catch (err) {
-      req.log.error({ err }, "Failed to check/create group");
+      req.log.error({ err }, "Failed to check group");
       return res.status(500).json({ message: "Błąd serwera" });
     }
   });
 
   app.use("/images", express.static(path.join(__dirname, "uploads")));
 
+  app.use("/api/v1/groups", groupsRoutes);
   app.use("/api/v1/lists", listsRoutes);
   app.use("/api/v1/items", itemsRoutes);
   app.use("/api/v1/recipes", recipesRoutes);
