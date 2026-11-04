@@ -285,6 +285,11 @@ async function initDB() {
     await db.exec(`ALTER TABLE recipes ADD COLUMN servings INTEGER DEFAULT NULL`);
   }
 
+  // Where an imported recipe came from (the page it was read from). NULL = written by hand.
+  if (!recipeColumns.some((column) => column.name === "source_url")) {
+    await db.exec(`ALTER TABLE recipes ADD COLUMN source_url TEXT DEFAULT NULL`);
+  }
+
   // How many servings a planned recipe is cooked for (NULL = as the recipe says). Added after
   // the table existed.
   const mealColumns = await db.all(`PRAGMA table_info(planner_meals)`);

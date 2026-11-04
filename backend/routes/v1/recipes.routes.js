@@ -6,6 +6,7 @@ const path = require("path");
 const fs = require("fs");
 const { createDisplayImage } = require("../../services/imageService");
 const { readServings } = require("../../services/servings");
+const { importRecipeFromUrl, fetchImageAsDataUrl, ImportError } = require("../../services/recipeImport");
 
 // KONFIGURACJA ZAPISU PLIKÓW
 const storage = multer.diskStorage({
@@ -19,6 +20,43 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage: storage });
+
+// Only a plain http(s) link is kept as a recipe's source; anything else becomes NULL
+function readSourceUrl(raw) {
+  if (typeof raw !== "string") return null;
+  const value = raw.trim();
+  return value.length <= 2000 && /^https?:\/\/\S+$/i.test(value) ? value : null;
+}
+
+// POST /api/v1/recipes/import { url } -> reads a recipe from a web page (schema.org data) and
+// returns it in the editor's shape. Saves nothing: the user reviews it in the editor first.
+router.post("/import", async (req, res) => {
+  const groupId = req.headers["x-group-id"];
+  if (!groupId) return res.status(401).json({ message: "Brak ID grupy" });
+
+  const url = typeof req.body?.url === "string" ? req.body.url.trim() : "";
+  if (!url) return res.status(400).json({ message: "Podaj adres strony z przepisem" });
+
+  try {
+    res.json(await importRecipeFromUrl(url));
+  } catch (error) {
+    if (error instanceof ImportError) return res.status(error.status).json({ message: error.message });
+    req.log.error({ err: error }, "Failed: POST /api/v1/recipes/import");
+    res.status(500).json({ message: "Błąd serwera podczas importu przepisu" });
+  }
+});
+
+// POST /api/v1/recipes/import-image { url } -> downloads a photo (the AI import gives only a link)
+// and returns it as a data URL; { imageDataUrl: null } when it cannot be fetched.
+router.post("/import-image", async (req, res) => {
+  const groupId = req.headers["x-group-id"];
+  if (!groupId) return res.status(401).json({ message: "Brak ID grupy" });
+
+  const url = typeof req.body?.url === "string" ? req.body.url.trim() : "";
+  if (!/^https?:\/\//i.test(url)) return res.status(400).json({ message: "Nieprawidłowy adres zdjęcia" });
+
+  res.json({ imageDataUrl: await fetchImageAsDataUrl(url, url) });
+});
 
 // GET /api/v1/recipes -> Pobieranie wszystkich przepisów
 router.get("/", async (req, res) => {
@@ -94,7 +132,8 @@ router.post("/", upload.single("image"), async (req, res) => {
 
   // Wyciągamy WSZYSTKO, co przesyła frontend.
   // Zwróć uwagę, że dodaliśmy 'status', 'ingredients' i 'steps'
-  let { name, description, time_to_make, is_global, status, ingredients, steps, servings } = req.body || {};
+  let { name, description, time_to_make, is_global, status, ingredients, steps, servings, source_url } =
+    req.body || {};
 
   if (!name || !name.trim()) {
     return res.status(400).json({ message: "Nazwa jest wymagana" });
@@ -127,8 +166,8 @@ router.post("/", upload.single("image"), async (req, res) => {
 
     // 2. ZAPISUJEMY GŁÓWNY PRZEPIS
     await req.db.run(
-      `INSERT INTO recipes (id, group_id, name, description, image_url, time_to_make, is_global, status, servings) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO recipes (id, group_id, name, description, image_url, time_to_make, is_global, status, servings, source_url)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id,
         groupId,
@@ -139,6 +178,7 @@ router.post("/", upload.single("image"), async (req, res) => {
         isGlobalValue,
         finalStatus,
         servingsValue,
+        readSourceUrl(source_url),
       ],
     );
 
@@ -191,7 +231,8 @@ router.put("/:id", upload.single("image"), async (req, res) => {
   const groupId = req.headers["x-group-id"];
   if (!groupId) return res.status(401).json({ message: "Brak ID grupy" });
 
-  let { name, description, time_to_make, is_global, status, ingredients, steps, servings } = req.body || {};
+  let { name, description, time_to_make, is_global, status, ingredients, steps, servings, source_url } =
+    req.body || {};
 
   if (!name || !name.trim()) {
     return res.status(400).json({ message: "Nazwa jest wymagana" });
@@ -242,7 +283,7 @@ router.put("/:id", upload.single("image"), async (req, res) => {
     // 2. AKTUALIZUJEMY GŁÓWNY PRZEPIS
     await req.db.run(
       `UPDATE recipes 
-       SET name = ?, description = ?, image_url = ?, time_to_make = ?, is_global = ?, status = ?, servings = ?
+       SET name = ?, description = ?, image_url = ?, time_to_make = ?, is_global = ?, status = ?, servings = ?, source_url = ?
        WHERE id = ?`,
       [
         name.trim(),
@@ -252,6 +293,7 @@ router.put("/:id", upload.single("image"), async (req, res) => {
         isGlobalValue,
         finalStatus,
         servings === undefined ? existingRecipe.servings : servingsValue,
+        source_url === undefined ? existingRecipe.source_url : readSourceUrl(source_url),
         id,
       ],
     );

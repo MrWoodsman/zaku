@@ -35,6 +35,8 @@ export interface RecipeItem {
   status: "draft" | "published";
   image_url?: string | null;
   servings?: number | null
+  // The page an imported recipe was read from (null/absent = written by hand)
+  source_url?: string | null
 
   // DODAJ TE DWA POLA TUTAJ:
   ingredients?: Array<{
