@@ -1,11 +1,6 @@
 import { describe, it, expect } from "vitest";
-import {
-  extractRecipeFromHtml,
-  parseIngredient,
-  parseDuration,
-  parseServings,
-  isPrivateIp,
-} from "./recipeImport.js";
+import { extractRecipeFromHtml, parseIngredient, parseDuration, parseServings } from "./recipeParser.js";
+import { isPrivateIp } from "./safeFetch.js";
 
 describe("parseIngredient", () => {
   it("splits quantity, a supported unit and name", () => {
