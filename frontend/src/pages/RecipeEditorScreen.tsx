@@ -1,8 +1,20 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Globe, Lock, Save, Loader2 } from "lucide-react";
+import {
+  ArrowLeft,
+  Globe,
+  Lock,
+  Save,
+  Loader2,
+  TriangleAlert,
+} from "lucide-react";
 import type { RecipeItem } from "@shared/types";
+import {
+  peekPendingImportSeed,
+  setPendingImportSeed,
+  sourceHost,
+} from "@/utils/recipeImport";
 
 // --- IMPORTY SUB-KOMPONENTÓW ---
 import { RecipeBasicInfo } from "@/components/recipe-editor/RecipeBasicInfo";
@@ -48,32 +60,47 @@ export function RecipeEditorScreen() {
   const isPending = isCreating || isUpdating;
 
   // 3. STANY FORMULARZA (Inicjalizacja na starcie - często jest pusta, bo dane się ładują)
-  const [name, setName] = useState(() => existingRecipe?.name || "");
+  // A recipe imported from a link / AI is handed over in memory and pre-fills a new recipe;
+  // it is dropped when leaving the editor so a later "new recipe" starts empty
+  const [importSeed] = useState(() => (recipeId ? null : peekPendingImportSeed()));
+  useEffect(() => () => setPendingImportSeed(null), []);
+  const seed: Partial<RecipeItem> | undefined =
+    existingRecipe ?? importSeed?.recipe;
+
+  // Page the recipe was imported from. Not editable here, but kept (and sent) so that editing an
+  // imported recipe later does not drop its source.
+  const [sourceUrl, setSourceUrl] = useState<string | null>(
+    () => seed?.source_url ?? null,
+  );
+
+  const [name, setName] = useState(() => seed?.name || "");
   const [description, setDescription] = useState(
-    () => existingRecipe?.description || "",
+    () => seed?.description || "",
   );
   const [timeToMake, setTimeToMake] = useState(
-    () => existingRecipe?.time_to_make?.toString() || "",
+    () => seed?.time_to_make?.toString() || "",
   );
   // Text like timeToMake: an empty field is "" (not 0 or null), converted only when sending
   const [servings, setServings] = useState(
-    () => existingRecipe?.servings?.toString() || "",
+    () => seed?.servings?.toString() || "",
   );
 
   const [imagePreview, setImagePreview] = useState<string | null>(
-    () => existingRecipe?.image_url || null,
+    () => seed?.image_url || null,
   );
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(
+    () => importSeed?.imageFile ?? null,
+  );
 
   const [ingredients, setIngredients] = useState(() => {
-    const recipe = existingRecipe as RecipeItem;
-    if (recipe?.ingredients && recipe.ingredients.length > 0) {
-      return recipe.ingredients.map((ing) => ({
+    if (seed?.ingredients && seed.ingredients.length > 0) {
+      return seed.ingredients.map((ing) => ({
         id: ing.id
           ? ing.id.toString()
           : Date.now().toString() + Math.random().toString(),
         name: ing.name || "",
-        quantity: ing.quantity?.toString() || "",
+        // imports use 0 for "no amount given" - show an empty field instead of "0"
+        quantity: ing.quantity ? ing.quantity.toString() : "",
         unit: ing.unit || "",
       }));
     }
@@ -88,9 +115,8 @@ export function RecipeEditorScreen() {
   });
 
   const [steps, setSteps] = useState(() => {
-    const recipe = existingRecipe as RecipeItem;
-    if (recipe?.steps && recipe.steps.length > 0) {
-      return recipe.steps.map((step) => ({
+    if (seed?.steps && seed.steps.length > 0) {
+      return seed.steps.map((step) => ({
         id: step.id
           ? step.id.toString()
           : Date.now().toString() + Math.random().toString(),
@@ -168,6 +194,7 @@ export function RecipeEditorScreen() {
         setDescription(existingRecipe.description || "");
         setTimeToMake(existingRecipe.time_to_make?.toString() || "");
         setServings(existingRecipe.servings?.toString() || "");
+        setSourceUrl(existingRecipe.source_url ?? null);
         setImagePreview(existingRecipe.image_url || null);
 
         if (
@@ -282,6 +309,8 @@ export function RecipeEditorScreen() {
     formData.append("time_to_make", timeToMake.toString());
     // "" = not given (the backend stores NULL)
     formData.append("servings", servings.trim());
+    // "" = no source (the backend stores NULL)
+    formData.append("source_url", sourceUrl ?? "");
     formData.append("is_global", isGlobal ? "true" : "false");
     formData.append("status", status);
     formData.append("ingredients", JSON.stringify(finalIngredients));
@@ -425,6 +454,28 @@ export function RecipeEditorScreen() {
 
         {/* ZAWARTOŚĆ FORMULARZA */}
         <div className="flex-1 flex flex-col gap-6 overflow-y-auto px-4 pt-4 pb-12">
+          {/* IMPORT NOTICE - only right after an import, never when editing a saved recipe */}
+          {importSeed && (
+            <div
+              role="note"
+              className="flex gap-3 rounded-xl border border-highlight/30 bg-highlight/10 p-3"
+            >
+              <TriangleAlert className="mt-0.5 size-5 shrink-0 text-highlight" />
+              <div className="flex flex-col gap-1 text-sm">
+                <p className="font-semibold">
+                  {importSeed.origin === "ai"
+                    ? "Przepis zaimportowany przez AI"
+                    : `Przepis zaimportowany ze strony ${sourceUrl ? sourceHost(sourceUrl) : ""}`.trim()}
+                </p>
+                <p className="text-muted-foreground">
+                  Import może się mylić. Sprawdź nazwę, składniki, ilości i
+                  kroki, zanim zapiszesz.
+                  {sourceUrl ? " Źródło zapisze się razem z przepisem." : ""}
+                </p>
+              </div>
+            </div>
+          )}
+
           <RecipeBasicInfo
             name={name}
             setName={setName}

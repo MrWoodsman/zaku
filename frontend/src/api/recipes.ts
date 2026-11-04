@@ -1,5 +1,6 @@
 import type { RecipeItem } from "@shared/types";
 import { fetchWithGroup } from "./api";
+import type { ImportedRecipeResponse } from "@/utils/recipeImport";
 
 // POBRANIE WSZYSTKICH DOSTPENYCH PRZEPDEISOW DLA GRUPY
 export const fetchAllRecipesApi = async (): Promise<RecipeItem[]> => {
@@ -29,6 +30,34 @@ export const fetchRecipeDetailsApi = async (id: string): Promise<RecipeItem> => 
   }
 
   return response.json();
+};
+
+// IMPORT PRZEPISU ZE STRONY (nic nie zapisuje - zwraca dane do edytora)
+export const importRecipeFromUrlApi = async (url: string): Promise<ImportedRecipeResponse> => {
+  const response = await fetchWithGroup(`/api/v1/recipes/import`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ url }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || "Nie udało się zaimportować przepisu");
+  }
+
+  return response.json();
+};
+
+// POBRANIE ZDJĘCIA Z ADRESU (przeglądarka nie może - blokuje to CORS) -> data URL albo null
+export const importRecipeImageApi = async (url: string): Promise<string | null> => {
+  const response = await fetchWithGroup(`/api/v1/recipes/import-image`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ url }),
+  });
+
+  if (!response.ok) return null;
+  return (await response.json()).imageDataUrl ?? null;
 };
 
 // TWORZENIE PRZEPISU

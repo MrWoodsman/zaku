@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 // ICONS
 import { Search, Funnel, MoreVerticalIcon } from "lucide-react";
@@ -7,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { ButtonGroup } from "@/components/ui/button-group";
 // COMPONENTS
 import { RecipeAddOverlay } from "../overlay/recipes/RecipeAddOverlay";
+import { RecipeImportOverlay } from "../overlay/recipes/RecipeImportOverlay";
 import { ROUTES } from "@/config/routes";
 
 type RecipesListsNavbarProps = {
@@ -17,6 +19,7 @@ type RecipesListsNavbarProps = {
 
 export function RecipesListNavbar({ inputVal, setInputVal, draftsCount }: RecipesListsNavbarProps) {
   const navigate = useNavigate();
+  const [isImportOpen, setIsImportOpen] = useState(false);
 
   return (
     <div className="search-container flex gap-2 px-2 pt-[max(8px,var(--safe-top))]">
@@ -38,6 +41,7 @@ export function RecipesListNavbar({ inputVal, setInputVal, draftsCount }: Recipe
         <div className="flex gap-2">
           <RecipeAddOverlay
             onAddNew={() => navigate(ROUTES.RECIPES_EDITOR)}
+            onImport={() => setIsImportOpen(true)}
             onOpenDrafts={() => navigate(ROUTES.RECIPES_DRAFTS)}
             onOpenAll={() => navigate(ROUTES.RECIPES_ALL_MY)}
             draftsCount={draftsCount}
@@ -48,6 +52,7 @@ export function RecipesListNavbar({ inputVal, setInputVal, draftsCount }: Recipe
           </RecipeAddOverlay>
         </div>
       </ButtonGroup>
+      <RecipeImportOverlay open={isImportOpen} onOpenChange={setIsImportOpen} />
     </div>
   );
 }

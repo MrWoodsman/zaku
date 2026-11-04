@@ -8,12 +8,13 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { Plus, Clock, ListOrdered } from "lucide-react";
+import { Plus, Clock, ListOrdered, Link2 } from "lucide-react";
 
 interface RecipeAddOverlayProps {
   children: React.ReactNode;
   draftsCount?: number; // Dodajemy prop dla liczby szkiców!
   onAddNew?: () => void;
+  onImport?: () => void;
   onOpenDrafts?: () => void;
   onOpenAll?: () => void;
 }
@@ -22,6 +23,7 @@ export function RecipeAddOverlay({
   children,
   draftsCount = 0, // Domyślnie 0, możesz to pobrać z React Query
   onAddNew,
+  onImport,
   onOpenDrafts,
   onOpenAll,
 }: RecipeAddOverlayProps) {
@@ -54,6 +56,15 @@ export function RecipeAddOverlay({
               <Plus className="w-5 h-5" />
             </div>
             <span className="text-base font-medium">Utwórz nowy przepis</span>
+          </Button>
+
+          <Button
+            variant="outline"
+            className="w-full h-12 flex items-center justify-start gap-3 px-4 rounded-xl"
+            onClick={() => handleAction(onImport)}
+          >
+            <Link2 className="w-5 h-5" />
+            <span className="text-base">Importuj ze strony lub AI</span>
           </Button>
 
           <hr className="border-border/50 my-1" />

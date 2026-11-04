@@ -13,7 +13,9 @@ import {
   Trash2,
   Crown,
   UtensilsCrossedIcon,
+  ExternalLink,
 } from "lucide-react";
+import { sourceHost } from "@/utils/recipeImport";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -226,6 +228,24 @@ export function RecipeViewScreen() {
               <p className="text-muted-foreground text-base mt-2 leading-relaxed">
                 {data.description}
               </p>
+            )}
+
+            {/* ŹRÓDŁO - only for imported recipes; opens the original page */}
+            {data?.source_url && (
+              <a
+                href={data.source_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex w-fit min-h-11 items-center gap-1.5 text-sm text-muted-foreground active:opacity-70"
+              >
+                <ExternalLink size={15} />
+                <span>
+                  Źródło:{" "}
+                  <span className="underline underline-offset-4">
+                    {sourceHost(data.source_url)}
+                  </span>
+                </span>
+              </a>
             )}
           </div>
 
