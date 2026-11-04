@@ -5,6 +5,7 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 const { createDisplayImage } = require("../../services/imageService");
+const { readServings } = require("../../services/servings");
 
 // KONFIGURACJA ZAPISU PLIKÓW
 const storage = multer.diskStorage({
@@ -18,17 +19,6 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage: storage });
-
-// Servings the ingredient amounts are written for. Optional: missing or empty = NULL (the recipe
-// just can't be scaled), otherwise a whole number from 1 to 100.
-const readServings = (raw) => {
-  if (raw === undefined || raw === null || raw === "") return { value: null };
-  const value = Number(raw);
-  if (!Number.isInteger(value) || value < 1 || value > 100) {
-    return { error: "Nieprawidłowa liczba porcji" };
-  }
-  return { value };
-};
 
 // GET /api/v1/recipes -> Pobieranie wszystkich przepisów
 router.get("/", async (req, res) => {
