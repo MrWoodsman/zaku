@@ -278,6 +278,13 @@ async function initDB() {
     await db.exec(`ALTER TABLE planner_people ADD COLUMN slots TEXT DEFAULT NULL`);
   }
 
+  // Servings the ingredient amounts are written for. NULL = the author never said, so the
+  // recipe can't be scaled (existing recipes stay like that until someone fills it in).
+  const recipeColumns = await db.all(`PRAGMA table_info(recipes)`);
+  if (!recipeColumns.some((column) => column.name === "servings")) {
+    await db.exec(`ALTER TABLE recipes ADD COLUMN servings INTEGER DEFAULT NULL`);
+  }
+
   logger.info("Baza danych SQLite została załadowana i tabele są gotowe!");
   return db;
 }

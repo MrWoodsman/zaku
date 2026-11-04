@@ -19,6 +19,17 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
+// Servings the ingredient amounts are written for. Optional: missing or empty = NULL (the recipe
+// just can't be scaled), otherwise a whole number from 1 to 100.
+const readServings = (raw) => {
+  if (raw === undefined || raw === null || raw === "") return { value: null };
+  const value = Number(raw);
+  if (!Number.isInteger(value) || value < 1 || value > 100) {
+    return { error: "Nieprawidłowa liczba porcji" };
+  }
+  return { value };
+};
+
 // GET /api/v1/recipes -> Pobieranie wszystkich przepisów
 router.get("/", async (req, res) => {
   const groupId = req.headers["x-group-id"];
@@ -27,7 +38,7 @@ router.get("/", async (req, res) => {
   try {
     const recipes = await req.db.all(
       `SELECT 
-          id, name, description, image_url, time_to_make, is_global, created_at, last_update, status, group_id
+          id, name, description, image_url, time_to_make, is_global, created_at, last_update, status, group_id, servings
         FROM recipes 
         WHERE (group_id = ? OR is_global = 1) 
           AND deleted_at IS NULL
@@ -93,11 +104,14 @@ router.post("/", upload.single("image"), async (req, res) => {
 
   // Wyciągamy WSZYSTKO, co przesyła frontend.
   // Zwróć uwagę, że dodaliśmy 'status', 'ingredients' i 'steps'
-  let { name, description, time_to_make, is_global, status, ingredients, steps } = req.body || {};
+  let { name, description, time_to_make, is_global, status, ingredients, steps, servings } = req.body || {};
 
   if (!name || !name.trim()) {
     return res.status(400).json({ message: "Nazwa jest wymagana" });
   }
+
+  const { value: servingsValue, error: servingsError } = readServings(servings);
+  if (servingsError) return res.status(400).json({ message: servingsError });
 
   // Odpakowujemy składniki i kroki z formatu tekstowego (bo idą przez FormData)
   try {
@@ -123,8 +137,8 @@ router.post("/", upload.single("image"), async (req, res) => {
 
     // 2. ZAPISUJEMY GŁÓWNY PRZEPIS
     await req.db.run(
-      `INSERT INTO recipes (id, group_id, name, description, image_url, time_to_make, is_global, status) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO recipes (id, group_id, name, description, image_url, time_to_make, is_global, status, servings) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id,
         groupId,
@@ -134,6 +148,7 @@ router.post("/", upload.single("image"), async (req, res) => {
         time_to_make || 0,
         isGlobalValue,
         finalStatus,
+        servingsValue,
       ],
     );
 
@@ -186,11 +201,14 @@ router.put("/:id", upload.single("image"), async (req, res) => {
   const groupId = req.headers["x-group-id"];
   if (!groupId) return res.status(401).json({ message: "Brak ID grupy" });
 
-  let { name, description, time_to_make, is_global, status, ingredients, steps } = req.body || {};
+  let { name, description, time_to_make, is_global, status, ingredients, steps, servings } = req.body || {};
 
   if (!name || !name.trim()) {
     return res.status(400).json({ message: "Nazwa jest wymagana" });
   }
+
+  const { value: servingsValue, error: servingsError } = readServings(servings);
+  if (servingsError) return res.status(400).json({ message: servingsError });
 
   // Odpakowujemy składniki i kroki z formatu tekstowego (FormData)
   try {
@@ -211,7 +229,7 @@ router.put("/:id", upload.single("image"), async (req, res) => {
     ]);
     if (!existingRecipe) {
       await req.db.run("ROLLBACK");
-      if (req.file) fs.unlink(req.file.path, () => {});
+      if (req.file) fs.unlink(req.file.path, () => { });
       return res.status(404).json({ message: "Nie znaleziono przepisu" });
     }
 
@@ -224,7 +242,7 @@ router.put("/:id", upload.single("image"), async (req, res) => {
       // żeby nie śmiecić (jeśli istniał)
       if (existingRecipe.image_url) {
         const oldPath = path.join(__dirname, "..", "..", existingRecipe.image_url); // dostosuj ścieżkę do struktury folderów jeśli trzeba
-        fs.unlink(oldPath, () => {}); // ignorujemy błąd jeśli pliku nie było
+        fs.unlink(oldPath, () => { }); // ignorujemy błąd jeśli pliku nie było
       }
     }
 
@@ -234,9 +252,18 @@ router.put("/:id", upload.single("image"), async (req, res) => {
     // 2. AKTUALIZUJEMY GŁÓWNY PRZEPIS
     await req.db.run(
       `UPDATE recipes 
-       SET name = ?, description = ?, image_url = ?, time_to_make = ?, is_global = ?, status = ?
+       SET name = ?, description = ?, image_url = ?, time_to_make = ?, is_global = ?, status = ?, servings = ?
        WHERE id = ?`,
-      [name.trim(), description || "", imageUrl, time_to_make || 0, isGlobalValue, finalStatus, id],
+      [
+        name.trim(),
+        description || "",
+        imageUrl,
+        time_to_make || 0,
+        isGlobalValue,
+        finalStatus,
+        servings === undefined ? existingRecipe.servings : servingsValue,
+        id,
+      ],
     );
 
     // 3. CZYSCIMY STARE SKŁADNIKI I KROKI (Najprostsza i niezawodna metoda)
@@ -302,7 +329,7 @@ router.delete("/:id", async (req, res) => {
     // Opcjonalnie: usuwamy plik zdjęcia z dysku, jeśli istniał
     if (recipe.image_url) {
       const imagePath = path.join(__dirname, "..", "..", recipe.image_url);
-      fs.unlink(imagePath, () => {});
+      fs.unlink(imagePath, () => { });
     }
 
     // Baza danych dzięki kluczom obcym z 'ON DELETE CASCADE' automatycznie usunie

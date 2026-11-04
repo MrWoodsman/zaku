@@ -29,7 +29,7 @@ beforeEach(async () => {
 afterEach(async () => {
   await db.close();
   for (const imageUrl of uploadedFiles) {
-    fs.rm(imageUrlToDiskPath(imageUrl), () => {});
+    fs.rm(imageUrlToDiskPath(imageUrl), () => { });
   }
 });
 
@@ -193,6 +193,37 @@ describe("POST /api/v1/recipes", () => {
       .post("/api/v1/recipes")
       .set("x-group-id", "test-grupa")
       .send({ name: "   " });
+
+    expect(res.status).toBe(400);
+  });
+
+  it("porcje są opcjonalne - bez nich przepis zapisuje się z servings = NULL", async () => {
+    const res = await request(app)
+      .post("/api/v1/recipes")
+      .set("x-group-id", "test-grupa")
+      .send({ name: "Bez porcji" });
+
+    expect(res.status).toBe(201);
+
+    const saved = await db.get("SELECT servings FROM recipes WHERE id = ?", [res.body.id]);
+    expect(saved.servings).toBeNull();
+  });
+
+  it("zapisuje podaną liczbę porcji", async () => {
+    const res = await request(app)
+      .post("/api/v1/recipes")
+      .set("x-group-id", "test-grupa")
+      .send({ name: "Na cztery", servings: 4 });
+
+    const saved = await db.get("SELECT servings FROM recipes WHERE id = ?", [res.body.id]);
+    expect(saved.servings).toBe(4);
+  });
+
+  it.each([0, -1, 2.5, "abc", 101])("zwraca 400 dla nieprawidłowej liczby porcji: %s", async (servings) => {
+    const res = await request(app)
+      .post("/api/v1/recipes")
+      .set("x-group-id", "test-grupa")
+      .send({ name: "Zła liczba", servings });
 
     expect(res.status).toBe(400);
   });
