@@ -37,6 +37,8 @@ import { useAddRecipeToListMutation } from "@/hooks/useListMutations";
 import { useAllShoppingListsQuery } from "@/hooks/useLists";
 import { showSuccessToast } from "@/utils/toastHandler";
 import { toDateKey } from "@/utils/plannerDates";
+import { pluralPl } from "@/utils/plural";
+import { formatAmount } from "@/utils/scaleIngredients";
 
 interface PlannerShoppingOverlayProps {
   // Controlled, because it's opened from the planner's "more" menu
@@ -48,10 +50,6 @@ interface PlannerShoppingOverlayProps {
   personId: string | null;
   personName: string | null;
 }
-
-// "2 posiłki", "5 posiłków" (1 is written out separately)
-const pluralMeals = (count: number) =>
-  count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 10 || count % 100 >= 20) ? "posiłki" : "posiłków";
 
 // A row's identity: the backend sums by name + unit, so that pair is unique
 const ingredientKey = (ing: PlannerIngredient) => `${ing.name}|${ing.unit ?? ""}`;
@@ -268,7 +266,7 @@ function ShoppingForm({ anchor, personId, onDone }: ShoppingFormProps) {
               <p>
                 {skippedMeals.length === 1
                   ? "1 posiłek nie ma składników i nie trafi na listę"
-                  : `${skippedMeals.length} ${pluralMeals(skippedMeals.length)} nie mają składników i nie trafią na listę`}
+                  : `${skippedMeals.length} ${pluralPl(skippedMeals.length, "posiłek", "posiłki", "posiłków")} nie mają składników i nie trafią na listę`}
                 : {skippedNames}. To własne wpisy albo przepisy bez składników.
               </p>
             </div>
@@ -357,7 +355,7 @@ function ShoppingForm({ anchor, personId, onDone }: ShoppingFormProps) {
                       <span
                         className={`font-semibold ${isSelected ? "text-primary" : "text-muted-foreground/50"}`}
                       >
-                        {ing.quantity} {ing.unit}
+                        {formatAmount(ing.quantity)} {ing.unit}
                       </span>
                     </div>
                   </label>

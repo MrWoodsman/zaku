@@ -1,6 +1,12 @@
 import { useState } from "react";
-import { ChefHatIcon, ClockIcon, PencilLineIcon, SearchIcon } from "lucide-react";
-import type { MealSlot, PlannerPerson } from "@shared/types";
+import {
+  ChefHatIcon,
+  ClockIcon,
+  PencilLineIcon,
+  SearchIcon,
+  UtensilsCrossedIcon,
+} from "lucide-react";
+import type { MealSlot, PlannerPerson, RecipeItem } from "@shared/types";
 import {
   Drawer,
   DrawerContent,
@@ -14,6 +20,8 @@ import { Input } from "@/components/ui/input";
 import { useAllRecipesQuery } from "@/hooks/useRecipes";
 import { useAddPlannerMealMutation } from "@/hooks/usePlanner";
 import { normalizeSearch } from "@/utils/normalizeSearch";
+import { formatPortions } from "@/utils/plural";
+import { ServingsStepper } from "@/components/common/ServingsStepper";
 
 interface MealAddOverlayProps {
   children: React.ReactNode;
@@ -39,9 +47,11 @@ export function MealAddOverlay({
 }: MealAddOverlayProps) {
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<Mode>("recipe");
+  // A recipe waiting for its servings to be chosen (second step of adding a recipe)
+  const [picked, setPicked] = useState<RecipeItem | null>(null);
   const { mutate: addMeal, isPending } = useAddPlannerMealMutation();
 
-  const add = (payload: { recipe_id?: string; title?: string }) => {
+  const add = (payload: { recipe_id?: string; title?: string; servings?: number }) => {
     addMeal(
       { date, slot, person_id: person?.id ?? null, ...payload },
       { onSuccess: () => setOpen(false) },
@@ -53,7 +63,10 @@ export function MealAddOverlay({
       open={open}
       onOpenChange={(next) => {
         setOpen(next);
-        if (next) setMode("recipe");
+        if (next) {
+          setMode("recipe");
+          setPicked(null);
+        }
       }}
     >
       <DrawerTrigger asChild>{children}</DrawerTrigger>
@@ -66,6 +79,20 @@ export function MealAddOverlay({
           </DrawerDescription>
         </DrawerHeader>
 
+        {picked ? (
+          <ServingsStep
+            recipe={picked}
+            disabled={isPending}
+            onBack={() => setPicked(null)}
+            onConfirm={(servings) =>
+              // Unchanged = the meal just follows the recipe, so it isn't pinned to a number
+              add({
+                recipe_id: picked.id,
+                servings: servings === picked.servings ? undefined : servings,
+              })
+            }
+          />
+        ) : (
         <div className="flex flex-col gap-3 py-2">
           <div className="grid grid-cols-2 gap-1 rounded-xl bg-secondary p-1">
             <ModeButton active={mode === "recipe"} onClick={() => setMode("recipe")}>
@@ -77,11 +104,16 @@ export function MealAddOverlay({
           </div>
 
           {mode === "recipe" ? (
-            <RecipePicker disabled={isPending} onPick={(recipeId) => add({ recipe_id: recipeId })} />
+            <RecipePicker
+              disabled={isPending}
+              // A recipe with servings asks how many first; one without has nothing to ask
+              onPick={(recipe) => (recipe.servings ? setPicked(recipe) : add({ recipe_id: recipe.id }))}
+            />
           ) : (
             <NoteForm disabled={isPending} onSubmit={(title) => add({ title })} />
           )}
         </div>
+        )}
       </DrawerContent>
     </Drawer>
   );
@@ -115,7 +147,7 @@ function RecipePicker({
   onPick,
   disabled,
 }: {
-  onPick: (recipeId: string) => void;
+  onPick: (recipe: RecipeItem) => void;
   disabled: boolean;
 }) {
   const [search, setSearch] = useState("");
@@ -160,7 +192,7 @@ function RecipePicker({
             key={recipe.id}
             type="button"
             disabled={disabled}
-            onClick={() => onPick(recipe.id)}
+            onClick={() => onPick(recipe)}
             className="flex items-center gap-3 border-b border-border/50 p-2 text-left transition-colors last:border-b-0 active:bg-muted disabled:opacity-50"
           >
             {recipe.image_url ? (
@@ -171,9 +203,18 @@ function RecipePicker({
               </span>
             )}
             <span className="flex-1 truncate text-sm font-medium">{recipe.name}</span>
-            {recipe.time_to_make > 0 && (
-              <span className="flex shrink-0 items-center gap-1 text-xs text-muted-foreground">
-                <ClockIcon className="size-3.5" /> {recipe.time_to_make} min
+            {(recipe.time_to_make > 0 || recipe.servings) && (
+              <span className="flex shrink-0 flex-col items-end gap-0.5 text-xs text-muted-foreground">
+                {recipe.time_to_make > 0 && (
+                  <span className="flex items-center gap-1">
+                    <ClockIcon className="size-3.5" /> {recipe.time_to_make} min
+                  </span>
+                )}
+                {recipe.servings ? (
+                  <span className="flex items-center gap-1">
+                    <UtensilsCrossedIcon className="size-3.5" /> {formatPortions(recipe.servings)}
+                  </span>
+                ) : null}
               </span>
             )}
           </button>
@@ -220,5 +261,54 @@ function NoteForm({
         Dodaj do planu
       </Button>
     </form>
+  );
+}
+
+// Second step for a recipe that says how many servings it is for: how many should this meal be
+function ServingsStep({
+  recipe,
+  disabled,
+  onBack,
+  onConfirm,
+}: {
+  recipe: RecipeItem;
+  disabled: boolean;
+  onBack: () => void;
+  onConfirm: (servings: number) => void;
+}) {
+  const [servings, setServings] = useState(recipe.servings ?? 1);
+
+  return (
+    <div className="flex flex-col gap-4 py-2">
+      <div className="flex flex-col gap-1 text-center">
+        <p className="text-sm text-muted-foreground">Na ile porcji?</p>
+        <p className="text-base font-semibold">{recipe.name}</p>
+      </div>
+
+      <ServingsStepper value={servings} onChange={setServings} fullWidth />
+      {/* Fixed height whether the hint shows or not, so the buttons below don't jump */}
+      <p className="-mt-2 min-h-8 text-center text-xs text-muted-foreground">
+        {recipe.servings && servings !== recipe.servings ? (
+          <>
+            Oryginał: {formatPortions(recipe.servings)} - składniki w zakupach się przeliczą.
+          </>
+        ) : null}
+      </p>
+
+      <div className="flex gap-2 pt-2">
+        <Button type="button" variant="secondary" className="h-12 px-4" onClick={onBack}>
+          Wróć
+        </Button>
+        <Button
+          type="button"
+          variant="raised"
+          className="h-12 flex-1 text-base font-semibold"
+          disabled={disabled}
+          onClick={() => onConfirm(servings)}
+        >
+          Dodaj do planu
+        </Button>
+      </div>
+    </div>
   );
 }

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/config/routes";
 import { SHARED_COLOR } from "@/config/planner";
 import { useDeletePlannerMealMutation } from "@/hooks/usePlanner";
+import { formatPortions } from "@/utils/plural";
 
 interface PlannerMealSlotProps {
   slot: MealSlot;
@@ -40,9 +41,11 @@ export function PlannerMealSlot({
       {meals.map((meal) => {
         const owner = people.find((p) => p.id === meal.person_id);
         const isRecipe = Boolean(meal.recipe_id);
-        // Who it's for (only when it's not obvious) and whether it feeds the shopping list
+        // Who it's for (only when it's not obvious), the servings it was planned for, and whether
+        // it feeds the shopping list
         const subtitle = [
           !person ? (owner ? owner.name : "Wspólne") : null,
+          meal.servings ? formatPortions(meal.servings) : null,
           meal.has_ingredients ? null : "bez składników",
         ]
           .filter(Boolean)
@@ -59,7 +62,13 @@ export function PlannerMealSlot({
             <button
               type="button"
               disabled={!isRecipe}
-              onClick={() => meal.recipe_id && navigate(ROUTES.RECIPES_VIEW(meal.recipe_id))}
+              onClick={() =>
+                meal.recipe_id &&
+                // Opens the recipe already scaled to the servings this meal was planned for
+                navigate(
+                  `${ROUTES.RECIPES_VIEW(meal.recipe_id)}${meal.servings ? `?servings=${meal.servings}` : ""}`,
+                )
+              }
               className="flex min-w-0 flex-1 items-center gap-3 py-2 pl-1 text-left"
             >
               {meal.image_url ? (
