@@ -11,7 +11,10 @@ import { RecipeStepsForm } from "@/components/recipe-editor/RecipeStepsForm";
 import { ConfirmModal } from "@/components/overlay/ConfirmModal";
 
 // --- HOOKI API ---
-import { useCreateRecipeMutation, useUpdateRecipeMutation } from "@/hooks/useRecipeMutations";
+import {
+  useCreateRecipeMutation,
+  useUpdateRecipeMutation,
+} from "@/hooks/useRecipeMutations";
 import { useRecipeDetailsQuery } from "@/hooks/useRecipes";
 import { ROUTES } from "@/config/routes";
 
@@ -34,18 +37,27 @@ export function RecipeEditorScreen() {
   const isEditing = Boolean(recipeId);
 
   // 2. POBIERANIE DANYCH I MUTACJE
-  const { data: existingRecipe, isLoading: isLoadingRecipe } = useRecipeDetailsQuery(recipeId);
+  const { data: existingRecipe, isLoading: isLoadingRecipe } =
+    useRecipeDetailsQuery(recipeId);
 
-  const { mutate: createRecipe, isPending: isCreating } = useCreateRecipeMutation();
-  const { mutate: updateRecipe, isPending: isUpdating } = useUpdateRecipeMutation();
+  const { mutate: createRecipe, isPending: isCreating } =
+    useCreateRecipeMutation();
+  const { mutate: updateRecipe, isPending: isUpdating } =
+    useUpdateRecipeMutation();
 
   const isPending = isCreating || isUpdating;
 
   // 3. STANY FORMULARZA (Inicjalizacja na starcie - często jest pusta, bo dane się ładują)
   const [name, setName] = useState(() => existingRecipe?.name || "");
-  const [description, setDescription] = useState(() => existingRecipe?.description || "");
+  const [description, setDescription] = useState(
+    () => existingRecipe?.description || "",
+  );
   const [timeToMake, setTimeToMake] = useState(
     () => existingRecipe?.time_to_make?.toString() || "",
+  );
+  // Text like timeToMake: an empty field is "" (not 0 or null), converted only when sending
+  const [servings, setServings] = useState(
+    () => existingRecipe?.servings?.toString() || "",
   );
 
   const [imagePreview, setImagePreview] = useState<string | null>(
@@ -57,14 +69,21 @@ export function RecipeEditorScreen() {
     const recipe = existingRecipe as RecipeItem;
     if (recipe?.ingredients && recipe.ingredients.length > 0) {
       return recipe.ingredients.map((ing) => ({
-        id: ing.id ? ing.id.toString() : Date.now().toString() + Math.random().toString(),
+        id: ing.id
+          ? ing.id.toString()
+          : Date.now().toString() + Math.random().toString(),
         name: ing.name || "",
         quantity: ing.quantity?.toString() || "",
         unit: ing.unit || "",
       }));
     }
     return [
-      { id: Date.now().toString() + Math.random().toString(), name: "", quantity: "", unit: "" },
+      {
+        id: Date.now().toString() + Math.random().toString(),
+        name: "",
+        quantity: "",
+        unit: "",
+      },
     ];
   });
 
@@ -72,32 +91,58 @@ export function RecipeEditorScreen() {
     const recipe = existingRecipe as RecipeItem;
     if (recipe?.steps && recipe.steps.length > 0) {
       return recipe.steps.map((step) => ({
-        id: step.id ? step.id.toString() : Date.now().toString() + Math.random().toString(),
+        id: step.id
+          ? step.id.toString()
+          : Date.now().toString() + Math.random().toString(),
         title: step.title || "",
         description: step.description || "",
       }));
     }
-    return [{ id: Date.now().toString() + Math.random().toString(), title: "", description: "" }];
+    return [
+      {
+        id: Date.now().toString() + Math.random().toString(),
+        title: "",
+        description: "",
+      },
+    ];
   });
 
   // LOGIKA SKŁADNIKÓW I KROKÓW
   const addIngredient = () =>
     setIngredients([
       ...ingredients,
-      { id: Date.now().toString() + Math.random().toString(), name: "", quantity: "", unit: "" },
+      {
+        id: Date.now().toString() + Math.random().toString(),
+        name: "",
+        quantity: "",
+        unit: "",
+      },
     ]);
   const updateIngredient = (id: string, field: string, value: string) =>
-    setIngredients(ingredients.map((ing) => (ing.id === id ? { ...ing, [field]: value } : ing)));
+    setIngredients(
+      ingredients.map((ing) =>
+        ing.id === id ? { ...ing, [field]: value } : ing,
+      ),
+    );
   const removeIngredient = (id: string) =>
-    ingredients.length > 1 && setIngredients(ingredients.filter((ing) => ing.id !== id));
+    ingredients.length > 1 &&
+    setIngredients(ingredients.filter((ing) => ing.id !== id));
 
   const addStep = () =>
     setSteps([
       ...steps,
-      { id: Date.now().toString() + Math.random().toString(), title: "", description: "" },
+      {
+        id: Date.now().toString() + Math.random().toString(),
+        title: "",
+        description: "",
+      },
     ]);
   const updateStep = (id: string, field: string, value: string) =>
-    setSteps(steps.map((step) => (step.id === id ? { ...step, [field]: value } : step)));
+    setSteps(
+      steps.map((step) =>
+        step.id === id ? { ...step, [field]: value } : step,
+      ),
+    );
   const removeStep = (id: string) =>
     steps.length > 1 && setSteps(steps.filter((step) => step.id !== id));
 
@@ -109,7 +154,12 @@ export function RecipeEditorScreen() {
   // NAPRAWA PUSTEGO FORMULARZA: Aktualizacja pól po pobraniu danych z serwera
   // NAPRAWA PUSTEGO FORMULARZA: Aktualizacja pól po pobraniu danych z serwera
   useEffect(() => {
-    if (isEditing && existingRecipe && !isLoadingRecipe && !isDataLoaded.current) {
+    if (
+      isEditing &&
+      existingRecipe &&
+      !isLoadingRecipe &&
+      !isDataLoaded.current
+    ) {
       isDataLoaded.current = true; // Zablokuj kolejne nadpisania OD RAZU
 
       // Opóźnienie 0ms uspokaja linter, oddzielając to od cyklu renderowania
@@ -117,12 +167,18 @@ export function RecipeEditorScreen() {
         setName(existingRecipe.name || "");
         setDescription(existingRecipe.description || "");
         setTimeToMake(existingRecipe.time_to_make?.toString() || "");
+        setServings(existingRecipe.servings?.toString() || "");
         setImagePreview(existingRecipe.image_url || null);
 
-        if (existingRecipe.ingredients && existingRecipe.ingredients.length > 0) {
+        if (
+          existingRecipe.ingredients &&
+          existingRecipe.ingredients.length > 0
+        ) {
           setIngredients(
             existingRecipe.ingredients.map((ing) => ({
-              id: ing.id ? ing.id.toString() : Date.now().toString() + Math.random().toString(),
+              id: ing.id
+                ? ing.id.toString()
+                : Date.now().toString() + Math.random().toString(),
               name: ing.name || "",
               quantity: ing.quantity?.toString() || "",
               unit: ing.unit || "",
@@ -133,7 +189,9 @@ export function RecipeEditorScreen() {
         if (existingRecipe.steps && existingRecipe.steps.length > 0) {
           setSteps(
             existingRecipe.steps.map((step) => ({
-              id: step.id ? step.id.toString() : Date.now().toString() + Math.random().toString(),
+              id: step.id
+                ? step.id.toString()
+                : Date.now().toString() + Math.random().toString(),
               title: step.title || "",
               description: step.description || "",
             })),
@@ -143,17 +201,29 @@ export function RecipeEditorScreen() {
     }
   }, [isEditing, existingRecipe, isLoadingRecipe]);
 
-  const currentFormState = JSON.stringify({ name, description, timeToMake, ingredients, steps });
+  const currentFormState = JSON.stringify({
+    name,
+    description,
+    timeToMake,
+    servings,
+    ingredients,
+    steps,
+  });
 
   // Ustawienie punktu odniesienia do wykrywania niezapisanych zmian
   useEffect(() => {
-    if (!isLoadingRecipe && initialFormState === null && (isDataLoaded.current || !isEditing)) {
+    if (
+      !isLoadingRecipe &&
+      initialFormState === null &&
+      (isDataLoaded.current || !isEditing)
+    ) {
       setInitialFormState(currentFormState);
     }
   }, [isLoadingRecipe, initialFormState, isEditing, currentFormState]);
 
   const hasUnsavedChanges =
-    (initialFormState !== null && currentFormState !== initialFormState) || imageFile !== null;
+    (initialFormState !== null && currentFormState !== initialFormState) ||
+    imageFile !== null;
 
   useEffect(() => {
     const handlePopState = () => {
@@ -210,6 +280,8 @@ export function RecipeEditorScreen() {
     formData.append("name", name.trim());
     formData.append("description", description.trim());
     formData.append("time_to_make", timeToMake.toString());
+    // "" = not given (the backend stores NULL)
+    formData.append("servings", servings.trim());
     formData.append("is_global", isGlobal ? "true" : "false");
     formData.append("status", status);
     formData.append("ingredients", JSON.stringify(finalIngredients));
@@ -255,7 +327,12 @@ export function RecipeEditorScreen() {
       <div className="w-full h-dvh flex flex-col bg-background overflow-hidden relative">
         {/* GÓRNY PASEK Z MENU ZAPISU */}
         <div className="flex items-center justify-between p-4 border-b border-border/40 shrink-0 bg-background pt-[max(12px,var(--safe-top))]">
-          <Button variant="ghost" size="icon" onClick={handleBackClick} className="-ml-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleBackClick}
+            className="-ml-2"
+          >
             <ArrowLeft size={22} />
           </Button>
 
@@ -272,7 +349,11 @@ export function RecipeEditorScreen() {
                 variant="accent"
                 className="h-10 w-10 rounded-xl shadow-sm"
               >
-                {isPending ? <Loader2 size={20} className="animate-spin" /> : <Save size={20} />}
+                {isPending ? (
+                  <Loader2 size={20} className="animate-spin" />
+                ) : (
+                  <Save size={20} />
+                )}
               </Button>
             </DropdownMenuTrigger>
 
@@ -290,8 +371,12 @@ export function RecipeEditorScreen() {
                   <Save size={18} className="text-foreground" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="font-semibold text-sm">Zapisz jako szkic</span>
-                  <span className="text-xs text-muted-foreground">Widoczne tylko dla Ciebie</span>
+                  <span className="font-semibold text-sm">
+                    Zapisz jako szkic
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    Widoczne tylko dla Ciebie
+                  </span>
                 </div>
               </DropdownMenuItem>
 
@@ -300,11 +385,18 @@ export function RecipeEditorScreen() {
                 className="flex gap-3 p-3 cursor-pointer rounded-lg hover:bg-secondary"
               >
                 <div className="bg-emerald-500/10 p-2 rounded-md">
-                  <Lock size={18} className="text-emerald-600 dark:text-emerald-400" />
+                  <Lock
+                    size={18}
+                    className="text-emerald-600 dark:text-emerald-400"
+                  />
                 </div>
                 <div className="flex flex-col">
-                  <span className="font-semibold text-sm">Opublikuj prywatnie</span>
-                  <span className="text-xs text-muted-foreground">Tylko dla Twojej grupy</span>
+                  <span className="font-semibold text-sm">
+                    Opublikuj prywatnie
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    Tylko dla Twojej grupy
+                  </span>
                 </div>
               </DropdownMenuItem>
 
@@ -313,11 +405,18 @@ export function RecipeEditorScreen() {
                 className="flex gap-3 p-3 cursor-pointer rounded-lg hover:bg-secondary"
               >
                 <div className="bg-blue-500/10 p-2 rounded-md">
-                  <Globe size={18} className="text-blue-600 dark:text-blue-400" />
+                  <Globe
+                    size={18}
+                    className="text-blue-600 dark:text-blue-400"
+                  />
                 </div>
                 <div className="flex flex-col">
-                  <span className="font-semibold text-sm">Opublikuj globalnie</span>
-                  <span className="text-xs text-muted-foreground">Dla wszystkich w aplikacji</span>
+                  <span className="font-semibold text-sm">
+                    Opublikuj globalnie
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    Dla wszystkich w aplikacji
+                  </span>
                 </div>
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -336,6 +435,8 @@ export function RecipeEditorScreen() {
             imagePreview={imagePreview}
             setImagePreview={setImagePreview}
             setImageFile={setImageFile}
+            servings={servings}
+            setServings={setServings}
           />
 
           <hr className="border-border/50" />

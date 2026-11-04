@@ -2,7 +2,14 @@ import { RecipesListNavbar } from "@/components/recipes/RecipesListNavbar";
 import { ROUTES } from "@/config/routes";
 import { useAllRecipesQuery } from "@/hooks/useRecipes";
 import type { RecipeItem } from "@shared/types";
-import { ChefHat, CrownIcon, Edit, Globe, Trash2 } from "lucide-react";
+import {
+  ChefHat,
+  CrownIcon,
+  Edit,
+  Globe,
+  Trash2,
+  UtensilsCrossedIcon,
+} from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 // NEW
@@ -21,26 +28,26 @@ import { useDeleteRecipeMutation } from "@/hooks/useRecipeMutations";
 import { showSuccessToast } from "@/utils/toastHandler";
 import { NotFound } from "@/components/common/NotFound";
 import { ScreenSkeleton } from "@/components/common/ScreenSkeleton";
+import { formatPortions } from "@/utils/plural";
 
 export function RecipesScreen() {
   // STAN MODALA
   const [recipeToDelete, setRecipeToDelete] = useState<RecipeItem | null>(null);
-  const { mutate: deleteRecipe, isPending: isDeleting } = useDeleteRecipeMutation();
+  const { mutate: deleteRecipe, isPending: isDeleting } =
+    useDeleteRecipeMutation();
 
   const { data, isLoading, error } = useAllRecipesQuery();
   const [searchVal, setSearchVal] = useState("");
 
-  const draftsCount = data?.filter((recipe) => recipe.status === "draft").length || 0;
+  const draftsCount =
+    data?.filter((recipe) => recipe.status === "draft").length || 0;
 
   const published = data?.filter((item) => item.status === "published") || [];
   const displayedRecipes = published.filter((item) =>
     item.name.toUpperCase().includes(searchVal.toUpperCase()),
   );
 
-  if (isLoading)
-    return (
-      <ScreenSkeleton header="search" shape="recipe" />
-    );
+  if (isLoading) return <ScreenSkeleton header="search" shape="recipe" />;
   if (error || !data)
     return (
       <NotFound
@@ -61,7 +68,11 @@ export function RecipesScreen() {
         <div className="content flex-1 flex flex-col px-2 pb-2 gap-2 overflow-y-scroll">
           {displayedRecipes.length > 0 ? (
             displayedRecipes.map((recipe) => (
-              <RecipeCard key={recipe.id} recipe={recipe} setRecipeToDelete={setRecipeToDelete} />
+              <RecipeCard
+                key={recipe.id}
+                recipe={recipe}
+                setRecipeToDelete={setRecipeToDelete}
+              />
             ))
           ) : (
             <RecipesNoFound isSearching={searchVal.trim().length > 0} />
@@ -149,7 +160,9 @@ function RecipeCard({
       <CardContent className="p-4 pt-0 flex flex-col grow gap-2">
         {/* Nagłówek: Tytuł + Przycisk opcji */}
         <div className="flex items-start justify-between gap-4">
-          <h3 className="font-semibold text-lg leading-tight line-clamp-2">{recipe.name}</h3>
+          <h3 className="font-semibold text-lg leading-tight line-clamp-2">
+            {recipe.name}
+          </h3>
 
           {/* Menu 3 kropki (Dropdown) */}
           {/* UWAGA: e.stopPropagation() jest tu kluczowe, żeby kliknięcie w kropki nie przeniosło nas do przepisu! */}
@@ -168,7 +181,9 @@ function RecipeCard({
                 {recipe.group_id == groupId && (
                   <>
                     <DropdownMenuItem
-                      onClick={() => navigate(`${ROUTES.RECIPES_EDITOR}?id=${recipe.id}`)}
+                      onClick={() =>
+                        navigate(`${ROUTES.RECIPES_EDITOR}?id=${recipe.id}`)
+                      }
                     >
                       <Edit size={16} />
                       Edytuj przepis
@@ -191,12 +206,27 @@ function RecipeCard({
         </div>
 
         {/* Opis */}
-        <p className="text-sm text-muted-foreground line-clamp-2 grow">{recipe.description}</p>
+        <p className="text-sm text-muted-foreground line-clamp-2 grow">
+          {recipe.description}
+        </p>
 
-        {/* Czas przygotowania */}
-        <div className="flex items-center gap-1.5 text-sm font-medium text-foreground/80 mt-1">
-          <Clock size={16} className="text-muted-foreground" />
-          <span>{recipe.time_to_make} min</span>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-muted-foreground mt-1">
+          {/* Czas przygotowania */}
+          <div className="flex items-center gap-1.5 text-sm font-medium text-foreground/80 mt-1">
+            <Clock size={16} className="text-muted-foreground" />
+            <span>{recipe.time_to_make} min</span>
+          </div>
+
+          {/* ILOSC PORCJI */}
+          {recipe?.servings ? (
+            <div className="flex items-center gap-1.5 text-sm font-medium text-foreground/80 mt-1">
+              <UtensilsCrossedIcon
+                size={15}
+                className="text-muted-foreground"
+              />
+              <span>{formatPortions(recipe.servings)}</span>
+            </div>
+          ) : null}
         </div>
       </CardContent>
     </Card>
@@ -209,12 +239,18 @@ function RecipesNoFound({ isSearching }: { isSearching: boolean }) {
   return (
     <div className="flex-1 flex flex-col items-center justify-center text-center gap-1 p-4 min-h-[50vh]">
       <div className="mb-3 flex size-14 items-center justify-center rounded-2xl bg-highlight/10 text-highlight">
-        {isSearching ? <SearchIcon className="size-6" /> : <ChefHat className="size-6" />}
+        {isSearching ? (
+          <SearchIcon className="size-6" />
+        ) : (
+          <ChefHat className="size-6" />
+        )}
       </div>
       {isSearching ? (
         <>
           <p className="text-lg font-medium">Nie znaleziono przepisów</p>
-          <p className="text-sm text-muted-foreground">Spróbuj wpisać inną nazwę w wyszukiwarce.</p>
+          <p className="text-sm text-muted-foreground">
+            Spróbuj wpisać inną nazwę w wyszukiwarce.
+          </p>
         </>
       ) : (
         <>
@@ -222,7 +258,10 @@ function RecipesNoFound({ isSearching }: { isSearching: boolean }) {
           <p className="mb-4 text-sm text-muted-foreground">
             Dodaj swój pierwszy przepis, żeby zobaczyć go tutaj.
           </p>
-          <Button variant="accent" onClick={() => navigate(ROUTES.RECIPES_EDITOR)}>
+          <Button
+            variant="accent"
+            onClick={() => navigate(ROUTES.RECIPES_EDITOR)}
+          >
             Dodaj przepis <Plus className="size-4" />
           </Button>
         </>

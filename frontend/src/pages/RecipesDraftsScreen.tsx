@@ -1,7 +1,7 @@
 import { useAllRecipesQuery } from "@/hooks/useRecipes";
 // Zakładam, że masz już (lub stworzysz) mutację do usuwania. Jeśli nie, odkomentuj i użyj swojej.
 // import { useDeleteRecipeMutation } from "@/hooks/useRecipes";
-import { Globe, PenBox, Clock, Lock, Search, Trash2 } from "lucide-react";
+import { Globe, PenBox, Clock, Lock, Search, Trash2, UtensilsCrossedIcon } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { ROUTES } from "@/config/routes"; // Dodaj import swoich ścieżek
 import type { RecipeItem as RecipeItemType } from "@shared/types";
 import { useDeleteRecipeMutation } from "@/hooks/useRecipeMutations";
 import { showSuccessToast } from "@/utils/toastHandler";
+import { formatPortions } from "@/utils/plural";
 import { ScreenSkeleton } from "@/components/common/ScreenSkeleton";
 import { NotFound } from "@/components/common/NotFound";
 
@@ -145,16 +146,25 @@ function RecipeItem({ recipe }: { recipe: RecipeItemType }) {
             )}
           </h2>
 
-          {recipe.time_to_make > 0 ? (
-            <h2 className="text-xs font-medium flex items-center gap-1 text-foreground/60 mt-1">
-              <Clock size={14} /> {recipe.time_to_make} min
-            </h2>
-          ) : (
-            <span className="italic text-foreground/40 flex items-center gap-1 mt-1">
-              <Clock size={14} />
-              Brak podanego czasu...
-            </span>
-          )}
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1">
+            {recipe.time_to_make > 0 ? (
+              <h2 className="text-xs font-medium flex items-center gap-1 text-foreground/60 whitespace-nowrap">
+                <Clock size={14} /> {recipe.time_to_make} min
+              </h2>
+            ) : (
+              <span className="text-xs italic text-foreground/40 flex items-center gap-1 whitespace-nowrap">
+                <Clock size={14} />
+                Brak podanego czasu...
+              </span>
+            )}
+
+            {/* ILOSC PORCJI */}
+            {recipe.servings ? (
+              <h2 className="text-xs font-medium flex items-center gap-1 text-foreground/60 whitespace-nowrap">
+                <UtensilsCrossedIcon size={14} /> {formatPortions(recipe.servings)}
+              </h2>
+            ) : null}
+          </div>
         </div>
 
         {recipe.image_url ? (

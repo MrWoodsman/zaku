@@ -1,5 +1,14 @@
 import { useAllRecipesQuery } from "@/hooks/useRecipes";
-import { Globe, PenBox, Clock, Lock, Search, Trash2, FileEdit } from "lucide-react";
+import {
+  Globe,
+  PenBox,
+  Clock,
+  Lock,
+  Search,
+  Trash2,
+  FileEdit,
+  UtensilsCrossedIcon,
+} from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -9,6 +18,7 @@ import type { RecipeItem as RecipeItemType } from "@shared/types";
 import { useDeleteRecipeMutation } from "@/hooks/useRecipeMutations";
 import { useGroup } from "@/hooks/useGroup";
 import { showSuccessToast } from "@/utils/toastHandler";
+import { formatPortions } from "@/utils/plural";
 import { ScreenSkeleton } from "@/components/common/ScreenSkeleton";
 import { NotFound } from "@/components/common/NotFound";
 
@@ -191,13 +201,23 @@ function RecipeItem({ recipe }: { recipe: RecipeItemType }) {
             {recipe.description || <span className="italic opacity-60">Brak opisu...</span>}
           </p>
 
-          <div className="text-xs font-medium flex items-center gap-1.5 text-foreground/70 mt-1">
-            <Clock size={14} className="opacity-70" />
-            {recipe.time_to_make > 0 ? (
-              `${recipe.time_to_make} min`
-            ) : (
-              <span className="italic opacity-60">Brak czasu</span>
-            )}
+          <div className="text-xs font-medium flex flex-wrap items-center gap-x-4 gap-y-1 text-foreground/70 mt-1">
+            <div className="flex items-center gap-1.5 whitespace-nowrap">
+              <Clock size={14} className="opacity-70" />
+              {recipe.time_to_make > 0 ? (
+                `${recipe.time_to_make} min`
+              ) : (
+                <span className="italic opacity-60">Brak czasu</span>
+              )}
+            </div>
+
+            {/* ILOSC PORCJI */}
+            {recipe.servings ? (
+              <div className="flex items-center gap-1.5 whitespace-nowrap">
+                <UtensilsCrossedIcon size={14} className="opacity-70" />
+                {formatPortions(recipe.servings)}
+              </div>
+            ) : null}
           </div>
         </div>
 

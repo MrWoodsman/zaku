@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { Camera, Clock } from "lucide-react";
+import { Camera, Clock, UtensilsCrossedIcon } from "lucide-react";
 
 interface RecipeBasicInfoProps {
   name: string;
@@ -11,6 +11,8 @@ interface RecipeBasicInfoProps {
   imagePreview: string | null;
   setImagePreview: (url: string | null) => void;
   setImageFile: (file: File | null) => void;
+  servings: string;
+  setServings: (val: string) => void;
 }
 
 export function RecipeBasicInfo({
@@ -23,6 +25,8 @@ export function RecipeBasicInfo({
   imagePreview,
   setImagePreview,
   setImageFile,
+  servings,
+  setServings,
 }: RecipeBasicInfoProps) {
   // Referencja do ukrytego inputa
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -53,19 +57,27 @@ export function RecipeBasicInfo({
         />
 
         {imagePreview ? (
-          <img src={imagePreview} alt="Podgląd" className="w-full h-full object-cover" />
+          <img
+            src={imagePreview}
+            alt="Podgląd"
+            className="w-full h-full object-cover"
+          />
         ) : (
           <>
             <div className="bg-background p-3 rounded-full shadow-sm border border-border/50">
               <Camera className="text-muted-foreground" size={24} />
             </div>
-            <span className="text-sm font-medium text-muted-foreground">Dodaj zdjęcie potrawy</span>
+            <span className="text-sm font-medium text-muted-foreground">
+              Dodaj zdjęcie potrawy
+            </span>
           </>
         )}
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-foreground/80 pl-1">Nazwa przepisu</label>
+        <label className="text-sm font-medium text-foreground/80 pl-1">
+          Nazwa przepisu
+        </label>
         <input
           type="text"
           placeholder="np. Spaghetti Bolognese"
@@ -76,7 +88,9 @@ export function RecipeBasicInfo({
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-foreground/80 pl-1">Krótki opis</label>
+        <label className="text-sm font-medium text-foreground/80 pl-1">
+          Krótki opis
+        </label>
         <textarea
           placeholder="Napisz coś o tym przepisie..."
           value={description}
@@ -100,6 +114,29 @@ export function RecipeBasicInfo({
             placeholder="np. 45"
             value={timeToMake}
             onChange={(e) => setTimeToMake(e.target.value)}
+            className="w-full bg-secondary/20 border border-border/50 rounded-lg pl-10 pr-4 py-3 text-base focus:outline-none focus:ring-1 focus:ring-primary/50"
+          />
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <label className="text-sm font-medium text-foreground/80 pl-1">
+          Ilość porcji
+        </label>
+        <div className="relative">
+          <UtensilsCrossedIcon
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+            size={18}
+          />
+          <input
+            type="number"
+            inputMode="numeric"
+            min={1}
+            max={100}
+            step={1}
+            placeholder="np. 4"
+            value={servings}
+            onChange={(e) => setServings(e.target.value)}
             className="w-full bg-secondary/20 border border-border/50 rounded-lg pl-10 pr-4 py-3 text-base focus:outline-none focus:ring-1 focus:ring-primary/50"
           />
         </div>

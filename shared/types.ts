@@ -34,6 +34,7 @@ export interface RecipeItem {
   is_global: boolean | number;
   status: "draft" | "published";
   image_url?: string | null;
+  servings?: number | null
 
   // DODAJ TE DWA POLA TUTAJ:
   ingredients?: Array<{
@@ -162,6 +163,7 @@ export interface PlannerMeal {
   recipe_id: string | null; // null = a plain note, not a recipe
   image_url: string | null;
   has_ingredients: boolean; // false = adds nothing to the shopping list (a note, or an empty recipe)
+  servings: number | null; // what the meal is planned for; null = as the recipe says (or a note)
 }
 
 // Body of POST /api/v1/planner/meals - needs a recipe_id or a title
@@ -171,6 +173,7 @@ export interface AddMealPayload {
   person_id?: string | null;
   recipe_id?: string;
   title?: string;
+  servings?: number | null; // only for a recipe
 }
 
 // GET /api/v1/planner/ingredients - summed over the planned recipes in a date range
