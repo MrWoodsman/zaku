@@ -7,10 +7,9 @@ export interface Release {
 }
 
 export const CHANGELOG: Release[] = [
-  /* Not released yet - uncomment this entry (and check the date) when v0.60.0 ships.
   {
     version: "0.60.0",
-    date: "29.10.2026",
+    date: "07.11.2026",
     changes: [
       "Nowa zakładka Planer - zaplanuj śniadanie, obiad i kolację na każdy dzień tygodnia",
       "Do planu dodasz przepis z aplikacji albo wpiszesz własny posiłek, np. „pizza na mieście”",
@@ -23,16 +22,15 @@ export const CHANGELOG: Release[] = [
       "Dolne menu ma przycisk „Więcej”, pod którym chowają się pozostałe zakładki. W „Dostosuj pasek” wybierasz, które zakładki (do 4) mają być zawsze na wierzchu - ustawienie jest osobne na każdym telefonie",
       "Własne wpisy w planerze mają ikonę ołówka i podpis „bez składników”, a przy tworzeniu listy zakupów aplikacja ostrzega, ile posiłków nie doda żadnych składników",
       "Przepisy mają liczbę porcji - wpiszesz ją w edytorze, a widać ją na ekranie przepisu i na kartach w listach przepisów. Starsze przepisy uzupełnisz przy okazji edycji, nic się w nich nie psuje",
-      "Na ekranie przepisu zmienisz liczbę porcji przyciskami „−” i „+” - ilości składników przeliczą się same. Ostrzegawczy trójkąt przypomina, że to przybliżenie, i pozwala wrócić do oryginału",
+      "Na ekranie przepisu zmienisz liczbę porcji przyciskami „−” i „+” - ilości składników przeliczą się same. Trójkąt z ostrzeżeniem przypomina, że ilości są przybliżone, i pozwala wrócić do oryginału",
       "Liczbę porcji możesz zmienić też przy dodawaniu składników do listy zakupów - na listę trafią już przeliczone ilości",
       "Przy dodawaniu przepisu do planera wybierasz, na ile porcji go planujesz. W planie widać tę liczbę, a kliknięcie otwiera przepis od razu przeliczony. Lista zakupów z planu uwzględnia porcje każdego posiłku",
-      "Drobne poprawki: informacje pod tytułem przepisu zawijają się czytelnie, poprawna polska odmiana „porcja / porcje / porcji”, koniec ostrzeżenia w konsoli przy dodawaniu składników z menu przepisu",
+      "Drobne poprawki: informacje pod tytułem przepisu zawijają się czytelnie, a liczba porcji ma poprawną polską odmianę",
       "Grupę tworzysz i dołączasz do niej osobno. „Dołącz do grupy” nie założy już przypadkiem nowej grupy po literówce ani nie wpuści do cudzej, np. po wpisaniu „DOM” - gdy kodu nie ma, zobaczysz „Nie ma takiej grupy”, a przy tworzeniu zajętego kodu „Taki kod już istnieje”",
       "Jeśli grupa zniknie z serwera (np. po wyczyszczeniu bazy), aplikacja wraca na ekran startowy zamiast pokazywać puste ekrany",
       "Ekrany ładowania wyglądają wszędzie tak samo i pokazują się dopiero, gdy wczytywanie trwa dłużej - koniec z migającym kółkiem przy szybkim wczytaniu",
     ],
   },
-  */
   {
     version: "0.59.4",
     date: "25.10.2026",
