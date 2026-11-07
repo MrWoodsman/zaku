@@ -27,8 +27,8 @@ export const CHANGELOG: Release[] = [
       "Przy dodawaniu przepisu do planera wybierasz, na ile porcji go planujesz. W planie widać tę liczbę, a kliknięcie otwiera przepis od razu przeliczony. Lista zakupów z planu uwzględnia porcje każdego posiłku",
       "Drobne poprawki: informacje pod tytułem przepisu zawijają się czytelnie, a liczba porcji ma poprawną polską odmianę",
       "Grupę tworzysz i dołączasz do niej osobno. „Dołącz do grupy” nie założy już przypadkiem nowej grupy po literówce ani nie wpuści do cudzej, np. po wpisaniu „DOM” - gdy kodu nie ma, zobaczysz „Nie ma takiej grupy”, a przy tworzeniu zajętego kodu „Taki kod już istnieje”",
-      "Jeśli grupa zniknie z serwera (np. po wyczyszczeniu bazy), aplikacja wraca na ekran startowy zamiast pokazywać puste ekrany",
-      "Ekrany ładowania wyglądają wszędzie tak samo i pokazują się dopiero, gdy wczytywanie trwa dłużej - koniec z migającym kółkiem przy szybkim wczytaniu",
+      "Jeśli Twojej grupy już nie ma, aplikacja wraca na ekran startowy zamiast pokazywać puste ekrany",
+      "Podczas wczytywania zamiast kręcącego się kółka widać zarys ekranu, który za chwilę się wypełni. Przy szybkim wczytaniu nic nie miga",
     ],
   },
   {
